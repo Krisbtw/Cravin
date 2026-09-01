@@ -1,12 +1,18 @@
 import sys
 import os
 
-# Ensure Cravin project root is in sys.path
-cravin_dir = os.path.join(os.path.dirname(__file__), "Cravin")
+# Ensure current directory and Cravin directory are in sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+cravin_dir = os.path.join(current_dir, "Cravin")
 if os.path.isdir(cravin_dir) and cravin_dir not in sys.path:
     sys.path.insert(0, cravin_dir)
 
-try:
-    from app.main import app
-except ImportError:
-    from Cravin.app.main import app
+from app.main import app
+
+# Explicitly expose application and handler aliases for Vercel Python runtime
+application = app
+handler = app
+
+__all__ = ["app", "application", "handler"]
