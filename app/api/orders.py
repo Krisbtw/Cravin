@@ -158,3 +158,68 @@ async def update_portion_log(
         ],
         "message": "Portion allocation updated successfully! 🥗"
     }
+
+
+@router.post("/{order_id}/claim-portion")
+async def claim_order_portion(
+    order_id: str,
+    data: dict,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Allow a friend to claim and log calories from a shared group order."""
+    from app.models.order import OrderItem
+    from app.models.nutrition_log import NutritionLog
+    from sqlalchemy.orm import selectinload
+    from datetime import date as date_type
+    import uuid
+
+    order_item_id = data.get("order_item_id")
+    claimed_qty = max(1, int(data.get("claimed_quantity", 1)))
+
+    result = await db.execute(
+        select(OrderItem).options(selectinload(OrderItem.dessert)).where(
+            OrderItem.id == order_item_id, OrderItem.order_id == order_id
+        )
+    )
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Order item not found")
+
+    cals = item.calories_per_unit * claimed_qty
+
+    # Check if user already has a nutrition log for this dessert & order today
+    log_check = await db.execute(
+        select(NutritionLog).where(
+            NutritionLog.user_id == user.id,
+            NutritionLog.order_id == order_id,
+            NutritionLog.dessert_id == item.dessert_id,
+        )
+    )
+    existing_log = log_check.scalar_one_or_none()
+    if existing_log:
+        existing_log.quantity = claimed_qty
+        existing_log.calories = cals
+    else:
+        new_log = NutritionLog(
+            id=str(uuid.uuid4()),
+            user_id=user.id,
+            date=date_type.today(),
+            dessert_id=item.dessert_id,
+            order_id=order_id,
+            calories=cals,
+            quantity=claimed_qty,
+        )
+        db.add(new_log)
+
+    await db.commit()
+
+    dessert_name = item.dessert.name if item.dessert else "Dessert"
+    return {
+        "status": "success",
+        "dessert_name": dessert_name,
+        "claimed_quantity": claimed_qty,
+        "calories_logged": round(cals, 1),
+        "message": f"Successfully logged {round(cals)} cal ({claimed_qty} piece{'s' if claimed_qty > 1 else ''}) of {dessert_name} to your daily nutrition! 🥗",
+    }
+

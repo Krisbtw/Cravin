@@ -266,6 +266,22 @@ async def customer_order_tracking(order_id: str, request: Request, db: AsyncSess
     return TR(request, "customer/order_tracking.html", {"user": user, "order": order})
 
 
+@app.get("/app/group-order/{order_id}/claim", response_class=HTMLResponse)
+async def customer_group_claim(order_id: str, request: Request, db: AsyncSession = Depends(get_db)):
+    """Allow friends to claim portions and log nutrition from a group order."""
+    user = await get_template_user(request, db)
+    from sqlalchemy.orm import selectinload
+    from app.models.order import OrderItem
+    result = await db.execute(
+        select(Order).options(selectinload(Order.items).selectinload(OrderItem.dessert)).where(Order.id == order_id)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        return RedirectResponse(url="/app/")
+
+    return TR(request, "customer/group_claim.html", {"user": user, "order": order})
+
+
 @app.get("/app/rewards", response_class=HTMLResponse)
 async def customer_rewards(request: Request, db: AsyncSession = Depends(get_db)):
     user = await get_template_user(request, db)
