@@ -82,6 +82,7 @@ async def create_order(
     # Add parent order to session first so foreign key constraints are satisfied
     db.add(order)
 
+    created_order_items = []
     subtotal = 0.0
     total_calories = 0.0
 
@@ -127,6 +128,7 @@ async def create_order(
             customization=customization,
         )
         db.add(order_item)
+        created_order_items.append(order_item)
 
         subtotal += order_item.total_price
         total_calories += item_calories * qty
@@ -159,6 +161,9 @@ async def create_order(
 
     # Flush session so parent Order and child OrderItems are persisted in order
     await db.flush()
+
+    # Immediately log personal portion nutrition into user's daily tracker
+    await _log_order_nutrition(order, db, created_order_items)
     return order
 
 
@@ -186,12 +191,14 @@ async def update_order_status(
         pass
     elif new_status == OrderStatus.DELIVERED.value:
         order.delivered_at = now
-        # Award loyalty points
+        # Award loyalty points upon delivery
         await award_order_points(order.user_id, order.total_amount, order.id, db)
-        # Log nutrition
+        # Ensure nutrition is fully logged
         await _log_order_nutrition(order, db)
     elif new_status == OrderStatus.CANCELLED.value:
         order.cancelled_at = now
+        from sqlalchemy import delete
+        await db.execute(delete(NutritionLog).where(NutritionLog.order_id == order.id))
 
     return order
 
@@ -208,23 +215,59 @@ async def mark_payment_complete(order_id: str, payment_id: str, db: AsyncSession
     return order
 
 
-async def _log_order_nutrition(order: Order, db: AsyncSession):
-    """Log nutrition for delivered items to the user's daily tracker based on personal consumed portion."""
+async def _log_order_nutrition(order: Order, db: AsyncSession, order_items: Optional[list[OrderItem]] = None):
+    """Log nutrition for ordered items to the user's daily tracker based on personal consumed portion."""
     from datetime import date as date_type
-    for item in order.items:
+
+    if order_items is None:
+        items_res = await db.execute(
+            select(OrderItem).where(OrderItem.order_id == order.id)
+        )
+        order_items = list(items_res.scalars().all())
+
+    for item in order_items:
         portion = item.consumed_quantity if item.consumed_quantity is not None else item.quantity
         if portion <= 0:
             continue
-        log = NutritionLog(
-            id=str(uuid.uuid4()),
-            user_id=order.user_id,
-            date=date_type.today(),
-            dessert_id=item.dessert_id,
-            order_id=order.id,
-            calories=item.calories_per_unit * portion,
-            quantity=portion,
+
+        result = await db.execute(select(Dessert).where(Dessert.id == item.dessert_id))
+        dessert = result.scalar_one_or_none()
+        protein = (dessert.protein_g or 0.0) * portion if dessert else 0.0
+        carbs = (dessert.carbs_g or 0.0) * portion if dessert else 0.0
+        fat = (dessert.fat_g or 0.0) * portion if dessert else 0.0
+        fiber = (dessert.fiber_g or 0.0) * portion if dessert else 0.0
+
+        # Check if log already exists for this order item
+        log_check = await db.execute(
+            select(NutritionLog).where(
+                NutritionLog.user_id == order.user_id,
+                NutritionLog.order_id == order.id,
+                NutritionLog.dessert_id == item.dessert_id,
+            )
         )
-        db.add(log)
+        existing_log = log_check.scalar_one_or_none()
+        if existing_log:
+            existing_log.quantity = portion
+            existing_log.calories = item.calories_per_unit * portion
+            existing_log.protein_g = protein
+            existing_log.carbs_g = carbs
+            existing_log.fat_g = fat
+            existing_log.fiber_g = fiber
+        else:
+            log = NutritionLog(
+                id=str(uuid.uuid4()),
+                user_id=order.user_id,
+                date=date_type.today(),
+                dessert_id=item.dessert_id,
+                order_id=order.id,
+                calories=item.calories_per_unit * portion,
+                protein_g=protein,
+                carbs_g=carbs,
+                fat_g=fat,
+                fiber_g=fiber,
+                quantity=portion,
+            )
+            db.add(log)
 
 
 async def update_order_portion_log(
@@ -251,14 +294,8 @@ async def update_order_portion_log(
             # Cap consumed quantity at total ordered quantity
             item.consumed_quantity = min(item.quantity, portion_map[item.id])
 
-    # Sync existing NutritionLogs for this order if already delivered
-    logs_res = await db.execute(select(NutritionLog).where(NutritionLog.order_id == order.id))
-    existing_logs = logs_res.scalars().all()
-    for log in existing_logs:
-        matching_item = next((i for i in order.items if i.dessert_id == log.dessert_id), None)
-        if matching_item:
-            log.quantity = matching_item.consumed_quantity
-            log.calories = matching_item.calories_per_unit * matching_item.consumed_quantity
+    # Instantly sync NutritionLogs for this order so the user's profile updates in real-time
+    await _log_order_nutrition(order, db)
 
     await db.flush()
     return order
