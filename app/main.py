@@ -34,11 +34,18 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database on startup."""
+    """Initialize database on startup and auto-seed demo data if empty."""
     try:
         await init_db()
     except Exception as e:
         print(f"Lifespan database init notice (non-fatal): {e}")
+    try:
+        from app.database import async_session
+        from seed import populate_seed_data
+        async with async_session() as db:
+            await populate_seed_data(db)
+    except Exception as e:
+        print(f"Auto-seed notice (non-fatal): {e}")
     yield
 
 
@@ -111,6 +118,16 @@ def TR(request: Request, template: str, context: dict = None):
 async def root():
     """Redirect root to customer app."""
     return RedirectResponse(url="/app/")
+
+
+@app.get("/api/seed", response_class=HTMLResponse)
+async def seed_endpoint(db: AsyncSession = Depends(get_db)):
+    from seed import populate_seed_data
+    try:
+        msg = await populate_seed_data(db)
+        return HTMLResponse(content=f"<div style='font-family:sans-serif;padding:2rem;background:#111;color:#fff;min-height:100vh;'><h2>🌱 Seeding Status</h2><p>{msg}</p><p><a href='/app/' style='color:#f59e0b;font-weight:bold;'>👉 Go to Cravin Menu</a></p></div>")
+    except Exception as e:
+        return HTMLResponse(content=f"<div style='font-family:sans-serif;padding:2rem;background:#111;color:#fff;'><h2>❌ Seeding Error</h2><p>{e}</p></div>", status_code=500)
 
 
 @app.get("/app/", response_class=HTMLResponse)
