@@ -35,7 +35,10 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize database on startup."""
-    await init_db()
+    try:
+        await init_db()
+    except Exception as e:
+        print(f"Lifespan database init notice (non-fatal): {e}")
     yield
 
 

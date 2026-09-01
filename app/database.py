@@ -53,5 +53,10 @@ async def get_db():
 
 async def init_db():
     """Create all tables. Called on app startup."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        # In serverless / concurrent environments, tables may already exist
+        # or another worker may be creating them concurrently.
+        print(f"init_db notice (non-fatal): {e}")
