@@ -1,11 +1,19 @@
 import sys
 import os
+from pathlib import Path
 
-# Add root folder to sys.path
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(root_dir)
-cravin_dir = os.path.join(root_dir, "Cravin")
-if os.path.isdir(cravin_dir) and cravin_dir not in sys.path:
-    sys.path.append(cravin_dir)
+# Explicitly add the project root directory (/var/task) to sys.path
+root_dir = Path(__file__).resolve().parent.parent
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
+
+cravin_dir = root_dir / "Cravin"
+if cravin_dir.is_dir() and str(cravin_dir) not in sys.path:
+    sys.path.insert(0, str(cravin_dir))
+
+# Add current directory as fallback
+current_dir = Path(__file__).resolve().parent
+if str(current_dir) not in sys.path:
+    sys.path.insert(0, str(current_dir))
 
 from app.main import app
