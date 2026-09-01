@@ -299,11 +299,18 @@ function renderCheckout() {
     }
 
     let subtotal = 0;
+    const isGroup = localStorage.getItem('cravin_is_group_order') === 'true';
+
     const itemsHtml = cart.map(item => {
         const total = item.price * item.quantity;
         subtotal += total;
+        const myPortion = item.consumed_quantity !== undefined ? item.consumed_quantity : (isGroup ? 1 : item.quantity);
         return `<div class="nutrition-row">
-            <span class="label">${item.name} × ${item.quantity} ${item.customization ? '<span class="tag tag-balanced" style="font-size:0.6rem; padding: 1px 4px;">Customized</span>' : ''}</span>
+            <span class="label">
+                ${item.name} × ${item.quantity} 
+                ${item.customization ? '<span class="tag tag-balanced" style="font-size:0.6rem; padding: 1px 4px;">Customized</span>' : ''}
+                ${isGroup ? `<span class="tag" style="background: rgba(16, 185, 129, 0.12); color: var(--pista); font-size: 0.62rem; margin-left: 4px;">🥗 Portion: ${myPortion}</span>` : ''}
+            </span>
             <span class="value">₹${total}</span>
         </div>`;
     }).join('');
@@ -326,6 +333,7 @@ async function placeOrder(e) {
 
     const cart = Cart.get();
     const fulfillment = localStorage.getItem('cravin_fulfillment') || 'delivery';
+    const isGroup = localStorage.getItem('cravin_is_group_order') === 'true';
     const lat = parseFloat(document.getElementById('delivery-lat').value) || null;
     const lng = parseFloat(document.getElementById('delivery-lng').value) || null;
 
@@ -337,9 +345,11 @@ async function placeOrder(e) {
                 items: cart.map(item => ({
                     dessert_id: item.dessert_id,
                     quantity: item.quantity,
+                    consumed_quantity: item.consumed_quantity !== undefined ? item.consumed_quantity : (isGroup ? 1 : item.quantity),
                     customization: item.customization || null,
                 })),
                 fulfillment_type: fulfillment,
+                is_group_order: isGroup,
                 baker_id: selectedBakerId || null,
                 delivery_address: document.getElementById('address')?.value || null,
                 delivery_latitude: lat,
@@ -352,6 +362,7 @@ async function placeOrder(e) {
 
         if (res.ok) {
             Cart.clear();
+            localStorage.removeItem('cravin_is_group_order');
             window.location.href = `/app/order/${data.order_id}`;
         } else {
             showToast(data.detail || 'Failed to place order', 'danger');

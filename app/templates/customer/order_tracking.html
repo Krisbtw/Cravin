@@ -104,30 +104,60 @@
     </div>
     {% endif %}
 
-    <!-- Order Items Summary -->
-    <div class="card mb-4" style="border: 1px solid var(--cream-border);">
+    <!-- Order Items Summary & Portion Allocation -->
+    <div class="card mb-4" style="border: 1px solid var(--border-default); background: var(--bg-surface);">
         <div class="card-body">
-            <h3 class="mb-3" style="font-size: 1rem;">Order Details</h3>
+            <div class="flex items-center justify-between mb-3">
+                <h3 style="font-size: 1rem; margin: 0;">Order Details</h3>
+                {% if order.is_group_order %}
+                <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.72rem; border: 1px solid rgba(139, 92, 246, 0.3);">
+                    👥 Group Order
+                </span>
+                {% endif %}
+            </div>
+
             <div id="order-items-list" class="mb-3">
                 {% for item in order.items %}
-                <div class="flex items-center justify-between mb-2 text-sm">
-                    <span>{{ item.dessert.name if item.dessert else 'Item' }} × {{ item.quantity }}</span>
-                    <span style="font-weight: 600;">₹{{ item.total_price|int }}</span>
+                <div class="card p-3 mb-2" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+                    <div class="flex items-center justify-between mb-1 text-sm">
+                        <span style="font-weight: 600;">{{ item.dessert.name if item.dessert else 'Dessert' }} × {{ item.quantity }}</span>
+                        <span style="font-weight: 700; color: var(--honey);">₹{{ item.total_price|int }}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-muted pt-2 mt-1" style="border-top: 1px dashed var(--border-subtle);">
+                        <span>🥗 My Personal Portion:</span>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', -1)" style="min-height: 24px; padding: 2px 6px; font-size: 0.75rem;">−</button>
+                            <span id="portion-val-{{ item.id }}" style="font-weight: 700; min-width: 18px; text-align: center; color: var(--pista);">{{ item.consumed_quantity }}</span>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', 1)" style="min-height: 24px; padding: 2px 6px; font-size: 0.75rem;">+</button>
+                            <span class="text-muted">/ {{ item.quantity }}</span>
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
 
-            <hr style="border: none; border-top: 1px solid var(--malai-deep); margin: var(--space-3) 0;">
+            <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: var(--space-3) 0;">
             <div class="nutrition-row">
                 <span class="label">Total Amount</span>
                 <span class="value" style="font-weight: 700; color: var(--jamun);">₹{{ order.total_amount|round(2) }}</span>
             </div>
             <div class="nutrition-row">
-                <span class="label">Total Calories</span>
+                <span class="label">Total Order Calories</span>
                 <span class="value">{{ order.total_calories|int }} cal</span>
             </div>
+            <div class="nutrition-row" style="background: rgba(16, 185, 129, 0.08); padding: 6px 10px; border-radius: var(--radius-sm); margin-top: 4px;">
+                <span class="label" style="color: var(--pista); font-weight: 700;">🥗 Personal Calories Logged</span>
+                <span class="value" id="personal-cal-total" style="color: var(--pista); font-weight: 700;">
+                    {% set ns = namespace(cal=0) %}
+                    {% for item in order.items %}
+                        {% set ns.cal = ns.cal + (item.calories_per_unit * (item.consumed_quantity if item.consumed_quantity is not none else item.quantity)) %}
+                    {% endfor %}
+                    {{ ns.cal|int }} cal
+                </span>
+            </div>
             {% if order.delivery_address %}
-            <div class="nutrition-row" style="border-bottom: none;">
+            <div class="nutrition-row" style="border-bottom: none; margin-top: 4px;">
                 <span class="label">Delivery To</span>
                 <span class="value text-right" style="font-size: 0.8rem; max-width: 60%;">{{ order.delivery_address }}</span>
             </div>
@@ -242,6 +272,37 @@ eventSource.onerror = function() {
 
 // Initial state
 updateTracker('{{ order.status }}');
+
+async function adjustPortion(itemId, delta) {
+    const valEl = document.getElementById(`portion-val-${itemId}`);
+    if (!valEl) return;
+    const current = parseInt(valEl.textContent) || 0;
+    const nextVal = Math.max(0, current + delta);
+
+    try {
+        const res = await fetch(`/api/orders/${orderId}/portion-log`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                portions: [{
+                    order_item_id: itemId,
+                    consumed_quantity: nextVal
+                }]
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            valEl.textContent = nextVal;
+            const totalEl = document.getElementById('personal-cal-total');
+            if (totalEl) totalEl.textContent = `${Math.round(data.personal_calories)} cal`;
+            showToast('Personal intake updated 🥗');
+        } else {
+            showToast(data.detail || 'Could not update portion', 'danger');
+        }
+    } catch (e) {
+        showToast('Connection error', 'danger');
+    }
+}
 </script>
 {% endif %}
 {% endblock %}

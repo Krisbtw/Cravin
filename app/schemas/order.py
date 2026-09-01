@@ -10,12 +10,14 @@ from datetime import datetime
 class CartItem(BaseModel):
     dessert_id: str
     quantity: int = 1
+    consumed_quantity: Optional[int] = None
     customization: Optional[dict] = None
 
 
 class CreateOrder(BaseModel):
     items: list[CartItem]
     fulfillment_type: str = "delivery"  # delivery, pickup
+    is_group_order: bool = False
     baker_id: Optional[str] = None
     delivery_address: Optional[str] = None
     delivery_latitude: Optional[float] = None
@@ -33,12 +35,22 @@ class BakerMatchRequest(BaseModel):
     delivery_longitude: Optional[float] = None
 
 
+class PortionUpdateItem(BaseModel):
+    order_item_id: str
+    consumed_quantity: int
+
+
+class UpdatePortionLogRequest(BaseModel):
+    portions: list[PortionUpdateItem]
+
+
 class OrderResponse(BaseModel):
     id: str
     order_number: str
     status: str
     fulfillment_type: str
     payment_status: str
+    is_group_order: bool = False
     subtotal: float
     delivery_fee: float
     discount: float

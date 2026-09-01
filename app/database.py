@@ -66,10 +66,21 @@ async def get_db():
 
 
 async def init_db():
-    """Create all tables. Called on app startup."""
+    """Create all tables and apply non-destructive column additions."""
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+
+            # Safe column migrations for schema additions
+            from sqlalchemy import text
+            try:
+                await conn.execute(text("ALTER TABLE orders ADD COLUMN is_group_order BOOLEAN DEFAULT FALSE"))
+            except Exception:
+                pass
+            try:
+                await conn.execute(text("ALTER TABLE order_items ADD COLUMN consumed_quantity INTEGER DEFAULT 1"))
+            except Exception:
+                pass
     except Exception as e:
         # In serverless / concurrent environments, tables may already exist
         # or another worker may be creating them concurrently.

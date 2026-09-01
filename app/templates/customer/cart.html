@@ -8,6 +8,23 @@
         <button class="btn btn-ghost btn-sm" onclick="clearCart()" id="clear-btn">Clear</button>
     </div>
 
+    <!-- Group Order Toggle Banner -->
+    <div id="group-order-banner" class="card mb-4 hidden" style="border: 1px solid var(--jamun); background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), var(--bg-surface)); border-radius: var(--radius-lg);">
+        <div class="card-body flex items-center justify-between" style="padding: var(--space-3) var(--space-4);">
+            <div class="flex items-center gap-3">
+                <span style="font-size: 1.6rem;">👥</span>
+                <div>
+                    <h4 style="font-size: 0.92rem; margin-bottom: 2px;">Ordering for a group / party?</h4>
+                    <p class="text-muted" style="font-size: 0.75rem;">Log only what you personally eat into your daily calories</p>
+                </div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="group-toggle" onchange="toggleGroupOrder(this.checked)">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
     <div id="cart-items"></div>
 
     <div id="cart-empty" class="text-center p-6 hidden">
@@ -18,7 +35,7 @@
     </div>
 
     <!-- Cart Summary -->
-    <div id="cart-summary" class="hidden" style="background: var(--white); border-radius: var(--radius-lg); padding: var(--space-5); margin-top: var(--space-4); border: 1px solid var(--cream-border);">
+    <div id="cart-summary" class="hidden" style="background: var(--bg-surface); border-radius: var(--radius-lg); padding: var(--space-5); margin-top: var(--space-4); border: 1px solid var(--border-default);">
         <div class="nutrition-row">
             <span class="label">Subtotal</span>
             <span class="value" id="subtotal">₹0</span>
@@ -29,11 +46,15 @@
         </div>
         <div class="nutrition-row" style="border-bottom: 2px solid var(--jamun);">
             <span class="label" style="font-weight: 700; font-size: 1rem;">Total</span>
-            <span class="value" style="font-size: 1.2rem;" id="total">₹0</span>
+            <span class="value" style="font-size: 1.2rem; color: var(--jamun);" id="total">₹0</span>
         </div>
-        <div class="nutrition-row" style="border-bottom: none;">
-            <span class="label">🔥 Total calories</span>
+        <div class="nutrition-row">
+            <span class="label">🔥 Total Order Calories</span>
             <span class="value" id="total-cal">0 cal</span>
+        </div>
+        <div class="nutrition-row" id="personal-cal-row" style="border-bottom: none; display: none; background: rgba(16, 185, 129, 0.08); padding: 6px 10px; border-radius: var(--radius-sm); margin-top: 4px;">
+            <span class="label" style="color: var(--pista); font-weight: 700;">🥗 My Personal Intake</span>
+            <span class="value" id="personal-cal" style="color: var(--pista); font-weight: 700;">0 cal</span>
         </div>
     </div>
 
@@ -50,6 +71,46 @@
         </a>
     </div>
 </div>
+
+<style>
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--border-emphasis);
+    transition: .3s;
+    border-radius: 24px;
+}
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--jamun);
+}
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+</style>
 {% endblock %}
 
 {% block nav %}
@@ -66,7 +127,23 @@
 
 {% block extra_js %}
 <script>
-let fulfillmentType = 'delivery';
+let fulfillmentType = localStorage.getItem('cravin_fulfillment') || 'delivery';
+let isGroupOrder = localStorage.getItem('cravin_is_group_order') === 'true';
+
+function toggleGroupOrder(checked) {
+    isGroupOrder = checked;
+    localStorage.setItem('cravin_is_group_order', checked);
+    const cart = Cart.get();
+    cart.forEach(item => {
+        if (checked && (item.consumed_quantity === undefined || item.consumed_quantity === null)) {
+            item.consumed_quantity = Math.min(1, item.quantity);
+        } else if (!checked) {
+            item.consumed_quantity = item.quantity;
+        }
+    });
+    localStorage.setItem(Cart.KEY, JSON.stringify(cart));
+    renderCart();
+}
 
 function renderCart() {
     const cart = Cart.get();
@@ -75,6 +152,8 @@ function renderCart() {
     const summary = document.getElementById('cart-summary');
     const checkout = document.getElementById('checkout-area');
     const clearBtn = document.getElementById('clear-btn');
+    const groupBanner = document.getElementById('group-order-banner');
+    const groupToggle = document.getElementById('group-toggle');
 
     if (cart.length === 0) {
         container.innerHTML = '';
@@ -82,6 +161,7 @@ function renderCart() {
         summary.classList.add('hidden');
         checkout.classList.add('hidden');
         clearBtn.classList.add('hidden');
+        groupBanner.classList.add('hidden');
         return;
     }
 
@@ -89,32 +169,57 @@ function renderCart() {
     summary.classList.remove('hidden');
     checkout.classList.remove('hidden');
     clearBtn.classList.remove('hidden');
+    groupBanner.classList.remove('hidden');
+    groupToggle.checked = isGroupOrder;
 
     let subtotal = 0;
     let totalCal = 0;
+    let personalCal = 0;
 
     container.innerHTML = cart.map((item, i) => {
         const itemTotal = item.price * item.quantity;
         subtotal += itemTotal;
-        totalCal += (item.calories || 0) * item.quantity;
+        const itemCal = (item.calories || 0);
+        totalCal += itemCal * item.quantity;
+        
+        const myPortion = (item.consumed_quantity !== undefined && item.consumed_quantity !== null) 
+            ? item.consumed_quantity 
+            : (isGroupOrder ? 1 : item.quantity);
+        personalCal += itemCal * myPortion;
 
         return `
-            <div class="card mb-3 animate-fade-in-up" style="border: 1px solid var(--cream-border);">
-                <div class="card-body flex items-center gap-3">
-                    <div style="flex: 1;">
-                        <h4 style="font-size: 0.95rem;">${item.name}</h4>
-                        <div class="flex items-center gap-3 mt-2">
-                            <span style="font-weight: 700; color: var(--jamun);">₹${item.price}</span>
-                            <span class="text-muted" style="font-size: 0.8rem;">${Math.round(item.calories || 0)} cal</span>
+            <div class="card mb-3 animate-fade-in-up" style="border: 1px solid var(--border-default); background: var(--bg-surface);">
+                <div class="card-body" style="padding: var(--space-4);">
+                    <div class="flex items-center justify-between mb-2">
+                        <div style="flex: 1;">
+                            <h4 style="font-size: 0.95rem; margin-bottom: 2px;">${item.name}</h4>
+                            <div class="flex items-center gap-3">
+                                <span style="font-weight: 700; color: var(--honey);">₹${item.price}</span>
+                                <span class="text-muted" style="font-size: 0.8rem;">${Math.round(itemCal)} cal/ea</span>
+                            </div>
+                            ${item.customization ? '<span class="tag" style="background: var(--jamun-bg); color: var(--jamun-light); font-size: 0.65rem; margin-top: 4px;">✨ Customized</span>' : ''}
                         </div>
-                        ${item.customization ? '<span class="tag" style="background: var(--jamun-bg); color: var(--jamun); font-size: 0.65rem; margin-top: 4px;">✨ Customized</span>' : ''}
+                        <div class="flex items-center gap-2">
+                            <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, -1)" style="min-height: 32px; padding: 4px 8px;">−</button>
+                            <span style="font-weight: 700; min-width: 24px; text-align: center;">${item.quantity}</span>
+                            <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, 1)" style="min-height: 32px; padding: 4px 8px;">+</button>
+                            <button class="btn btn-ghost btn-sm" onclick="removeItem(${i})" style="color: var(--danger); min-height: 32px; margin-left: 4px;">✕</button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, -1)" style="min-height: 32px; padding: 4px 8px;">−</button>
-                        <span style="font-weight: 700; min-width: 24px; text-align: center;">${item.quantity}</span>
-                        <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, 1)" style="min-height: 32px; padding: 4px 8px;">+</button>
+
+                    ${isGroupOrder ? `
+                    <div class="flex items-center justify-between pt-2 mt-2" style="border-top: 1px dashed var(--border-subtle); font-size: 0.82rem;">
+                        <span style="color: var(--pista-light); font-weight: 600;">
+                            🥗 My Portion (${Math.round(itemCal * myPortion)} cal):
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <button class="btn btn-ghost btn-sm" onclick="changePortion(${i}, -1)" style="min-height: 26px; padding: 2px 6px; font-size: 0.75rem;">−</button>
+                            <span style="font-weight: 700; min-width: 20px; text-align: center; color: var(--pista);">${myPortion}</span>
+                            <button class="btn btn-ghost btn-sm" onclick="changePortion(${i}, 1)" style="min-height: 26px; padding: 2px 6px; font-size: 0.75rem;">+</button>
+                            <span class="text-muted" style="font-size: 0.75rem;">/ ${item.quantity} ordered</span>
+                        </div>
                     </div>
-                    <button class="btn btn-ghost btn-sm" onclick="removeItem(${i})" style="color: var(--danger); min-height: 32px;">✕</button>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -125,13 +230,37 @@ function renderCart() {
     document.getElementById('delivery-fee').textContent = `₹${deliveryFee}`;
     document.getElementById('total').textContent = `₹${subtotal + deliveryFee}`;
     document.getElementById('total-cal').textContent = `${Math.round(totalCal)} cal`;
+
+    const personalRow = document.getElementById('personal-cal-row');
+    if (isGroupOrder) {
+        personalRow.style.display = 'flex';
+        document.getElementById('personal-cal').textContent = `${Math.round(personalCal)} cal`;
+    } else {
+        personalRow.style.display = 'none';
+    }
 }
 
 function changeQty(index, delta) {
     const cart = Cart.get();
-    cart[index].quantity = Math.max(1, cart[index].quantity + delta);
+    const newQty = Math.max(1, cart[index].quantity + delta);
+    cart[index].quantity = newQty;
+    if (cart[index].consumed_quantity !== undefined) {
+        cart[index].consumed_quantity = Math.min(newQty, cart[index].consumed_quantity);
+    }
     localStorage.setItem(Cart.KEY, JSON.stringify(cart));
     Cart.updateBadge();
+    renderCart();
+}
+
+function changePortion(index, delta) {
+    const cart = Cart.get();
+    const current = (cart[index].consumed_quantity !== undefined && cart[index].consumed_quantity !== null) 
+        ? cart[index].consumed_quantity 
+        : 1;
+    const maxQty = cart[index].quantity;
+    const newPortion = Math.max(0, Math.min(maxQty, current + delta));
+    cart[index].consumed_quantity = newPortion;
+    localStorage.setItem(Cart.KEY, JSON.stringify(cart));
     renderCart();
 }
 
@@ -160,6 +289,8 @@ function setFulfillment(type) {
     renderCart();
 }
 
-document.addEventListener('DOMContentLoaded', renderCart);
+document.addEventListener('DOMContentLoaded', () => {
+    setFulfillment(fulfillmentType);
+});
 </script>
 {% endblock %}

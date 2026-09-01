@@ -3,7 +3,7 @@ Cravin — SSE Order Tracking
 Server-Sent Events for real-time order status updates.
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -13,6 +13,7 @@ import json
 from app.database import get_db, async_session
 from app.models.order import Order
 from app.models.user import User
+from app.schemas.order import UpdatePortionLogRequest
 from app.services.auth_service import get_current_user
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
@@ -71,3 +72,40 @@ async def track_order(order_id: str, request: Request):
             "Connection": "keep-alive",
         },
     )
+
+
+@router.patch("/{order_id}/portion-log")
+async def update_portion_log(
+    order_id: str,
+    data: UpdatePortionLogRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Adjust personally consumed portions for group/party orders."""
+    from app.services.order_service import update_order_portion_log
+    portions_data = [p.model_dump() for p in data.portions]
+    order = await update_order_portion_log(order_id, portions_data, user.id, db)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found or unauthorized")
+
+    personal_cals = sum(
+        (item.calories_per_unit * (item.consumed_quantity if item.consumed_quantity is not None else item.quantity))
+        for item in order.items
+    )
+
+    return {
+        "status": "success",
+        "order_id": order.id,
+        "is_group_order": order.is_group_order,
+        "personal_calories": round(personal_cals, 1),
+        "items": [
+            {
+                "order_item_id": item.id,
+                "quantity": item.quantity,
+                "consumed_quantity": item.consumed_quantity,
+                "personal_calories": round(item.calories_per_unit * item.consumed_quantity, 1),
+            }
+            for item in order.items
+        ],
+        "message": "Portion allocation updated successfully! 🥗"
+    }

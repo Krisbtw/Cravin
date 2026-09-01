@@ -174,6 +174,7 @@ async def place_order(
         user_id=user.id,
         items=items,
         fulfillment_type=data.fulfillment_type,
+        is_group_order=data.is_group_order,
         delivery_address=data.delivery_address,
         delivery_notes=data.delivery_notes,
         city=user.city,

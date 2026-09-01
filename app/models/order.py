@@ -5,7 +5,7 @@ Full order lifecycle: placed → accepted → preparing → ready → out_for_de
 
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Text, Float, Integer, DateTime, JSON, ForeignKey
+from sqlalchemy import String, Text, Float, Integer, DateTime, JSON, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 import enum
@@ -45,6 +45,7 @@ class Order(Base):
     status: Mapped[str] = mapped_column(String(30), default=OrderStatus.PLACED.value)
     fulfillment_type: Mapped[str] = mapped_column(String(20), default=FulfillmentType.DELIVERY.value)
     payment_status: Mapped[str] = mapped_column(String(20), default=PaymentStatus.PENDING.value)
+    is_group_order: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Pricing
     subtotal: Mapped[float] = mapped_column(Float, default=0.0)
@@ -94,6 +95,7 @@ class OrderItem(Base):
     order_id: Mapped[str] = mapped_column(String(36), ForeignKey("orders.id"))
     dessert_id: Mapped[str] = mapped_column(String(36), ForeignKey("desserts.id"))
     quantity: Mapped[int] = mapped_column(Integer, default=1)
+    consumed_quantity: Mapped[int] = mapped_column(Integer, default=1)
     unit_price: Mapped[float] = mapped_column(Float, default=0.0)
     total_price: Mapped[float] = mapped_column(Float, default=0.0)
     calories_per_unit: Mapped[float] = mapped_column(Float, default=0.0)

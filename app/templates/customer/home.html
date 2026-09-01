@@ -35,15 +35,98 @@
     </div>
 
     <!-- Tag Filters -->
-    <div class="flex gap-2 mb-6" style="overflow-x: auto; padding-bottom: var(--space-2);">
-        <button class="tag-filter btn btn-sm active" data-tag="all" onclick="filterDesserts('all', this)"
-            style="background: var(--jamun); color: white; border: none; border-radius: var(--radius-full);">All</button>
-        <button class="tag-filter btn btn-sm" data-tag="light" onclick="filterDesserts('light', this)"
-            style="background: var(--tag-light-bg); color: var(--tag-light); border: 1px solid var(--tag-light); border-radius: var(--radius-full);">🌿 Light</button>
-        <button class="tag-filter btn btn-sm" data-tag="balanced" onclick="filterDesserts('balanced', this)"
-            style="background: var(--tag-balanced-bg); color: var(--honey-dark); border: 1px solid var(--honey); border-radius: var(--radius-full);">⚖️ Balanced</button>
-        <button class="tag-filter btn btn-sm" data-tag="heavy" onclick="filterDesserts('heavy', this)"
-            style="background: var(--tag-heavy-bg); color: var(--tag-heavy); border: 1px solid var(--jamun); border-radius: var(--radius-full);">🍫 Heavy</button>
+    <style>
+        .filter-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        .filter-btn {
+            padding: 0.45rem 1.1rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .filter-btn:focus, .filter-btn:active, .filter-btn:visited {
+            outline: none !important;
+            box-shadow: none;
+        }
+        .filter-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* "All" button */
+        .filter-btn[data-tag="all"] {
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #E2E8F0;
+        }
+        .filter-btn[data-tag="all"].active {
+            background: #8B5CF6 !important;
+            color: #FFFFFF !important;
+            border-color: #8B5CF6 !important;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+        }
+
+        /* "Light" button */
+        .filter-btn[data-tag="light"] {
+            background: rgba(16, 185, 129, 0.08);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+        .filter-btn[data-tag="light"].active {
+            background: #10B981 !important;
+            color: #FFFFFF !important;
+            border-color: #10B981 !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        }
+
+        /* "Balanced" button */
+        .filter-btn[data-tag="balanced"] {
+            background: rgba(245, 158, 11, 0.08);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+        .filter-btn[data-tag="balanced"].active {
+            background: #F59E0B !important;
+            color: #FFFFFF !important;
+            border-color: #F59E0B !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+        }
+
+        /* "Heavy" button */
+        .filter-btn[data-tag="heavy"] {
+            background: rgba(139, 92, 246, 0.08);
+            color: #A78BFA;
+            border: 1px solid rgba(139, 92, 246, 0.5);
+        }
+        .filter-btn[data-tag="heavy"].active {
+            background: #8B5CF6 !important;
+            color: #FFFFFF !important;
+            border-color: #8B5CF6 !important;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+        }
+    </style>
+
+    <div class="filter-container">
+        <button type="button" class="filter-btn active" data-tag="all" onclick="filterDesserts('all', this)">All</button>
+        <button type="button" class="filter-btn" data-tag="light" onclick="filterDesserts('light', this)">🌿 Light</button>
+        <button type="button" class="filter-btn" data-tag="balanced" onclick="filterDesserts('balanced', this)">⚖️ Balanced</button>
+        <button type="button" class="filter-btn" data-tag="heavy" onclick="filterDesserts('heavy', this)">🍫 Heavy</button>
     </div>
 
     {% if recommended %}
@@ -152,19 +235,15 @@
 {% block extra_js %}
 <script>
     function filterDesserts(tag, btn) {
-        // Update active button
-        document.querySelectorAll('.tag-filter').forEach(b => {
-            b.style.background = '';
-            b.style.color = '';
+        // 1. Single-select: toggle active class across all filter buttons
+        document.querySelectorAll('.filter-btn').forEach(b => {
             b.classList.remove('active');
         });
-        if (tag === 'all') {
-            btn.style.background = 'var(--jamun)';
-            btn.style.color = 'white';
+        if (btn) {
+            btn.classList.add('active');
         }
-        btn.classList.add('active');
 
-        // Filter cards
+        // 2. Filter dessert cards
         document.querySelectorAll('.dessert-card').forEach(card => {
             if (tag === 'all' || card.dataset.tag === tag) {
                 card.style.display = '';
