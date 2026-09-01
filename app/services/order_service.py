@@ -79,6 +79,8 @@ async def create_order(
         discount=0.0,
         estimated_delivery_mins=estimated_mins,
     )
+    # Add parent order to session first so foreign key constraints are satisfied
+    db.add(order)
 
     subtotal = 0.0
     total_calories = 0.0
@@ -113,6 +115,7 @@ async def create_order(
 
         order_item = OrderItem(
             id=str(uuid.uuid4()),
+            order=order,
             order_id=order.id,
             dessert_id=dessert.id,
             quantity=qty,
@@ -154,7 +157,8 @@ async def create_order(
     if assigned_baker_id:
         order.baker_id = assigned_baker_id
 
-    db.add(order)
+    # Flush session so parent Order and child OrderItems are persisted in order
+    await db.flush()
     return order
 
 
