@@ -29,7 +29,7 @@
     "price": 349,
     "dietary_flags": ["gluten-free"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/ragi-lava-cake.jpg"
   },
   {
     "name": "Almond Flour Gulab Jamun",
@@ -59,7 +59,7 @@
     "price": 299,
     "dietary_flags": ["eggless", "gluten-free"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/almond-gulab-jamun.jpg"
   },
   {
     "name": "Coconut Millet Kheer",
@@ -87,7 +87,7 @@
     "price": 199,
     "dietary_flags": ["eggless", "gluten-free"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/millet-kheer.jpg"
   },
   {
     "name": "Pistachio Oat Barfi",
@@ -115,7 +115,7 @@
     "price": 349,
     "dietary_flags": ["eggless"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/pista-barfi.jpg"
   },
   {
     "name": "Stevia Mango Cheesecake",
@@ -144,7 +144,7 @@
     "price": 399,
     "dietary_flags": ["eggless", "gluten-free", "no-bake"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/mango-cheesecake.jpg"
   },
   {
     "name": "Date-Walnut Brownie",
@@ -175,7 +175,7 @@
     "price": 299,
     "dietary_flags": [],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1515037893149-de7f840978e2?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/date-walnut-brownie.jpg"
   },
   {
     "name": "Coconut Flour Banana Bread",
@@ -206,7 +206,7 @@
     "price": 249,
     "dietary_flags": ["gluten-free"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/banana-bread.jpg"
   },
   {
     "name": "Ragi Ladoo (Protein)",
@@ -236,7 +236,7 @@
     "price": 249,
     "dietary_flags": ["eggless"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/ragi-ladoo.jpg"
   },
   {
     "name": "Allulose Rasmalai",
@@ -266,7 +266,7 @@
     "price": 349,
     "dietary_flags": ["eggless", "gluten-free"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/allulose-rasmalai.jpg"
   },
   {
     "name": "Foxtail Millet Payasam",
@@ -295,6 +295,6 @@
     "price": 229,
     "dietary_flags": ["eggless", "gluten-free"],
     "is_signature": true,
-    "image_url": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=800&q=80"
+    "image_url": "/static/images/millet-payasam.jpg"
   }
 ]
