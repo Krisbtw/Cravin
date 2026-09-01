@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="page-content" style="padding-top: var(--space-8);">
+    <div class="text-center mb-6">
+        <h1>Join Crav<span style="color: var(--honey);">in</span> 🎉</h1>
+        <p class="text-subtitle">Desserts that love you back</p>
+    </div>
+
+    <form id="register-form" onsubmit="handleRegister(event)">
+        <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" id="full_name" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Phone (optional)</label>
+            <input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="password" placeholder="Min 6 characters" required minlength="6">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Referral Code (optional)</label>
+            <input type="text" class="form-input" id="referral" placeholder="CRAVXXXXXX">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="register-btn">Create Account</button>
+    </form>
+
+    <div class="text-center mt-6">
+        <p class="text-muted">Already have an account? <a href="/app/login" style="font-weight: 600;">Sign in</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function handleRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('register-btn');
+    btn.textContent = 'Creating account...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                full_name: document.getElementById('full_name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value || null,
+                password: document.getElementById('password').value,
+            }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            // Apply referral code if provided
+            const referral = document.getElementById('referral').value.trim();
+            if (referral) {
+                await fetch(`/api/auth/referral/${referral}`, {method: 'POST'});
+            }
+            window.location.href = '/app/onboarding';
+        } else {
+            showToast(data.detail || 'Registration failed', 'danger');
+            btn.textContent = 'Create Account';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        showToast('Connection error. Please try again.', 'danger');
+        btn.textContent = 'Create Account';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

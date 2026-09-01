@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Recipe Moderation{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container { max-width: 1000px; margin: 0 auto; padding: 0 var(--space-6); }
+    .admin-nav { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); overflow-x: auto; }
+    .admin-nav a { padding: var(--space-2) var(--space-4); border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; background: var(--malai-deep); color: var(--charcoal); text-decoration: none; }
+    .admin-nav a.active { background: var(--jamun); color: var(--white); }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    <div class="admin-container">
+        <div class="top-bar">
+            <div class="logo">Crav<span style="color: var(--honey);">in</span> <span style="font-weight: 400; font-size: 0.9rem; color: var(--warm-gray);">Admin</span></div>
+            <a href="/api/auth/logout" class="btn btn-ghost btn-sm" onclick="document.cookie='access_token=;max-age=0';">Logout</a>
+        </div>
+        <nav class="admin-nav">
+            <a href="/admin/">📊 Dashboard</a><a href="/admin/applicants">👥 Applicants</a>
+            <a href="/admin/bakers">🧑‍🍳 Bakers</a><a href="/admin/orders">📦 Orders</a><a href="/admin/recipes" class="active">🍰 Recipes</a>
+        </nav>
+        <h2 class="mb-4">Recipe Moderation</h2>
+        <div class="disclaimer mb-4">
+            <span>⚠️</span>
+            <span>Every AI-generated recipe must be reviewed before being shown to customers. Inaccurate health claims on food are a regulatory risk.</span>
+        </div>
+        <div id="recipes-list"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadRecipes() {
+    const data = await API.get('/api/admin/recipes/pending');
+    if (!data || !data.length) {
+        document.getElementById('recipes-list').innerHTML = '<div class="text-center p-6"><div style="font-size: 3rem; margin-bottom: var(--space-3);">✅</div><h3>No pending recipes</h3><p class="text-muted">All AI-generated recipes have been reviewed.</p></div>';
+        return;
+    }
+    document.getElementById('recipes-list').innerHTML = data.map(r => `
+        <div class="card mb-4" style="border: 1px solid var(--cream-border);">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2">
+                    <h3>${r.name}</h3>
+                    <span class="tag tag-${r.tag}">${r.tag}</span>
+                </div>
+                <p class="text-muted mb-3" style="font-size: 0.9rem;">${r.description}</p>
+                <div class="mb-3"><strong>Calories:</strong> ${Math.round(r.calories)} per serving</div>
+                <div class="mb-3">
+                    <strong>Ingredients:</strong>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                        ${(r.base_ingredients || []).map(i => `<span style="padding: 2px 8px; background: var(--malai-deep); border-radius: 99px; font-size: 0.75rem;">${i.name} (${i.quantity_g}g)</span>`).join('')}
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-primary btn-sm" onclick="moderateRecipe('${r.id}', 'approve')">✅ Approve</button>
+                    <button class="btn btn-ghost btn-sm" onclick="moderateRecipe('${r.id}', 'reject')" style="color: var(--danger);">✕ Reject</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+async function moderateRecipe(id, action) {
+    const res = await fetch(`/api/admin/recipes/${id}/moderate?action=${action}`, {method: 'POST'});
+    const data = await res.json();
+    if (res.ok) { showToast(data.message); loadRecipes(); }
+    else { showToast(data.detail || 'Failed', 'danger'); }
+}
+document.addEventListener('DOMContentLoaded', loadRecipes);
+</script>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}{{ dessert.name }}{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <!-- Back & Cart button -->
+    <div class="top-bar">
+        <a href="/app/" class="btn btn-ghost btn-sm">← Back</a>
+        <div class="flex items-center gap-2">
+            <span class="tag tag-{{ dessert.tag }}">
+                {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+            </span>
+            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px;">
+                <span>🛒 Cart</span>
+                <span class="cart-badge badge badge-jamun" style="display: none; font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 99px;">0</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Hero Image -->
+    <div style="background: linear-gradient(135deg, 
+        {% if dessert.tag == 'light' %}var(--pista-bg), var(--malai-deep)
+        {% elif dessert.tag == 'heavy' %}var(--jamun-bg), var(--malai-deep)
+        {% else %}var(--honey-bg), var(--malai-deep){% endif %}); 
+        border-radius: var(--radius-xl); height: 220px; display: flex; align-items: center; justify-content: center; font-size: 5rem; margin-bottom: var(--space-5);">
+        {% if 'chocolate' in dessert.name.lower() or 'brownie' in dessert.name.lower() %}🍫
+        {% elif 'cheesecake' in dessert.name.lower() or 'mango' in dessert.name.lower() %}🥭
+        {% elif 'gulab' in dessert.name.lower() or 'rasmalai' in dessert.name.lower() %}🍮
+        {% elif 'ladoo' in dessert.name.lower() or 'barfi' in dessert.name.lower() %}🟡
+        {% elif 'kheer' in dessert.name.lower() or 'payasam' in dessert.name.lower() %}🥣
+        {% elif 'banana' in dessert.name.lower() %}🍌
+        {% else %}🍰{% endif %}
+    </div>
+
+    <!-- Title & Price -->
+    <h1 style="font-size: 1.6rem; margin-bottom: var(--space-2);">{{ dessert.name }}</h1>
+    <p class="text-subtitle mb-4">{{ dessert.description }}</p>
+
+    <div class="flex items-center justify-between mb-6">
+        <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--jamun);">₹{{ dessert.price|int }}</span>
+        <span class="text-muted">{{ dessert.serving_size_g|int }}g per serving</span>
+    </div>
+
+    <!-- Nutrition Panel (NEVER buried!) -->
+    <div class="nutrition-panel mb-6 animate-fade-in-up">
+        <div class="panel-title">📊 Nutrition per serving</div>
+
+        <!-- Macro bars -->
+        <div class="macro-bars mb-4">
+            <div class="macro-bar">
+                <div class="bar-value">{{ dessert.calories|int }}</div>
+                <div class="bar-fill bar-carbs" style="background: var(--honey);"></div>
+                <div class="bar-label">Calories</div>
+            </div>
+            <div class="macro-bar">
+                <div class="bar-value">{{ dessert.protein_g|round(1) }}g</div>
+                <div class="bar-fill bar-protein"></div>
+                <div class="bar-label">Protein</div>
+            </div>
+            <div class="macro-bar">
+                <div class="bar-value">{{ dessert.carbs_g|round(1) }}g</div>
+                <div class="bar-fill" style="background: var(--honey);"></div>
+                <div class="bar-label">Carbs</div>
+            </div>
+            <div class="macro-bar">
+                <div class="bar-value">{{ dessert.fat_g|round(1) }}g</div>
+                <div class="bar-fill" style="background: var(--pista);"></div>
+                <div class="bar-label">Fat</div>
+            </div>
+        </div>
+
+        <div class="nutrition-row">
+            <span class="label">Fiber</span>
+            <span class="value">{{ dessert.fiber_g|round(1) }}g</span>
+        </div>
+        <div class="nutrition-row">
+            <span class="label">Sugar equivalent</span>
+            <span class="value">{{ dessert.sugar_equivalent_g|round(1) }}g</span>
+        </div>
+
+        {% if dessert.allergens %}
+        <div class="nutrition-row">
+            <span class="label">⚠️ Allergens</span>
+            <span class="value" style="color: var(--danger);">{{ dessert.allergens|join(', ') }}</span>
+        </div>
+        {% endif %}
+
+        {% if dessert.dietary_flags %}
+        <div class="flex gap-2 mt-4">
+            {% for flag in dessert.dietary_flags %}
+            <span class="tag" style="background: var(--pista-bg); color: var(--pista-dark);">{{ flag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Ingredients -->
+    <div class="mb-6">
+        <h3 class="mb-3">🥣 Ingredients</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-2);">
+            {% for ing in dessert.base_ingredients %}
+            <span style="padding: var(--space-1) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.8rem;">
+                {{ ing.name }} ({{ ing.quantity_g|int }}g)
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if baker %}
+    <!-- Baker Story -->
+    <div class="card mb-6" style="border: 1px solid var(--cream-border);">
+        <div class="card-body flex items-center gap-4">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--jamun-bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🧑‍🍳</div>
+            <div>
+                <h4 style="font-size: 0.95rem;">{{ baker.business_name or baker.name }}</h4>
+                <div class="flex items-center gap-2">
+                    <span style="color: var(--honey);">⭐ {{ baker.avg_rating }}</span>
+                    <span class="text-muted" style="font-size: 0.8rem;">· {{ baker.total_orders }} orders</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Health disclaimer -->
+    <div class="disclaimer mb-6">
+        <span>⚕️</span>
+        <span>Nutrition values are calculated from our ingredient database and may vary slightly. This is for general reference only, not medical advice.</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col gap-3" style="padding-bottom: var(--space-8);">
+        <button class="btn btn-primary btn-block btn-lg" onclick="addToCart()">
+            Add to Cart — ₹{{ dessert.price|int }}
+        </button>
+        {% if user %}
+        <a href="/app/customizer/{{ dessert.id }}" class="btn btn-secondary btn-block btn-lg">
+            ✨ Customize with AI
+        </a>
+        {% else %}
+        <a href="/app/login" class="btn btn-outline btn-block">Sign in to customize</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block nav %}
+<nav class="bottom-nav">
+    <a href="/app/"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/app/orders"><span class="nav-icon">📦</span><span>Orders</span></a>
+    <a href="/app/cart" style="position: relative;"><span class="nav-icon">🛒</span><span>Cart</span>
+        <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none;">0</span>
+    </a>
+    <a href="/app/rewards"><span class="nav-icon">🏆</span><span>Rewards</span></a>
+    <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addToCart() {
+    Cart.add({
+        dessert_id: '{{ dessert.id }}',
+        name: '{{ dessert.name }}',
+        price: {{ dessert.price }},
+        calories: {{ dessert.calories }},
+        quantity: 1,
+    });
+    showToast('Added to cart! 🛒');
+}
+</script>
+{% endblock %}

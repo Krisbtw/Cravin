@@ -1,0 +1,21 @@
+{
+  "approved_sweeteners": [
+    "monk fruit sweetener", "stevia extract", "allulose",
+    "dates", "medjool dates", "date syrup", "date paste",
+    "jaggery", "coconut sugar"
+  ],
+  "approved_flours": [
+    "almond flour", "oat flour", "ragi flour", "finger millet flour",
+    "whole wheat flour", "coconut flour", "foxtail millet flour",
+    "jowar flour", "bajra flour"
+  ],
+  "banned_ingredients": [
+    "refined sugar", "white sugar", "caster sugar", "powdered sugar", "icing sugar",
+    "maida", "all-purpose flour", "refined flour",
+    "corn syrup", "high fructose corn syrup",
+    "artificial sweetener", "aspartame", "sucralose", "saccharin", "acesulfame",
+    "artificial preservative", "artificial color", "artificial flavoring",
+    "margarine", "hydrogenated oil", "trans fat"
+  ],
+  "notes": "Fresh, short shelf-life is our natural preservation strategy. No chemical preservatives needed."
+}

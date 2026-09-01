@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container { max-width: 1000px; margin: 0 auto; padding: 0 var(--space-6); }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
+    .kpi-card { background: var(--white); border-radius: var(--radius-lg); padding: var(--space-5); border: 1px solid var(--cream-border); }
+    .kpi-value { font-family: var(--font-display); font-weight: 800; font-size: 2rem; }
+    .admin-nav { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); overflow-x: auto; padding-bottom: var(--space-2); }
+    .admin-nav a { padding: var(--space-2) var(--space-4); border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; background: var(--malai-deep); color: var(--charcoal); text-decoration: none; white-space: nowrap; }
+    .admin-nav a.active { background: var(--jamun); color: var(--white); }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page" style="background: var(--malai);">
+    <div class="admin-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="logo">Crav<span style="color: var(--honey);">in</span> <span style="font-weight: 400; font-size: 0.9rem; color: var(--warm-gray);">Admin</span></div>
+            <a href="/api/auth/logout" class="btn btn-ghost btn-sm" onclick="document.cookie='access_token=;max-age=0';">Logout</a>
+        </div>
+
+        <!-- Admin Nav -->
+        <nav class="admin-nav">
+            <a href="/admin/" class="active">📊 Dashboard</a>
+            <a href="/admin/applicants">👥 Applicants</a>
+            <a href="/admin/bakers">🧑‍🍳 Bakers</a>
+            <a href="/admin/orders">📦 Orders</a>
+            <a href="/admin/recipes">🍰 Recipes</a>
+        </nav>
+
+        <!-- KPIs -->
+        <div class="kpi-grid mb-6" id="kpi-grid">
+            <div class="kpi-card animate-fade-in-up">
+                <div class="text-label mb-2">Today's Orders</div>
+                <div class="kpi-value" id="kpi-orders-today">—</div>
+            </div>
+            <div class="kpi-card animate-fade-in-up" style="animation-delay: 60ms;">
+                <div class="text-label mb-2">Today's Revenue</div>
+                <div class="kpi-value" style="color: var(--honey-dark);" id="kpi-revenue-today">—</div>
+            </div>
+            <div class="kpi-card animate-fade-in-up" style="animation-delay: 120ms;">
+                <div class="text-label mb-2">Active Bakers</div>
+                <div class="kpi-value" style="color: var(--pista-dark);" id="kpi-bakers">—</div>
+            </div>
+            <div class="kpi-card animate-fade-in-up" style="animation-delay: 180ms;">
+                <div class="text-label mb-2">Pending Applications</div>
+                <div class="kpi-value" style="color: var(--jamun-light);" id="kpi-pending">—</div>
+            </div>
+        </div>
+
+        <!-- Summary row -->
+        <div class="kpi-grid mb-6">
+            <div class="kpi-card">
+                <div class="text-label mb-2">Total Revenue</div>
+                <div class="kpi-value" style="font-size: 1.5rem;" id="kpi-revenue-total">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="text-label mb-2">Total Orders</div>
+                <div class="kpi-value" style="font-size: 1.5rem;" id="kpi-orders-total">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="text-label mb-2">Customers</div>
+                <div class="kpi-value" style="font-size: 1.5rem;" id="kpi-customers">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="text-label mb-2">Desserts</div>
+                <div class="kpi-value" style="font-size: 1.5rem;" id="kpi-desserts">—</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadDashboard() {
+    try {
+        const data = await API.get('/api/admin/dashboard');
+        if (!data) return;
+        document.getElementById('kpi-orders-today').textContent = data.orders.today;
+        document.getElementById('kpi-revenue-today').textContent = '₹' + Math.round(data.revenue.today);
+        document.getElementById('kpi-bakers').textContent = data.bakers.active;
+        document.getElementById('kpi-pending').textContent = data.bakers.pending_applications;
+        document.getElementById('kpi-revenue-total').textContent = '₹' + Math.round(data.revenue.total);
+        document.getElementById('kpi-orders-total').textContent = data.orders.total;
+        document.getElementById('kpi-customers').textContent = data.customers;
+        document.getElementById('kpi-desserts').textContent = data.desserts;
+    } catch (err) { console.error('Dashboard load error:', err); }
+}
+document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+{% endblock %}

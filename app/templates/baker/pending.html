@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Application Pending{% endblock %}
+
+{% block content %}
+<div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 80vh;">
+    <div class="text-center">
+        <div style="font-size: 4rem; margin-bottom: var(--space-4);">⏳</div>
+        <h1 style="font-size: 1.6rem; margin-bottom: var(--space-4);">Application {{ (baker.status or 'submitted')|replace('_', ' ')|capitalize }}</h1>
+        <p class="text-subtitle mb-6">
+            {% if baker and baker.status == 'applied' %}
+            We've received your application! Our team will review it shortly. You'll hear from us within 3-5 business days.
+            {% elif baker and baker.status == 'under_review' %}
+            Your application is currently being reviewed by our team. Hang tight!
+            {% elif baker and baker.status == 'interview_scheduled' %}
+            Great news! We'd like to schedule an interview. Check your email for details.
+            {% elif baker and baker.status == 'rejected' %}
+            Unfortunately, we weren't able to approve your application at this time. You can reapply in 30 days.
+            {% endif %}
+        </p>
+        <a href="/api/auth/logout" class="btn btn-outline" onclick="document.cookie='access_token=;max-age=0';">Sign Out</a>
+    </div>
+</div>
+{% endblock %}

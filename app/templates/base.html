@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Cravin — Zero Sugar, Zero Maida desserts from home bakers. AI-customized, nutrition-tracked, fresh & delivered.">
+    <meta name="theme-color" content="#08080C">
+    <title>{% block title %}Cravin{% endblock %} — Zero Sugar, Full Flavor</title>
+    <link rel="stylesheet" href="/static/css/design-system.css">
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* Page transition */
+        .page-content {
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body>
+    {% block body %}
+    <div class="page">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block nav %}{% endblock %}
+
+    <script>
+        /* ── Shared JS Utilities ── */
+        const API = {
+            async fetch(url, options = {}) {
+                const token = document.cookie.match(/access_token=([^;]+)/)?.[1];
+                const defaults = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? {'Authorization': `Bearer ${token}`} : {}),
+                    },
+                };
+                const res = await fetch(url, {...defaults, ...options});
+                if (res.status === 401) {
+                    window.location.href = '/app/login';
+                    return;
+                }
+                return res.json();
+            },
+            get(url) { return this.fetch(url); },
+            post(url, data) { return this.fetch(url, {method: 'POST', body: JSON.stringify(data)}); },
+        };
+
+        /* Cart (localStorage) */
+        const Cart = {
+            KEY: 'cravin_cart',
+            get() {
+                return JSON.parse(localStorage.getItem(this.KEY) || '[]');
+            },
+            add(item) {
+                const cart = this.get();
+                const existing = cart.find(i => i.dessert_id === item.dessert_id && !i.customization);
+                if (existing && !item.customization) {
+                    existing.quantity += item.quantity || 1;
+                } else {
+                    cart.push({...item, quantity: item.quantity || 1});
+                }
+                localStorage.setItem(this.KEY, JSON.stringify(cart));
+                this.updateBadge();
+                return cart;
+            },
+            remove(index) {
+                const cart = this.get();
+                cart.splice(index, 1);
+                localStorage.setItem(this.KEY, JSON.stringify(cart));
+                this.updateBadge();
+                return cart;
+            },
+            clear() {
+                localStorage.removeItem(this.KEY);
+                this.updateBadge();
+            },
+            count() {
+                return this.get().reduce((sum, i) => sum + i.quantity, 0);
+            },
+            updateBadge() {
+                const badges = document.querySelectorAll('.cart-badge');
+                const count = this.count();
+                badges.forEach(b => {
+                    b.textContent = count;
+                    b.style.display = count > 0 ? 'flex' : 'none';
+                });
+            }
+        };
+
+        // Update cart badge on page load
+        document.addEventListener('DOMContentLoaded', () => Cart.updateBadge());
+
+        /* Toast notification */
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type}`;
+            toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:1000;min-width:280px;text-align:center;animation:fadeInUp 0.3s ease;box-shadow: 0 8px 30px rgba(0,0,0,0.5);border-radius: 9999px;padding: 10px 20px;';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

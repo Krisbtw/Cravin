@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}Order Tracking{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="top-bar">
+        <a href="/app/orders" class="btn btn-ghost btn-sm">← Orders</a>
+        <h2 style="font-size: 1.1rem;">#{{ order.order_number if order else '' }}</h2>
+        <div></div>
+    </div>
+
+    {% if order %}
+    <!-- Status Banner -->
+    <div class="card mb-6 animate-fade-in-up" style="background: linear-gradient(135deg, var(--honey-bg), var(--malai)); border: 1px solid var(--honey);">
+        <div class="card-body text-center">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-2);" id="status-emoji">
+                {% if order.status == 'placed' %}📝{% elif order.status == 'accepted' %}👨‍🍳{% elif order.status == 'preparing' %}🔥{% elif order.status == 'ready' %}✅{% elif order.status == 'out_for_delivery' %}🚚{% elif order.status == 'delivered' %}🎉{% else %}❌{% endif %}
+            </div>
+            <h2 id="status-text" style="font-size: 1.2rem; text-transform: capitalize; color: var(--jamun);">
+                {{ order.status|replace('_', ' ') }}
+            </h2>
+            <p class="text-muted mt-2" id="eta-text">
+                {% if order.status == 'delivered' %}
+                Delivered! Enjoy your healthy indulgence.
+                {% elif order.status == 'out_for_delivery' %}
+                🚴 Delivery partner is on the way with your treats!
+                {% elif order.estimated_delivery_mins %}
+                Estimated: ~{{ order.estimated_delivery_mins }} mins
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Order Tracker Progress -->
+    <div class="order-tracker mb-6">
+        <div class="progress-line" id="progress-line" style="width: 0%;"></div>
+
+        <div class="tracker-step" id="step-placed" data-step="placed">
+            <div class="step-dot">📝</div>
+            <span class="step-label">Placed</span>
+        </div>
+        <div class="tracker-step" id="step-accepted" data-step="accepted">
+            <div class="step-dot">👨‍🍳</div>
+            <span class="step-label">Accepted</span>
+        </div>
+        <div class="tracker-step" id="step-preparing" data-step="preparing">
+            <div class="step-dot">🔥</div>
+            <span class="step-label">Baking</span>
+        </div>
+        <div class="tracker-step" id="step-ready" data-step="ready">
+            <div class="step-dot">✅</div>
+            <span class="step-label">Ready</span>
+        </div>
+        <div class="tracker-step" id="step-out_for_delivery" data-step="out_for_delivery">
+            <div class="step-dot">🚚</div>
+            <span class="step-label">On the Way</span>
+        </div>
+        <div class="tracker-step" id="step-delivered" data-step="delivered">
+            <div class="step-dot">🎉</div>
+            <span class="step-label">Delivered</span>
+        </div>
+    </div>
+
+    <!-- Delivery Partner Card (Active when Out for Delivery) -->
+    <div id="delivery-partner-card" class="card mb-4 animate-fade-in-up {{ 'hidden' if order.status not in ['out_for_delivery', 'delivered'] else '' }}" 
+         style="border: 2px solid #0284c7; background: linear-gradient(135deg, #f0f9ff, var(--white));">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span style="font-size: 1.6rem;">🛵</span>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem; color: #0369a1;" id="partner-name">Ramesh Kumar</div>
+                        <div class="text-muted" style="font-size: 0.75rem;" id="partner-vehicle">Electric Scooter (GA-07-EK-8821)</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="tag" style="background: #e0f2fe; color: #0284c7; font-size: 0.65rem; font-weight: 700;">⭐ 4.9 Verified</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between pt-2 mt-2" style="border-top: 1px dashed #bae6fd;">
+                <span style="font-size: 0.8rem; color: #0369a1;" id="delivery-status-detail">
+                    {% if order.status == 'out_for_delivery' %}⏱️ Arriving in ~15 mins{% else %}✅ Delivered successfully{% endif %}
+                </span>
+                <a href="tel:+919876543210" class="btn btn-sm" style="background: #0284c7; color: white; padding: 4px 10px; font-size: 0.75rem; text-decoration: none; border-radius: var(--radius-full);">
+                    📞 Call Rider
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Baker Kitchen Info -->
+    {% if order.baker %}
+    <div class="card mb-4" style="border: 1px solid var(--cream-border); background: var(--malai);">
+        <div class="card-body flex items-center justify-between" style="padding: var(--space-3) var(--space-4);">
+            <div class="flex items-center gap-2">
+                <span style="font-size: 1.3rem;">👩‍🍳</span>
+                <div>
+                    <span class="text-label" style="font-size: 0.7rem;">Crafted by</span>
+                    <h4 style="font-size: 0.9rem; margin-top: -2px;">{{ order.baker.business_name }}</h4>
+                </div>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--honey-dark); font-weight: 700;">⭐ {{ order.baker.avg_rating }} ({{ order.baker.area }})</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Order Items Summary -->
+    <div class="card mb-4" style="border: 1px solid var(--cream-border);">
+        <div class="card-body">
+            <h3 class="mb-3" style="font-size: 1rem;">Order Details</h3>
+            <div id="order-items-list" class="mb-3">
+                {% for item in order.items %}
+                <div class="flex items-center justify-between mb-2 text-sm">
+                    <span>{{ item.dessert.name if item.dessert else 'Item' }} × {{ item.quantity }}</span>
+                    <span style="font-weight: 600;">₹{{ item.total_price|int }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--malai-deep); margin: var(--space-3) 0;">
+            <div class="nutrition-row">
+                <span class="label">Total Amount</span>
+                <span class="value" style="font-weight: 700; color: var(--jamun);">₹{{ order.total_amount|round(2) }}</span>
+            </div>
+            <div class="nutrition-row">
+                <span class="label">Total Calories</span>
+                <span class="value">{{ order.total_calories|int }} cal</span>
+            </div>
+            {% if order.delivery_address %}
+            <div class="nutrition-row" style="border-bottom: none;">
+                <span class="label">Delivery To</span>
+                <span class="value text-right" style="font-size: 0.8rem; max-width: 60%;">{{ order.delivery_address }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center p-6">
+        <h3>Order not found</h3>
+        <a href="/app/orders" class="btn btn-primary mt-4">View All Orders</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block nav %}
+<nav class="bottom-nav">
+    <a href="/app/"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/app/orders" class="active"><span class="nav-icon">📦</span><span>Orders</span></a>
+    <a href="/app/cart" style="position: relative;"><span class="nav-icon">🛒</span><span>Cart</span>
+        <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none;">0</span>
+    </a>
+    <a href="/app/rewards"><span class="nav-icon">🏆</span><span>Rewards</span></a>
+    <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+{% if order %}
+<script>
+const STATUS_ORDER = ['placed', 'accepted', 'preparing', 'ready', 'out_for_delivery', 'delivered'];
+const PROGRESS_MAP = {
+    placed: 0, 
+    accepted: 20, 
+    preparing: 40, 
+    ready: 60, 
+    out_for_delivery: 80, 
+    delivered: 100
+};
+const EMOJI_MAP = {
+    placed: '📝', 
+    accepted: '👨‍🍳', 
+    preparing: '🔥', 
+    ready: '✅', 
+    out_for_delivery: '🚚', 
+    delivered: '🎉', 
+    cancelled: '❌'
+};
+
+function updateTracker(status, partnerData) {
+    const idx = STATUS_ORDER.indexOf(status);
+    const progressEl = document.getElementById('progress-line');
+    if (progressEl) {
+        progressEl.style.width = (PROGRESS_MAP[status] !== undefined ? PROGRESS_MAP[status] : 0) + '%';
+    }
+
+    STATUS_ORDER.forEach((s, i) => {
+        const step = document.getElementById('step-' + s);
+        if (!step) return;
+        step.classList.remove('active', 'completed');
+        if (i < idx) step.classList.add('completed');
+        else if (i === idx) step.classList.add('active');
+    });
+
+    const emojiEl = document.getElementById('status-emoji');
+    const textEl = document.getElementById('status-text');
+    const etaEl = document.getElementById('eta-text');
+    const partnerCard = document.getElementById('delivery-partner-card');
+
+    if (emojiEl) emojiEl.textContent = EMOJI_MAP[status] || '📝';
+    if (textEl) textEl.textContent = status.replace(/_/g, ' ');
+
+    if (status === 'out_for_delivery') {
+        if (etaEl) etaEl.textContent = '🚴 Delivery partner is on the way with your treats!';
+        if (partnerCard) partnerCard.classList.remove('hidden');
+    } else if (status === 'delivered') {
+        if (etaEl) etaEl.textContent = 'Delivered! Enjoy your healthy indulgence 🎉';
+        if (partnerCard) partnerCard.classList.remove('hidden');
+        const detailEl = document.getElementById('delivery-status-detail');
+        if (detailEl) detailEl.textContent = '✅ Delivered successfully';
+    } else {
+        if (partnerCard) partnerCard.classList.add('hidden');
+    }
+
+    if (partnerData) {
+        if (document.getElementById('partner-name')) document.getElementById('partner-name').textContent = partnerData.name;
+        if (document.getElementById('partner-vehicle')) document.getElementById('partner-vehicle').textContent = partnerData.vehicle;
+    }
+}
+
+// SSE real-time tracking
+const orderId = '{{ order.id }}';
+const eventSource = new EventSource(`/api/orders/${orderId}/track`);
+
+eventSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    updateTracker(data.status, data.delivery_partner);
+
+    if (data.status === 'delivered' || data.status === 'cancelled') {
+        eventSource.close();
+        if (data.status === 'delivered') {
+            showToast('Order delivered! Enjoy your dessert 🎉');
+        }
+    }
+};
+
+eventSource.onerror = function() {
+    // Reconnect silently
+    setTimeout(() => location.reload(), 10000);
+};
+
+// Initial state
+updateTracker('{{ order.status }}');
+</script>
+{% endif %}
+{% endblock %}
+

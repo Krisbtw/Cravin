@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}AI Customizer — {{ dessert.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .customizer-page {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--bg-base);
+    }
+    .customizer-header {
+        padding: var(--space-4) var(--space-5);
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .customizer-header h2 {
+        font-size: 1.1rem;
+        color: var(--text-primary);
+    }
+    .quick-chips {
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        gap: var(--space-2);
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .chip {
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-full);
+        background: var(--bg-overlay);
+        border: 1px solid var(--border-default);
+        color: var(--jamun-light);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all var(--duration-fast);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+    }
+    .chip:hover {
+        background: var(--jamun-bg);
+        border-color: var(--jamun);
+        color: var(--text-primary);
+    }
+    .chat-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+    .chat-bubble {
+        max-width: 88%;
+        padding: var(--space-4);
+        border-radius: var(--radius-lg);
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+    .chat-bubble.ai {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        color: var(--text-primary);
+        align-self: flex-start;
+        border-bottom-left-radius: var(--radius-sm);
+    }
+    .chat-bubble.user {
+        background: linear-gradient(135deg, var(--jamun-dark), var(--jamun));
+        color: #FFFFFF;
+        align-self: flex-end;
+        border-bottom-right-radius: var(--radius-sm);
+        box-shadow: var(--glow-jamun);
+    }
+    .chat-input-bar {
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg-surface);
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+    .chat-input-bar input {
+        flex: 1;
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg-input);
+        border: 1.5px solid var(--border-default);
+        border-radius: var(--radius-full);
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+    .chat-input-bar input::placeholder {
+        color: var(--text-tertiary);
+    }
+    .chat-input-bar input:focus {
+        outline: none;
+        border-color: var(--jamun);
+        box-shadow: 0 0 0 3px var(--jamun-glow);
+    }
+    .voice-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bg-overlay);
+        border: 1px solid var(--border-default);
+        color: var(--honey);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all var(--duration-fast);
+    }
+    .voice-btn:hover {
+        background: var(--honey-bg);
+        border-color: var(--honey);
+    }
+    .typing-indicator {
+        font-size: 0.82rem;
+        color: var(--jamun-light);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-4);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="customizer-page">
+    <!-- Header -->
+    <div class="customizer-header">
+        <a href="/app/dessert/{{ dessert.id }}" class="btn btn-ghost btn-sm" style="color: var(--text-secondary);">← Back</a>
+        <div class="text-center">
+            <h2>✨ AI Chef Customizer</h2>
+            <p class="text-muted" style="font-size: 0.75rem; color: var(--text-tertiary);">Talk with AI to modify {{ dessert.name }}</p>
+        </div>
+        <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px;">
+            <span>🛒 Cart</span>
+            <span class="cart-badge badge badge-jamun" style="display: none; font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 99px;">0</span>
+        </a>
+    </div>
+
+    <!-- Quick Preset Chips -->
+    <div class="quick-chips">
+        <button class="chip" onclick="sendQuickPrompt('Make it extra high protein (+25g whey)')">💪 +25g Whey Protein</button>
+        <button class="chip" onclick="sendQuickPrompt('Reduce sweetness by 50% for subtle taste')">🍯 50% Sweetness</button>
+        <button class="chip" onclick="sendQuickPrompt('Make it nut-free and eggless')">🥜 Nut & Egg Free</button>
+        <button class="chip" onclick="sendQuickPrompt('Increase fiber and reduce total calories')">🌾 Fiber Boost</button>
+        <button class="chip" onclick="sendQuickPrompt('Make it indulgence level sweet with monk fruit')">🍈 Rich Monk Fruit</button>
+    </div>
+
+    <!-- Chat Messages Area -->
+    <div class="chat-area" id="chat-messages">
+        <div class="chat-bubble ai">
+            Hello! 👋 I'm your <strong>Cravin AI Chef</strong>.<br><br>
+            Tell me in plain English how you'd like to customize <strong>{{ dessert.name }}</strong>! You can ask for higher protein, less sweetness, specific allergen swaps, or ingredient tweaks.
+        </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="typing-indicator" class="typing-indicator hidden">
+        <div class="loading-spinner" style="width: 16px; height: 16px;"></div>
+        <span>AI Chef is reformulating recipe & nutrition...</span>
+    </div>
+
+    <!-- Real-Time Chat Input Bar -->
+    <div class="chat-input-bar">
+        <input type="text" id="user-input" placeholder="Talk to AI... (e.g. 'Make it extra protein and less sweet')" onkeypress="handleKeyPress(event)">
+        <button type="button" class="voice-btn" onclick="toggleVoiceInput()" title="Voice input">🎤</button>
+        <button type="button" class="btn btn-primary btn-sm" id="send-btn" onclick="sendMessage()">Send 💬</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let lastCustomization = null;
+
+function handleKeyPress(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+function sendQuickPrompt(promptText) {
+    document.getElementById('user-input').value = promptText;
+    sendMessage();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Clear input
+    input.value = '';
+
+    // Add user bubble
+    addChatBubble(text, 'user');
+
+    // Show typing
+    const indicator = document.getElementById('typing-indicator');
+    indicator.classList.remove('hidden');
+
+    const sendBtn = document.getElementById('send-btn');
+    sendBtn.disabled = true;
+
+    try {
+        // Parse basic hints from text for structured fallback
+        let sweetness = 'medium';
+        if (text.toLowerCase().includes('less sweet') || text.toLowerCase().includes('low sweet') || text.toLowerCase().includes('50%')) sweetness = 'low';
+        if (text.toLowerCase().includes('extra sweet') || text.toLowerCase().includes('high sweet') || text.toLowerCase().includes('indulgen')) sweetness = 'high';
+
+        let protein = null;
+        if (text.toLowerCase().includes('protein') || text.toLowerCase().includes('whey')) protein = 'whey';
+        if (text.toLowerCase().includes('pea')) protein = 'pea';
+
+        const exclude = [];
+        if (text.toLowerCase().includes('nut') || text.toLowerCase().includes('almond')) exclude.push('nuts');
+        if (text.toLowerCase().includes('dairy') || text.toLowerCase().includes('milk')) exclude.push('dairy');
+        if (text.toLowerCase().includes('egg')) exclude.push('eggs');
+        if (text.toLowerCase().includes('gluten')) exclude.push('gluten');
+
+        const res = await fetch('/api/customer/customize', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                dessert_id: '{{ dessert.id }}',
+                sweetness: sweetness,
+                protein_boost: protein,
+                exclude_allergens: exclude,
+                user_message: text,
+            }),
+        });
+
+        const data = await res.json();
+        indicator.classList.add('hidden');
+        sendBtn.disabled = false;
+
+        if (res.ok) {
+            lastCustomization = data;
+
+            // AI text response
+            let aiText = data.ai_message || `I've updated the recipe for **{{ dessert.name }}** according to your request!`;
+            addChatBubble(aiText, 'ai');
+
+            // Nutrition & Add-to-cart panel
+            if (data.nutrition) {
+                const n = data.nutrition.per_serving;
+                const panelHtml = `
+                    <div class="nutrition-panel" style="margin-top: var(--space-2); background: var(--bg-elevated); border: 1px solid var(--border-emphasis);">
+                        <div class="panel-title" style="color: var(--honey);">📊 Real-Time Nutrition</div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Calories</span><span class="value" style="color: var(--honey); font-size: 1rem;">${Math.round(n.calories)} kcal</span></div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Protein</span><span class="value" style="color: var(--pista);">${n.protein_g}g</span></div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Carbs</span><span class="value" style="color: var(--text-primary);">${n.carbs_g}g</span></div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Fat</span><span class="value" style="color: var(--text-primary);">${n.fat_g}g</span></div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Sugar Equiv.</span><span class="value" style="color: var(--pista);">0g Added Sugar</span></div>
+                        
+                        <div class="flex items-center justify-between mt-3">
+                            <span class="tag tag-${data.nutrition.tag}">${data.nutrition.tag}</span>
+                            <button class="btn btn-primary btn-sm" onclick="addCustomToCart()">
+                                🛒 Add Custom Recipe to Cart (₹{{ dessert.price|int }})
+                            </button>
+                        </div>
+                    </div>
+                `;
+                addChatBubble(panelHtml, 'ai', true);
+            }
+        } else {
+            addChatBubble('Sorry, I could not complete that request. ' + (data.detail || 'Please try rephrasing.'), 'ai');
+        }
+    } catch (err) {
+        indicator.classList.add('hidden');
+        sendBtn.disabled = false;
+        addChatBubble('Connection error. Please try sending your message again.', 'ai');
+    }
+}
+
+function addChatBubble(content, type, isHtml = false) {
+    const chatArea = document.getElementById('chat-messages');
+    const bubble = document.createElement('div');
+    bubble.className = `chat-bubble ${type}`;
+    if (isHtml) {
+        bubble.innerHTML = content;
+    } else {
+        bubble.innerHTML = content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+    chatArea.appendChild(bubble);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function addCustomToCart() {
+    if (!lastCustomization) return;
+
+    Cart.add({
+        dessert_id: '{{ dessert.id }}',
+        name: '{{ dessert.name }} (AI Custom)',
+        price: {{ dessert.price }},
+        calories: lastCustomization.nutrition?.per_serving?.calories || {{ dessert.calories }},
+        quantity: 1,
+        customization: lastCustomization.customization_summary || 'Custom AI Recipe',
+    });
+    showToast('Custom dessert added! <a href="/app/cart" style="color: var(--honey-light); font-weight: 700; text-decoration: underline; margin-left: 8px;">View Cart 🛒 →</a>');
+}
+
+function toggleVoiceInput() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showToast('Voice recognition is not supported in this browser.', 'warning');
+        return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.start();
+
+    showToast('🎤 Listening... speak your custom recipe request!', 'info');
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('user-input').value = transcript;
+        sendMessage();
+    };
+
+    recognition.onerror = () => {
+        showToast('Could not capture voice input. Please type your message.', 'warning');
+    };
+}
+</script>
+{% endblock %}

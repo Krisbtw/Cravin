@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Flavor DNA Quiz{% endblock %}
+
+{% block content %}
+<div class="page-content" style="padding-top: var(--space-8);">
+    <div class="text-center mb-6">
+        <div style="font-size: 3rem; margin-bottom: var(--space-3);">🧬</div>
+        <h1 style="font-size: 1.6rem;">Your Flavor DNA</h1>
+        <p class="text-subtitle">5 quick questions so we can customize your experience</p>
+    </div>
+
+    <form id="onboarding-form" onsubmit="saveOnboarding(event)">
+        <!-- Q1: Sweet vs Rich -->
+        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border);">
+            <div class="card-body">
+                <p class="form-label">What's your vibe? 🍰</p>
+                <div class="flex gap-3">
+                    <label class="form-check" style="flex: 1; padding: var(--space-3); background: var(--malai-deep); border-radius: var(--radius-md); justify-content: center;">
+                        <input type="radio" name="vibe" value="sweet" checked> Light & Sweet
+                    </label>
+                    <label class="form-check" style="flex: 1; padding: var(--space-3); background: var(--malai-deep); border-radius: var(--radius-md); justify-content: center;">
+                        <input type="radio" name="vibe" value="rich"> Rich & Indulgent
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q2: Texture -->
+        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 60ms;">
+            <div class="card-body">
+                <p class="form-label">Texture preference? 🤤</p>
+                <select class="form-input" id="texture">
+                    <option value="creamy">Creamy & Smooth</option>
+                    <option value="crunchy">Crunchy & Nutty</option>
+                    <option value="chewy">Chewy & Dense</option>
+                    <option value="fluffy">Light & Fluffy</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Q3: Allergies -->
+        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 120ms;">
+            <div class="card-body">
+                <p class="form-label">Any allergies? 🛡️</p>
+                <div class="flex flex-wrap gap-2">
+                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
+                        <input type="checkbox" value="nuts" class="allergy-check"> Nuts
+                    </label>
+                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
+                        <input type="checkbox" value="dairy" class="allergy-check"> Dairy
+                    </label>
+                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
+                        <input type="checkbox" value="gluten" class="allergy-check"> Gluten
+                    </label>
+                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
+                        <input type="checkbox" value="eggs" class="allergy-check"> Eggs
+                    </label>
+                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
+                        <input type="checkbox" value="soy" class="allergy-check"> Soy
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q4: Calorie Goal -->
+        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 180ms;">
+            <div class="card-body">
+                <p class="form-label">Daily dessert calorie budget? 🍩</p>
+                <select class="form-input" id="calorie-goal">
+                    <option value="300">Light — under 300 cal/day</option>
+                    <option value="500" selected>Balanced — under 500 cal/day</option>
+                    <option value="800">Flexible — under 800 cal/day</option>
+                    <option value="2000">No limit — I'm here for taste!</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Q5: Favorite Flavors -->
+        <div class="card mb-6 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 240ms;">
+            <div class="card-body">
+                <p class="form-label">Pick your favorite flavors 🎨</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for flavor in ['Chocolate', 'Mango', 'Pistachio', 'Cardamom', 'Coconut', 'Banana', 'Saffron', 'Rose'] %}
+                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
+                        <input type="checkbox" value="{{ flavor.lower() }}" class="flavor-check"> {{ flavor }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="save-btn">
+            Save My Flavor DNA 🧬
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function saveOnboarding(e) {
+    e.preventDefault();
+    const btn = document.getElementById('save-btn');
+    btn.textContent = 'Saving...';
+    btn.disabled = true;
+
+    const allergies = Array.from(document.querySelectorAll('.allergy-check:checked')).map(c => c.value);
+    const flavors = Array.from(document.querySelectorAll('.flavor-check:checked')).map(c => c.value);
+    const vibe = document.querySelector('input[name="vibe"]:checked')?.value || 'sweet';
+    const texture = document.getElementById('texture').value;
+    const calorieGoal = parseInt(document.getElementById('calorie-goal').value);
+
+    try {
+        const res = await fetch('/api/auth/onboarding', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                dietary_prefs: {vegan: false, eggless: allergies.includes('eggs'), gluten_free: allergies.includes('gluten')},
+                allergies: allergies,
+                calorie_goal: calorieGoal,
+                flavor_profile: {
+                    sweet_vs_rich: vibe === 'sweet' ? 0.3 : 0.8,
+                    texture: texture,
+                    adventurousness: 0.7,
+                    favorite_flavors: flavors,
+                },
+            }),
+        });
+
+        if (res.ok) {
+            showToast('Flavor DNA saved! 🧬');
+            setTimeout(() => window.location.href = '/app/', 1000);
+        } else {
+            showToast('Failed to save. Please try again.', 'danger');
+            btn.textContent = 'Save My Flavor DNA 🧬';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        showToast('Connection error', 'danger');
+        btn.textContent = 'Save My Flavor DNA 🧬';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

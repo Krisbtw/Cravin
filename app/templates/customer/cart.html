@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="top-bar">
+        <h1 style="font-size: 1.5rem;">🛒 Your Cart</h1>
+        <button class="btn btn-ghost btn-sm" onclick="clearCart()" id="clear-btn">Clear</button>
+    </div>
+
+    <div id="cart-items"></div>
+
+    <div id="cart-empty" class="text-center p-6 hidden">
+        <div style="font-size: 4rem; margin-bottom: var(--space-4);">🛒</div>
+        <h3>Your cart is empty</h3>
+        <p class="text-muted mb-4">Find something delicious to add!</p>
+        <a href="/app/" class="btn btn-primary">Browse Desserts</a>
+    </div>
+
+    <!-- Cart Summary -->
+    <div id="cart-summary" class="hidden" style="background: var(--white); border-radius: var(--radius-lg); padding: var(--space-5); margin-top: var(--space-4); border: 1px solid var(--cream-border);">
+        <div class="nutrition-row">
+            <span class="label">Subtotal</span>
+            <span class="value" id="subtotal">₹0</span>
+        </div>
+        <div class="nutrition-row">
+            <span class="label">Delivery fee</span>
+            <span class="value" id="delivery-fee">₹30</span>
+        </div>
+        <div class="nutrition-row" style="border-bottom: 2px solid var(--jamun);">
+            <span class="label" style="font-weight: 700; font-size: 1rem;">Total</span>
+            <span class="value" style="font-size: 1.2rem;" id="total">₹0</span>
+        </div>
+        <div class="nutrition-row" style="border-bottom: none;">
+            <span class="label">🔥 Total calories</span>
+            <span class="value" id="total-cal">0 cal</span>
+        </div>
+    </div>
+
+    <div id="checkout-area" class="hidden mt-6" style="padding-bottom: var(--space-8);">
+        <!-- Fulfillment toggle -->
+        <div class="flex gap-3 mb-4">
+            <button class="btn btn-block fulfillment-btn active" id="delivery-btn" onclick="setFulfillment('delivery')"
+                style="background: var(--jamun); color: white;">🚚 Delivery</button>
+            <button class="btn btn-outline btn-block fulfillment-btn" id="pickup-btn" onclick="setFulfillment('pickup')">🏃 Pickup</button>
+        </div>
+
+        <a href="/app/checkout" class="btn btn-primary btn-block btn-lg">
+            Proceed to Checkout →
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block nav %}
+<nav class="bottom-nav">
+    <a href="/app/"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/app/orders"><span class="nav-icon">📦</span><span>Orders</span></a>
+    <a href="/app/cart" class="active" style="position: relative;"><span class="nav-icon">🛒</span><span>Cart</span>
+        <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none;">0</span>
+    </a>
+    <a href="/app/rewards"><span class="nav-icon">🏆</span><span>Rewards</span></a>
+    <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let fulfillmentType = 'delivery';
+
+function renderCart() {
+    const cart = Cart.get();
+    const container = document.getElementById('cart-items');
+    const empty = document.getElementById('cart-empty');
+    const summary = document.getElementById('cart-summary');
+    const checkout = document.getElementById('checkout-area');
+    const clearBtn = document.getElementById('clear-btn');
+
+    if (cart.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        summary.classList.add('hidden');
+        checkout.classList.add('hidden');
+        clearBtn.classList.add('hidden');
+        return;
+    }
+
+    empty.classList.add('hidden');
+    summary.classList.remove('hidden');
+    checkout.classList.remove('hidden');
+    clearBtn.classList.remove('hidden');
+
+    let subtotal = 0;
+    let totalCal = 0;
+
+    container.innerHTML = cart.map((item, i) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        totalCal += (item.calories || 0) * item.quantity;
+
+        return `
+            <div class="card mb-3 animate-fade-in-up" style="border: 1px solid var(--cream-border);">
+                <div class="card-body flex items-center gap-3">
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 0.95rem;">${item.name}</h4>
+                        <div class="flex items-center gap-3 mt-2">
+                            <span style="font-weight: 700; color: var(--jamun);">₹${item.price}</span>
+                            <span class="text-muted" style="font-size: 0.8rem;">${Math.round(item.calories || 0)} cal</span>
+                        </div>
+                        ${item.customization ? '<span class="tag" style="background: var(--jamun-bg); color: var(--jamun); font-size: 0.65rem; margin-top: 4px;">✨ Customized</span>' : ''}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, -1)" style="min-height: 32px; padding: 4px 8px;">−</button>
+                        <span style="font-weight: 700; min-width: 24px; text-align: center;">${item.quantity}</span>
+                        <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, 1)" style="min-height: 32px; padding: 4px 8px;">+</button>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" onclick="removeItem(${i})" style="color: var(--danger); min-height: 32px;">✕</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const deliveryFee = fulfillmentType === 'delivery' ? 30 : 0;
+    document.getElementById('subtotal').textContent = `₹${subtotal}`;
+    document.getElementById('delivery-fee').textContent = `₹${deliveryFee}`;
+    document.getElementById('total').textContent = `₹${subtotal + deliveryFee}`;
+    document.getElementById('total-cal').textContent = `${Math.round(totalCal)} cal`;
+}
+
+function changeQty(index, delta) {
+    const cart = Cart.get();
+    cart[index].quantity = Math.max(1, cart[index].quantity + delta);
+    localStorage.setItem(Cart.KEY, JSON.stringify(cart));
+    Cart.updateBadge();
+    renderCart();
+}
+
+function removeItem(index) {
+    Cart.remove(index);
+    renderCart();
+}
+
+function clearCart() {
+    Cart.clear();
+    renderCart();
+}
+
+function setFulfillment(type) {
+    fulfillmentType = type;
+    localStorage.setItem('cravin_fulfillment', type);
+    document.querySelectorAll('.fulfillment-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = '';
+        b.style.color = '';
+    });
+    const activeBtn = document.getElementById(type + '-btn');
+    activeBtn.classList.add('active');
+    activeBtn.style.background = 'var(--jamun)';
+    activeBtn.style.color = 'white';
+    renderCart();
+}
+
+document.addEventListener('DOMContentLoaded', renderCart);
+</script>
+{% endblock %}

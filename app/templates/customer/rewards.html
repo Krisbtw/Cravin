@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Sweet Streak — Rewards{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="top-bar">
+        <h1 style="font-size: 1.5rem;">🏆 Sweet Streak</h1>
+    </div>
+
+    {% if loyalty %}
+    <!-- Tier & Points -->
+    <div class="card mb-6 animate-fade-in-up" style="background: linear-gradient(135deg, var(--jamun-bg), var(--honey-bg)); border: none;">
+        <div class="card-body text-center">
+            <span class="tier-badge tier-{{ loyalty.tier }} mb-4">
+                {% if loyalty.tier == 'bronze' %}🥉 Bronze{% elif loyalty.tier == 'silver' %}🥈 Silver{% elif loyalty.tier == 'gold' %}🥇 Gold{% else %}💎 Platinum{% endif %}
+            </span>
+            <div style="font-family: var(--font-display); font-weight: 800; font-size: 2.5rem; color: var(--jamun); margin: var(--space-4) 0;">
+                {{ loyalty.points_balance }}
+            </div>
+            <p class="text-muted">points available</p>
+        </div>
+    </div>
+
+    <!-- Streak -->
+    <div class="streak-display mb-6 animate-fade-in-up" style="animation-delay: 100ms;">
+        <span class="streak-fire">🔥</span>
+        <div>
+            <div class="streak-count">{{ loyalty.current_streak }}-week streak!</div>
+            <div class="streak-label">Longest: {{ loyalty.longest_streak }} weeks</div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-2 mb-6">
+        <div class="card animate-fade-in-up" style="animation-delay: 150ms; border: 1px solid var(--cream-border);">
+            <div class="card-body text-center">
+                <div style="font-size: 1.5rem; margin-bottom: 4px;">{{ loyalty.lifetime_points }}</div>
+                <div class="text-label">Lifetime Points</div>
+            </div>
+        </div>
+        <div class="card animate-fade-in-up" style="animation-delay: 200ms; border: 1px solid var(--cream-border);">
+            <div class="card-body text-center">
+                <div style="font-size: 1.5rem; margin-bottom: 4px;">{{ loyalty.referral_count }}</div>
+                <div class="text-label">Referrals</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Code -->
+    <div class="card mb-6 animate-fade-in-up" style="animation-delay: 250ms; background: var(--honey-bg); border: 1px dashed var(--honey);">
+        <div class="card-body text-center">
+            <p class="text-label mb-2">Your Referral Code</p>
+            <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--jamun); letter-spacing: 0.05em;">
+                {{ loyalty.referral_code }}
+            </div>
+            <p class="text-muted mt-2" style="font-size: 0.8rem;">Share this code — you both earn 50 bonus points!</p>
+            <button class="btn btn-primary btn-sm mt-3" onclick="navigator.clipboard.writeText('{{ loyalty.referral_code }}'); showToast('Code copied! 📋');">
+                Copy Code
+            </button>
+        </div>
+    </div>
+
+    <!-- Badges -->
+    <h3 class="mb-4">🏅 Badges</h3>
+    <div class="badge-grid mb-6">
+        {% set all_badges = [
+            ("first_order", "🎉", "First Order"),
+            ("5_streak", "🔥", "5-Week Streak"),
+            ("10_streak", "⚡", "10-Week Streak"),
+            ("tried_5_bakers", "🧑‍🍳", "5 Bakers"),
+            ("customizer_pro", "🤖", "Customizer Pro"),
+            ("ragi_lover", "🌾", "Ragi Lover"),
+            ("health_hero", "💪", "Health Hero"),
+            ("referral_star", "⭐", "Referral Star"),
+        ] %}
+        {% for badge_id, icon, name in all_badges %}
+        <div class="badge-item {{ 'earned' if badge_id in (loyalty.badges or []) else 'locked' }}">
+            <span class="badge-icon">{{ icon }}</span>
+            <span class="badge-name">{{ name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="text-center p-6">
+        <div style="font-size: 4rem; margin-bottom: var(--space-4);">🏆</div>
+        <h3>Start your Sweet Streak!</h3>
+        <p class="text-muted mb-4">Place your first order to unlock rewards.</p>
+        <a href="/app/" class="btn btn-primary">Browse Desserts</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block nav %}
+<nav class="bottom-nav">
+    <a href="/app/"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/app/orders"><span class="nav-icon">📦</span><span>Orders</span></a>
+    <a href="/app/cart" style="position: relative;"><span class="nav-icon">🛒</span><span>Cart</span>
+        <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none;">0</span>
+    </a>
+    <a href="/app/rewards" class="active"><span class="nav-icon">🏆</span><span>Rewards</span></a>
+    <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
+</nav>
+{% endblock %}

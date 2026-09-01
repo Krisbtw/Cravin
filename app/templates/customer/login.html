@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 90vh;">
+    <div class="text-center mb-8">
+        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🍩</div>
+        <h1 class="logo" style="font-size: 2.5rem;">Crav<span style="color: var(--honey);">in</span></h1>
+        <p class="text-subtitle mt-2">Zero Sugar · Zero Maida · Full Flavor</p>
+    </div>
+
+    <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-btn">Sign In</button>
+    </form>
+
+    <div class="text-center mt-6">
+        <p class="text-muted">New to Cravin? <a href="/app/register" style="font-weight: 600;">Create an account</a></p>
+    </div>
+
+    <div class="text-center mt-4">
+        <p class="text-muted" style="font-size: 0.8rem;">
+            🧑‍🍳 <a href="/baker/login">Baker Login</a> &nbsp;·&nbsp; 🛠️ <a href="/admin/login">Admin Login</a>
+        </p>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+            }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            // Redirect based on role
+            if (data.user.role === 'baker') {
+                window.location.href = '/baker/';
+            } else if (data.user.role === 'admin') {
+                window.location.href = '/admin/';
+            } else {
+                window.location.href = data.user.onboarding_complete ? '/app/' : '/app/onboarding';
+            }
+        } else {
+            showToast(data.detail || 'Login failed', 'danger');
+            btn.textContent = 'Sign In';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        showToast('Connection error. Please try again.', 'danger');
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

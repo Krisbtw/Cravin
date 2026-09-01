@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Earnings{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="top-bar">
+        <a href="/baker/" class="btn btn-ghost btn-sm">← Dashboard</a>
+        <h2 style="font-size: 1.2rem;">💰 Earnings</h2>
+        <div></div>
+    </div>
+
+    {% if baker %}
+    <div class="grid-2 mb-6">
+        <div class="card" style="background: linear-gradient(135deg, var(--honey-bg), var(--malai)); border: none;">
+            <div class="card-body text-center">
+                <div style="font-size: 1.8rem; font-weight: 800; color: var(--honey-dark);">₹{{ baker.total_earnings|int }}</div>
+                <div class="text-label">Total Earned</div>
+            </div>
+        </div>
+        <div class="card" style="background: linear-gradient(135deg, var(--pista-bg), var(--malai)); border: none;">
+            <div class="card-body text-center">
+                <div style="font-size: 1.8rem; font-weight: 800; color: var(--pista-dark);">₹{{ baker.pending_payout|int }}</div>
+                <div class="text-label">Pending Payout</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4" style="border: 1px solid var(--cream-border);">
+        <div class="card-body">
+            <div class="nutrition-row"><span class="label">Total Orders</span><span class="value">{{ baker.total_orders_completed }}</span></div>
+            <div class="nutrition-row"><span class="label">Avg. Order Value</span><span class="value">₹{{ (baker.total_earnings / [baker.total_orders_completed, 1]|max)|int }}</span></div>
+            <div class="nutrition-row" style="border-bottom: none;"><span class="label">Your Commission</span><span class="value" style="color: var(--pista-dark);">75%</span></div>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        <span>💡</span>
+        <span>Payouts are processed weekly. Phase 1 MVP — actual payout integration coming in Phase 2.</span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,300 @@
+[
+  {
+    "name": "Ragi Chocolate Lava Cake",
+    "short_description": "Molten dark chocolate center with finger millet flour and date sweetness",
+    "description": "A warm, indulgent lava cake made with nutrient-rich ragi (finger millet) flour and naturally sweetened with Medjool dates and a touch of monk fruit. The molten dark chocolate center is pure 85% cacao — no refined sugar, no maida, all flavor.",
+    "base_ingredients": [
+      {"name": "ragi flour", "quantity_g": 60},
+      {"name": "cocoa powder", "quantity_g": 30},
+      {"name": "dark chocolate 85%", "quantity_g": 50},
+      {"name": "medjool dates", "quantity_g": 40},
+      {"name": "monk fruit sweetener", "quantity_g": 5},
+      {"name": "eggs", "quantity_g": 50},
+      {"name": "coconut oil", "quantity_g": 20},
+      {"name": "vanilla extract", "quantity_g": 3},
+      {"name": "baking powder", "quantity_g": 3},
+      {"name": "salt", "quantity_g": 1}
+    ],
+    "recipe_steps": [
+      "Melt dark chocolate with coconut oil over a double boiler",
+      "Blend soaked dates into a smooth paste",
+      "Whisk eggs until fluffy, fold in date paste",
+      "Sift ragi flour, cocoa powder, and baking powder together",
+      "Fold dry ingredients into wet, then fold in melted chocolate",
+      "Pour into greased ramekins, bake at 200°C for 12-14 minutes",
+      "Center should be molten — serve immediately"
+    ],
+    "serving_size_g": 130,
+    "servings_per_recipe": 2,
+    "price": 349,
+    "dietary_flags": ["gluten-free"],
+    "is_signature": true,
+    "image_url": "/static/images/ragi-lava-cake.jpg"
+  },
+  {
+    "name": "Almond Flour Gulab Jamun",
+    "short_description": "Soft, syrup-soaked dumplings made with almond flour and date syrup",
+    "description": "Traditional gulab jamun reimagined with almond flour instead of maida, soaked in a warm date syrup infused with cardamom and rose water. All the nostalgia, none of the refined sugar.",
+    "base_ingredients": [
+      {"name": "almond flour", "quantity_g": 80},
+      {"name": "khoya", "quantity_g": 50},
+      {"name": "date syrup", "quantity_g": 60},
+      {"name": "cardamom powder", "quantity_g": 2},
+      {"name": "rose water", "quantity_g": 5},
+      {"name": "ghee", "quantity_g": 15},
+      {"name": "baking soda", "quantity_g": 1},
+      {"name": "saffron", "quantity_g": 0.3}
+    ],
+    "recipe_steps": [
+      "Crumble khoya finely, mix with almond flour",
+      "Add a pinch of baking soda, knead into smooth dough",
+      "Roll into small, crack-free balls",
+      "Deep fry in ghee on low heat until deep golden",
+      "Warm date syrup with cardamom, rose water, and saffron",
+      "Soak fried jamuns in warm syrup for at least 2 hours",
+      "Serve warm with a strand of saffron"
+    ],
+    "serving_size_g": 80,
+    "servings_per_recipe": 6,
+    "price": 299,
+    "dietary_flags": ["eggless", "gluten-free"],
+    "is_signature": true,
+    "image_url": "/static/images/almond-gulab-jamun.jpg"
+  },
+  {
+    "name": "Coconut Millet Kheer",
+    "short_description": "Creamy foxtail millet pudding with coconut milk and jaggery",
+    "description": "A light, aromatic kheer made with foxtail millet cooked in coconut milk and sweetened with unrefined jaggery. Garnished with toasted cashews and cardamom — comfort in a bowl.",
+    "base_ingredients": [
+      {"name": "foxtail millet", "quantity_g": 40},
+      {"name": "coconut milk", "quantity_g": 150},
+      {"name": "jaggery", "quantity_g": 20},
+      {"name": "cashews", "quantity_g": 10},
+      {"name": "cardamom powder", "quantity_g": 1},
+      {"name": "saffron", "quantity_g": 0.2}
+    ],
+    "recipe_steps": [
+      "Wash and soak foxtail millet for 30 minutes",
+      "Dry roast millet lightly until fragrant",
+      "Simmer in coconut milk on low heat, stirring often",
+      "Add grated jaggery once millet is cooked and creamy",
+      "Toast cashews in a drop of ghee",
+      "Garnish with cardamom, saffron, and toasted cashews",
+      "Serve warm or chilled"
+    ],
+    "serving_size_g": 150,
+    "servings_per_recipe": 3,
+    "price": 199,
+    "dietary_flags": ["eggless", "gluten-free"],
+    "is_signature": true,
+    "image_url": "/static/images/millet-kheer.jpg"
+  },
+  {
+    "name": "Pistachio Oat Barfi",
+    "short_description": "Rich pistachio fudge squares with oat flour and date sweetness",
+    "description": "Dense, aromatic barfi made with ground pistachios, oat flour, and naturally sweetened with date paste. Topped with slivers of pistachio and edible silver leaf.",
+    "base_ingredients": [
+      {"name": "pistachios", "quantity_g": 60},
+      {"name": "oat flour", "quantity_g": 40},
+      {"name": "date paste", "quantity_g": 50},
+      {"name": "ghee", "quantity_g": 20},
+      {"name": "cardamom powder", "quantity_g": 2},
+      {"name": "full cream milk", "quantity_g": 80}
+    ],
+    "recipe_steps": [
+      "Grind pistachios to a fine powder, keep some coarse for texture",
+      "Heat ghee, add oat flour, and roast until golden and fragrant",
+      "Add pistachio powder, stir continuously",
+      "Add warm milk gradually, cook until thick",
+      "Mix in date paste and cardamom, cook until mixture leaves the sides",
+      "Spread in a greased tray, top with pistachio slivers",
+      "Cool, cut into diamond shapes"
+    ],
+    "serving_size_g": 40,
+    "servings_per_recipe": 8,
+    "price": 349,
+    "dietary_flags": ["eggless"],
+    "is_signature": true,
+    "image_url": "/static/images/pista-barfi.jpg"
+  },
+  {
+    "name": "Stevia Mango Cheesecake",
+    "short_description": "No-bake mango cheesecake with an almond flour crust and stevia",
+    "description": "A luscious no-bake cheesecake with Alphonso mango purée, cream cheese, and a nutty almond flour crust. Sweetened purely with stevia — tastes like summer with zero sugar.",
+    "base_ingredients": [
+      {"name": "almond flour", "quantity_g": 60},
+      {"name": "cream cheese", "quantity_g": 200},
+      {"name": "mango pulp", "quantity_g": 100},
+      {"name": "coconut oil", "quantity_g": 20},
+      {"name": "stevia extract", "quantity_g": 3},
+      {"name": "vanilla extract", "quantity_g": 3},
+      {"name": "desiccated coconut", "quantity_g": 15}
+    ],
+    "recipe_steps": [
+      "Mix almond flour with melted coconut oil and a pinch of stevia",
+      "Press into a springform pan base, freeze for 20 minutes",
+      "Beat cream cheese until smooth",
+      "Fold in mango pulp, stevia, and vanilla",
+      "Pour over set crust, smooth the top",
+      "Refrigerate for at least 4 hours",
+      "Top with fresh mango slices and toasted coconut"
+    ],
+    "serving_size_g": 120,
+    "servings_per_recipe": 6,
+    "price": 399,
+    "dietary_flags": ["eggless", "gluten-free", "no-bake"],
+    "is_signature": true,
+    "image_url": "/static/images/mango-cheesecake.jpg"
+  },
+  {
+    "name": "Date-Walnut Brownie",
+    "short_description": "Fudgy brownies with whole wheat, walnuts, and Medjool date sweetness",
+    "description": "A rich, fudgy brownie made with whole wheat flour and loaded with walnuts. Sweetened entirely with Medjool dates — deeply chocolatey with zero added sugar.",
+    "base_ingredients": [
+      {"name": "whole wheat flour", "quantity_g": 50},
+      {"name": "cocoa powder", "quantity_g": 30},
+      {"name": "medjool dates", "quantity_g": 80},
+      {"name": "walnuts", "quantity_g": 40},
+      {"name": "eggs", "quantity_g": 50},
+      {"name": "coconut oil", "quantity_g": 30},
+      {"name": "vanilla extract", "quantity_g": 3},
+      {"name": "baking powder", "quantity_g": 3},
+      {"name": "salt", "quantity_g": 1}
+    ],
+    "recipe_steps": [
+      "Soak dates in warm water, blend into a smooth paste",
+      "Melt coconut oil, mix with date paste",
+      "Whisk eggs, fold into the date-oil mixture",
+      "Sift whole wheat flour, cocoa powder, and baking powder",
+      "Fold dry into wet, add chopped walnuts",
+      "Pour into a parchment-lined pan",
+      "Bake at 175°C for 22-25 minutes — slightly underdone is perfect"
+    ],
+    "serving_size_g": 60,
+    "servings_per_recipe": 8,
+    "price": 299,
+    "dietary_flags": [],
+    "is_signature": true,
+    "image_url": "/static/images/date-walnut-brownie.jpg"
+  },
+  {
+    "name": "Coconut Flour Banana Bread",
+    "short_description": "Moist banana bread with coconut flour and natural coconut sugar",
+    "description": "Perfectly moist banana bread made with coconut flour and naturally sweetened with ripe bananas and a touch of coconut sugar. High in fiber, low in guilt.",
+    "base_ingredients": [
+      {"name": "coconut flour", "quantity_g": 50},
+      {"name": "banana", "quantity_g": 150},
+      {"name": "coconut sugar", "quantity_g": 20},
+      {"name": "eggs", "quantity_g": 100},
+      {"name": "coconut oil", "quantity_g": 25},
+      {"name": "cinnamon powder", "quantity_g": 2},
+      {"name": "vanilla extract", "quantity_g": 3},
+      {"name": "baking soda", "quantity_g": 3},
+      {"name": "salt", "quantity_g": 1}
+    ],
+    "recipe_steps": [
+      "Mash ripe bananas until smooth",
+      "Whisk eggs, mix in mashed banana and melted coconut oil",
+      "Add coconut sugar, vanilla, and cinnamon",
+      "Sift coconut flour and baking soda, fold gently into wet mix",
+      "Let batter rest 5 minutes (coconut flour absorbs slowly)",
+      "Pour into a greased loaf pan",
+      "Bake at 165°C for 45-50 minutes until a skewer comes out clean"
+    ],
+    "serving_size_g": 70,
+    "servings_per_recipe": 8,
+    "price": 249,
+    "dietary_flags": ["gluten-free"],
+    "is_signature": true,
+    "image_url": "/static/images/banana-bread.jpg"
+  },
+  {
+    "name": "Ragi Ladoo (Protein)",
+    "short_description": "Energy-packed ladoos with ragi, oats, jaggery, and dry fruits",
+    "description": "Nutrient-dense ladoos made with roasted ragi flour and oat flour, bound with melted jaggery and packed with dry fruits. A guilt-free snack that's also a protein bomb.",
+    "base_ingredients": [
+      {"name": "ragi flour", "quantity_g": 50},
+      {"name": "oat flour", "quantity_g": 30},
+      {"name": "jaggery", "quantity_g": 30},
+      {"name": "ghee", "quantity_g": 15},
+      {"name": "almonds", "quantity_g": 15},
+      {"name": "cashews", "quantity_g": 10},
+      {"name": "desiccated coconut", "quantity_g": 10},
+      {"name": "cardamom powder", "quantity_g": 1}
+    ],
+    "recipe_steps": [
+      "Dry roast ragi flour on low heat until fragrant (10 mins)",
+      "Dry roast oat flour separately until golden",
+      "Chop almonds and cashews finely",
+      "Melt jaggery with ghee on low heat",
+      "Mix all dry ingredients into the jaggery-ghee mixture",
+      "Shape into balls while warm",
+      "Roll in desiccated coconut"
+    ],
+    "serving_size_g": 30,
+    "servings_per_recipe": 10,
+    "price": 249,
+    "dietary_flags": ["eggless"],
+    "is_signature": true,
+    "image_url": "/static/images/ragi-ladoo.jpg"
+  },
+  {
+    "name": "Allulose Rasmalai",
+    "short_description": "Soft paneer discs in saffron-cardamom cream, sweetened with allulose",
+    "description": "Cloud-soft paneer discs soaked in a fragrant allulose-sweetened cream infused with saffron, cardamom, and rose. Traditional rasmalai flavor with virtually zero caloric sweetener.",
+    "base_ingredients": [
+      {"name": "paneer", "quantity_g": 100},
+      {"name": "full cream milk", "quantity_g": 300},
+      {"name": "allulose", "quantity_g": 40},
+      {"name": "cardamom powder", "quantity_g": 2},
+      {"name": "saffron", "quantity_g": 0.3},
+      {"name": "rose water", "quantity_g": 5},
+      {"name": "pistachios", "quantity_g": 10},
+      {"name": "almonds", "quantity_g": 10}
+    ],
+    "recipe_steps": [
+      "Knead paneer until very smooth and crack-free",
+      "Shape into flat discs, set aside",
+      "Reduce milk to 2/3 volume on low heat, stirring constantly",
+      "Add allulose, saffron, and cardamom to reduced milk",
+      "Gently simmer paneer discs in sweetened milk for 10 minutes",
+      "Cool and refrigerate for at least 2 hours",
+      "Serve chilled, topped with sliced pistachios and almonds"
+    ],
+    "serving_size_g": 120,
+    "servings_per_recipe": 4,
+    "price": 349,
+    "dietary_flags": ["eggless", "gluten-free"],
+    "is_signature": true,
+    "image_url": "/static/images/allulose-rasmalai.jpg"
+  },
+  {
+    "name": "Foxtail Millet Payasam",
+    "short_description": "South Indian milk pudding with foxtail millet and date sweetness",
+    "description": "A traditional South Indian payasam made with foxtail millet, slow-cooked in milk, and sweetened with dates. Finished with roasted cashews and a whisper of cardamom.",
+    "base_ingredients": [
+      {"name": "foxtail millet", "quantity_g": 40},
+      {"name": "full cream milk", "quantity_g": 200},
+      {"name": "dates", "quantity_g": 40},
+      {"name": "cashews", "quantity_g": 10},
+      {"name": "ghee", "quantity_g": 10},
+      {"name": "cardamom powder", "quantity_g": 1},
+      {"name": "desiccated coconut", "quantity_g": 5}
+    ],
+    "recipe_steps": [
+      "Wash foxtail millet, dry roast lightly",
+      "Cook millet in water until soft, drain excess",
+      "Boil milk and reduce by a third",
+      "Blend soaked dates into a smooth paste",
+      "Add cooked millet and date paste to reduced milk",
+      "Simmer on low heat for 10 minutes, stirring",
+      "Roast cashews in ghee, use as garnish with cardamom and coconut"
+    ],
+    "serving_size_g": 150,
+    "servings_per_recipe": 4,
+    "price": 229,
+    "dietary_flags": ["eggless", "gluten-free"],
+    "is_signature": true,
+    "image_url": "/static/images/millet-payasam.jpg"
+  }
+]

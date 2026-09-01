@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Apply as Baker{% endblock %}
+
+{% block content %}
+<div class="page-content" style="padding-top: var(--space-6);">
+    <div class="text-center mb-6">
+        <div style="font-size: 3rem; margin-bottom: var(--space-3);">🧑‍🍳</div>
+        <h1 style="font-size: 1.6rem;">Join Cravin as a Baker</h1>
+        <p class="text-subtitle">Turn your home baking into a steady business</p>
+    </div>
+
+    <form id="apply-form" onsubmit="submitApplication(event)">
+        <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-input" id="full_name" required></div>
+        <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" id="email" required></div>
+        <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" id="phone" required></div>
+        <div class="form-group"><label class="form-label">Password *</label><input type="password" class="form-input" id="password" required minlength="6"></div>
+        <div class="form-group"><label class="form-label">Business Name</label><input type="text" class="form-input" id="business_name" placeholder="e.g., Meera's Kitchen"></div>
+        <div class="form-group"><label class="form-label">Tell us about yourself</label><textarea class="form-input" id="bio" placeholder="Your baking experience, specialties..."></textarea></div>
+
+        <div class="form-group">
+            <label class="form-label">Skills (select all that apply)</label>
+            <div class="flex flex-wrap gap-2">
+                {% for skill in ['eggless', 'sugar-free', 'vegan', 'gluten-free', 'chocolate specialist', 'Indian sweets', 'cakes', 'cookies'] %}
+                <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
+                    <input type="checkbox" value="{{ skill }}" class="skill-check"> {{ skill|capitalize }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group"><label class="form-label">FSSAI Number</label><input type="text" class="form-input" id="fssai" placeholder="14-digit number"></div>
+        <div class="form-group">
+            <label class="form-label">City *</label>
+            <select class="form-input" id="city" required>
+                <option value="Goa" selected>Goa</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Location / Area in Goa *</label>
+            <select class="form-input" id="area" required>
+                <option value="Panjim" selected>Panjim</option>
+                <option value="Margao">Margao</option>
+                <option value="Ponda">Ponda</option>
+            </select>
+        </div>
+        <div class="form-group"><label class="form-label">Delivery Radius (km)</label><input type="number" class="form-input" id="radius" value="15" min="1" max="50"></div>
+
+        <button type="submit" class="btn btn-secondary btn-block btn-lg mb-6" id="apply-btn">Submit Application</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function submitApplication(e) {
+    e.preventDefault();
+    const btn = document.getElementById('apply-btn');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    const skills = Array.from(document.querySelectorAll('.skill-check:checked')).map(c => c.value);
+
+    try {
+        const res = await fetch('/api/auth/baker/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                full_name: document.getElementById('full_name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                business_name: document.getElementById('business_name').value,
+                bio: document.getElementById('bio').value,
+                skills: skills,
+                specialties: skills,
+                fssai_number: document.getElementById('fssai').value,
+                city: document.getElementById('city').value,
+                area: document.getElementById('area').value,
+                delivery_radius_km: parseFloat(document.getElementById('radius').value),
+            }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showToast('Application submitted! 🎉');
+            setTimeout(() => window.location.href = '/baker/login', 2000);
+        } else {
+            showToast(data.detail || 'Submission failed', 'danger');
+            btn.textContent = 'Submit Application';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        showToast('Connection error', 'danger');
+        btn.textContent = 'Submit Application';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

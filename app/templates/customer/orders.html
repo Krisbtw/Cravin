@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="top-bar">
+        <h1 style="font-size: 1.5rem;">📦 My Orders</h1>
+    </div>
+
+    {% if orders %}
+    <div class="stagger">
+        {% for order in orders %}
+        <a href="/app/order/{{ order.id }}" class="card mb-3 animate-fade-in-up" style="text-decoration: none; color: inherit; border: 1px solid var(--cream-border);">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;">#{{ order.order_number }}</span>
+                    <span class="tag tag-{{ 'light' if order.status == 'delivered' else 'balanced' if order.status in ['preparing', 'accepted'] else 'heavy' }}">
+                        {{ order.status|replace('_', ' ')|capitalize }}
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-muted" style="font-size: 0.85rem;">₹{{ order.total_amount|round(0)|int }}</span>
+                    <span class="text-muted" style="font-size: 0.8rem;">{{ order.placed_at.strftime('%b %d, %I:%M %p') if order.placed_at else '' }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center p-6">
+        <div style="font-size: 4rem; margin-bottom: var(--space-4);">📦</div>
+        <h3>No orders yet</h3>
+        <p class="text-muted mb-4">Time to treat yourself!</p>
+        <a href="/app/" class="btn btn-primary">Browse Desserts</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block nav %}
+<nav class="bottom-nav">
+    <a href="/app/"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/app/orders" class="active"><span class="nav-icon">📦</span><span>Orders</span></a>
+    <a href="/app/cart" style="position: relative;"><span class="nav-icon">🛒</span><span>Cart</span>
+        <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none;">0</span>
+    </a>
+    <a href="/app/rewards"><span class="nav-icon">🏆</span><span>Rewards</span></a>
+    <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
+</nav>
+{% endblock %}

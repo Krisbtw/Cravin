@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Baker Directory{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container { max-width: 1000px; margin: 0 auto; padding: 0 var(--space-6); }
+    .admin-nav { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); overflow-x: auto; }
+    .admin-nav a { padding: var(--space-2) var(--space-4); border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; background: var(--malai-deep); color: var(--charcoal); text-decoration: none; }
+    .admin-nav a.active { background: var(--jamun); color: var(--white); }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    <div class="admin-container">
+        <div class="top-bar">
+            <div class="logo">Crav<span style="color: var(--honey);">in</span> <span style="font-weight: 400; font-size: 0.9rem; color: var(--warm-gray);">Admin</span></div>
+            <a href="/api/auth/logout" class="btn btn-ghost btn-sm" onclick="document.cookie='access_token=;max-age=0';">Logout</a>
+        </div>
+        <nav class="admin-nav">
+            <a href="/admin/">📊 Dashboard</a><a href="/admin/applicants">👥 Applicants</a>
+            <a href="/admin/bakers" class="active">🧑‍🍳 Bakers</a><a href="/admin/orders">📦 Orders</a><a href="/admin/recipes">🍰 Recipes</a>
+        </nav>
+        <h2 class="mb-4">Approved Bakers</h2>
+        <div id="bakers-list"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadBakers() {
+    const data = await API.get('/api/admin/bakers');
+    if (!data || !data.length) { document.getElementById('bakers-list').innerHTML = '<p class="text-muted text-center p-6">No bakers yet</p>'; return; }
+    document.getElementById('bakers-list').innerHTML = data.map(b => `
+        <div class="card mb-3" style="border: 1px solid var(--cream-border);">
+            <div class="card-body flex items-center justify-between">
+                <div>
+                    <h4>${b.name}</h4>
+                    <p class="text-muted" style="font-size: 0.85rem;">${b.business_name || ''} · ${b.city || ''}</p>
+                </div>
+                <div class="text-right">
+                    <div>⭐ ${b.avg_rating} · ${b.total_orders} orders</div>
+                    <div style="font-size: 0.85rem; color: var(--honey-dark);">₹${Math.round(b.total_earnings)}</div>
+                    ${b.fssai_verified ? '<span class="tag tag-light" style="font-size: 0.6rem;">FSSAI ✓</span>' : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+document.addEventListener('DOMContentLoaded', loadBakers);
+</script>
+{% endblock %}

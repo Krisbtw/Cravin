@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo">Crav<span style="color: var(--honey);">in</span></div>
+        <div class="flex items-center gap-2">
+            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px;">
+                <span>🛒 View Cart</span>
+                <span class="cart-badge badge badge-jamun" style="display: none; font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 99px;">0</span>
+            </a>
+            {% if user %}
+            <a href="/app/profile" class="btn btn-ghost btn-icon" title="Profile">👤</a>
+            {% else %}
+            <a href="/app/login" class="btn btn-outline btn-sm">Sign In</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section mb-6" style="background: linear-gradient(135deg, var(--jamun-bg) 0%, var(--honey-bg) 100%); border-radius: var(--radius-xl); padding: var(--space-6); position: relative; overflow: hidden;">
+        <div style="position: relative; z-index: 1;">
+            <p class="text-label mb-2" style="color: var(--jamun);">Zero Sugar · Zero Maida</p>
+            <h1 class="text-display mb-2" style="font-size: 1.8rem;">Desserts that love you back 🍰</h1>
+            <p class="text-subtitle mb-4">AI-customized, nutrition-tracked, fresh from home bakers near you.</p>
+            {% if not user %}
+            <a href="/app/register" class="btn btn-primary">Start Your Flavor Journey</a>
+            {% elif not user.onboarding_complete %}
+            <a href="/app/onboarding" class="btn btn-primary">Take the Flavor DNA Quiz 🧬</a>
+            {% endif %}
+        </div>
+        <div style="position: absolute; right: -20px; bottom: -10px; font-size: 5rem; opacity: 0.15;">🍩</div>
+    </div>
+
+    <!-- Tag Filters -->
+    <div class="flex gap-2 mb-6" style="overflow-x: auto; padding-bottom: var(--space-2);">
+        <button class="tag-filter btn btn-sm active" data-tag="all" onclick="filterDesserts('all', this)"
+            style="background: var(--jamun); color: white; border: none; border-radius: var(--radius-full);">All</button>
+        <button class="tag-filter btn btn-sm" data-tag="light" onclick="filterDesserts('light', this)"
+            style="background: var(--tag-light-bg); color: var(--tag-light); border: 1px solid var(--tag-light); border-radius: var(--radius-full);">🌿 Light</button>
+        <button class="tag-filter btn btn-sm" data-tag="balanced" onclick="filterDesserts('balanced', this)"
+            style="background: var(--tag-balanced-bg); color: var(--honey-dark); border: 1px solid var(--honey); border-radius: var(--radius-full);">⚖️ Balanced</button>
+        <button class="tag-filter btn btn-sm" data-tag="heavy" onclick="filterDesserts('heavy', this)"
+            style="background: var(--tag-heavy-bg); color: var(--tag-heavy); border: 1px solid var(--jamun); border-radius: var(--radius-full);">🍫 Heavy</button>
+    </div>
+
+    <!-- Dessert Grid -->
+    <h2 class="mb-4">Our Signature Menu</h2>
+    <div class="grid-2 stagger" id="dessert-grid">
+        {% for dessert in desserts %}
+        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card animate-fade-in-up" data-tag="{{ dessert.tag }}" style="text-decoration: none; color: inherit;">
+            <div class="card-img" style="background: linear-gradient(135deg, 
+                {% if dessert.tag == 'light' %}var(--pista-bg), var(--malai-deep)
+                {% elif dessert.tag == 'heavy' %}var(--jamun-bg), var(--malai-deep)
+                {% else %}var(--honey-bg), var(--malai-deep){% endif %}); 
+                display: flex; align-items: center; justify-content: center; font-size: 3.5rem;">
+                {% if 'chocolate' in dessert.name.lower() or 'brownie' in dessert.name.lower() %}🍫
+                {% elif 'cheesecake' in dessert.name.lower() or 'mango' in dessert.name.lower() %}🥭
+                {% elif 'gulab' in dessert.name.lower() or 'rasmalai' in dessert.name.lower() %}🍮
+                {% elif 'ladoo' in dessert.name.lower() or 'barfi' in dessert.name.lower() %}🟡
+                {% elif 'kheer' in dessert.name.lower() or 'payasam' in dessert.name.lower() %}🥣
+                {% elif 'banana' in dessert.name.lower() %}🍌
+                {% else %}🍰{% endif %}
+                <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 12px; left: 12px;">
+                    {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <h4 style="font-size: 0.95rem; margin-bottom: var(--space-1);">{{ dessert.name }}</h4>
+                <p style="font-size: 0.75rem; color: var(--warm-gray); margin-bottom: var(--space-2); line-height: 1.4;">{{ dessert.short_description }}</p>
+                <div class="flex items-center justify-between">
+                    <span class="price">₹{{ dessert.price|int }}</span>
+                    <span class="calories">{{ dessert.calories|int }} cal</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if not desserts %}
+    <div class="text-center p-6">
+        <p style="font-size: 3rem; margin-bottom: var(--space-4);">🍰</p>
+        <h3>Menu coming soon!</h3>
+        <p class="text-muted">Run <code>python seed.py</code> to load our signature desserts.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block nav %}
+<nav class="bottom-nav">
+    <a href="/app/" class="active">
+        <span class="nav-icon">🏠</span>
+        <span>Home</span>
+    </a>
+    <a href="/app/orders">
+        <span class="nav-icon">📦</span>
+        <span>Orders</span>
+    </a>
+    <a href="/app/cart" style="position: relative;">
+        <span class="nav-icon">🛒</span>
+        <span>Cart</span>
+        <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none; font-size: 0.6rem; min-width: 18px; height: 18px;">0</span>
+    </a>
+    <a href="/app/rewards">
+        <span class="nav-icon">🏆</span>
+        <span>Rewards</span>
+    </a>
+    <a href="/app/profile">
+        <span class="nav-icon">👤</span>
+        <span>Profile</span>
+    </a>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterDesserts(tag, btn) {
+        // Update active button
+        document.querySelectorAll('.tag-filter').forEach(b => {
+            b.style.background = '';
+            b.style.color = '';
+            b.classList.remove('active');
+        });
+        if (tag === 'all') {
+            btn.style.background = 'var(--jamun)';
+            btn.style.color = 'white';
+        }
+        btn.classList.add('active');
+
+        // Filter cards
+        document.querySelectorAll('.dessert-card').forEach(card => {
+            if (tag === 'all' || card.dataset.tag === tag) {
+                card.style.display = '';
+                card.style.animation = 'fadeInUp 0.3s ease';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

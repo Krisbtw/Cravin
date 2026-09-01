@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="top-bar">
+        <a href="/app/cart" class="btn btn-ghost btn-sm">← Cart</a>
+        <h2 style="font-size: 1.3rem;">Checkout</h2>
+        <div></div>
+    </div>
+
+    <form id="checkout-form" onsubmit="placeOrder(event)">
+        <!-- 1. Delivery Location & Coordinates -->
+        <div id="delivery-fields">
+            <div class="form-group">
+                <div class="flex items-center justify-between mb-1">
+                    <label class="form-label mb-0">📍 Delivery Area / Address</label>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="detectGPSLocation()" style="font-size: 0.75rem; color: var(--jamun); padding: 2px 6px;">
+                        🎯 Detect GPS
+                    </button>
+                </div>
+                <!-- Area quick selector for testing & convenience -->
+                <select class="form-input mb-2" id="area-preset" onchange="onAreaChange(this.value)">
+                    <option value="panjim" selected>Panjim (Panaji), North Goa (Default)</option>
+                    <option value="margao">Margao (Madgaon), South Goa</option>
+                    <option value="ponda">Ponda, Central Goa</option>
+                    <option value="custom">Custom Address Coordinates</option>
+                </select>
+                <textarea class="form-input" id="address" rows="2" placeholder="Street, Flat / House No., Landmark">{{ user.get('address', '') if user and user.get('address') else 'MG Road, Panjim, Goa' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">📝 Delivery Notes (optional)</label>
+                <input type="text" class="form-input" id="notes" placeholder="e.g., Ring bell twice, leave with security">
+            </div>
+        </div>
+
+        <!-- 2. Choose Your Baker Section -->
+        <div class="card mb-6" style="border: 1px solid var(--honey); background: linear-gradient(180deg, var(--honey-bg), var(--white));">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--jamun); margin-bottom: 2px;">🧑‍🍳 Choose Your Baker</h3>
+                        <p class="text-muted" style="font-size: 0.8rem;" id="baker-section-subtitle">Matching top home bakers near your address in Goa</p>
+                    </div>
+                    <span class="badge badge-jamun" id="baker-match-count" style="font-size: 0.75rem;">Loading...</span>
+                </div>
+
+                <!-- Baker Cards Container -->
+                <div id="baker-selection-list" class="flex flex-col gap-3">
+                    <div class="text-center p-4 text-muted" style="font-size: 0.85rem;">
+                        Finding nearby certified bakers...
+                    </div>
+                </div>
+
+                <!-- Hidden inputs for selected baker & coords -->
+                <input type="hidden" id="selected-baker-id" value="">
+                <input type="hidden" id="delivery-lat" value="15.4909">
+                <input type="hidden" id="delivery-lng" value="73.8278">
+            </div>
+        </div>
+
+        <!-- 3. Payment Method -->
+        <div class="form-group">
+            <label class="form-label">💳 Payment Method</label>
+            <select class="form-input" id="payment-method">
+                <option value="upi">UPI (PhonePe / Google Pay / Paytm)</option>
+                <option value="card">Credit / Debit Card</option>
+                <option value="cod">Cash on Delivery</option>
+            </select>
+        </div>
+
+        <!-- 4. Order Summary -->
+        <div class="card mb-6" style="border: 1px solid var(--cream-border);">
+            <div class="card-body">
+                <h3 class="mb-3" style="font-size: 1rem;">Order Summary</h3>
+                <div id="checkout-items"></div>
+                <hr style="border: none; border-top: 1px solid var(--malai-deep); margin: var(--space-3) 0;">
+                <div class="nutrition-row"><span class="label">Subtotal</span><span class="value" id="co-subtotal">₹0</span></div>
+                <div class="nutrition-row"><span class="label">Delivery Fee</span><span class="value" id="co-delivery">₹30</span></div>
+                <div class="nutrition-row" style="border-bottom: none;">
+                    <span class="label" style="font-weight: 700;">Total</span>
+                    <span class="value" style="font-size: 1.2rem; color: var(--jamun);" id="co-total">₹0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer mb-4">
+            <span>🔒</span>
+            <span>Mock payment for Phase 1. Zero real charges will be made.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="place-order-btn">
+            Place Order 🎉
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const PRESET_COORDS = {
+    panjim: { lat: 15.4909, lng: 73.8278, address: 'MG Road, Panjim, Goa' },
+    margao: { lat: 15.2736, lng: 73.9580, address: 'Municipal Garden, Margao, Goa' },
+    ponda: { lat: 15.4026, lng: 74.0086, address: 'Tiska, Ponda, Goa' },
+};
+
+let matchingBakers = [];
+
+function onAreaChange(areaKey) {
+    if (PRESET_COORDS[areaKey]) {
+        const p = PRESET_COORDS[areaKey];
+        document.getElementById('delivery-lat').value = p.lat;
+        document.getElementById('delivery-lng').value = p.lng;
+        document.getElementById('address').value = p.address;
+        const areaSelect = document.getElementById('area-preset');
+        if (areaSelect && areaSelect.value !== areaKey) {
+            areaSelect.value = areaKey;
+        }
+        fetchMatchingBakers();
+    }
+}
+
+function detectGPSLocation() {
+    if (!navigator.geolocation) {
+        showToast('Geolocation is not supported by your browser', 'warning');
+        return;
+    }
+    showToast('Detecting location...');
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            document.getElementById('delivery-lat').value = pos.coords.latitude;
+            document.getElementById('delivery-lng').value = pos.coords.longitude;
+            document.getElementById('area-preset').value = 'custom';
+            document.getElementById('address').value = `GPS: (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;
+            showToast('Location updated! 📍');
+            fetchMatchingBakers();
+        },
+        (err) => {
+            showToast('Unable to fetch GPS. Using selected area preset.', 'warning');
+        }
+    );
+}
+
+async function fetchMatchingBakers() {
+    const cart = Cart.get();
+    const listContainer = document.getElementById('baker-selection-list');
+    const badge = document.getElementById('baker-match-count');
+    const lat = parseFloat(document.getElementById('delivery-lat').value) || 15.4909;
+    const lng = parseFloat(document.getElementById('delivery-lng').value) || 73.8278;
+
+    try {
+        const res = await fetch('/api/customer/bakers/match', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                items: cart.map(i => ({
+                    dessert_id: i.dessert_id,
+                    quantity: i.quantity,
+                    customization: i.customization || null,
+                })),
+                delivery_latitude: lat,
+                delivery_longitude: lng,
+                city: 'Goa',
+            }),
+        });
+
+        const data = await res.json();
+        matchingBakers = data.bakers || [];
+        badge.textContent = `${matchingBakers.length} available`;
+
+        if (matchingBakers.length === 0) {
+            listContainer.innerHTML = `
+                <div class="card p-4 text-center" style="border: 1px dashed var(--danger); background: var(--malai-deep);">
+                    <div style="font-size: 1.8rem; margin-bottom: 6px;">📍</div>
+                    <h4 style="font-size: 0.95rem; margin-bottom: 4px;">No bakers within delivery range</h4>
+                    <p class="text-muted" style="font-size: 0.8rem; margin-bottom: 12px;">No home baker currently covers this exact location in Goa.</p>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="onAreaChange('panjim')">
+                        Switch to Panjim / Auto-Assign Nearest
+                    </button>
+                </div>
+            `;
+            document.getElementById('selected-baker-id').value = '';
+            checkOrderButtonState();
+            return;
+        }
+
+        const currentlySelectedId = document.getElementById('selected-baker-id').value;
+        const defaultSelectId = currentlySelectedId && matchingBakers.some(b => b.baker_id === currentlySelectedId)
+            ? currentlySelectedId
+            : matchingBakers[0].baker_id;
+
+        document.getElementById('selected-baker-id').value = defaultSelectId;
+
+        listContainer.innerHTML = matchingBakers.map((baker, idx) => {
+            const isSelected = baker.baker_id === defaultSelectId;
+            const distanceDisplay = baker.distance_km !== null 
+                ? `📍 ${baker.distance_km} km away` 
+                : `📍 ${baker.area || baker.city || 'Goa'}`;
+            const tags = (baker.skills || []).slice(0, 3).map(s => 
+                `<span class="tag" style="font-size: 0.65rem; padding: 2px 6px; background: var(--malai-deep); color: var(--text);">${s}</span>`
+            ).join(' ');
+
+            return `
+                <div class="card baker-choice-card" 
+                     id="baker-card-${baker.baker_id}"
+                     onclick="selectBaker('${baker.baker_id}')"
+                     style="cursor: pointer; border: 2px solid ${isSelected ? 'var(--jamun)' : 'var(--cream-border)'}; 
+                            background: ${isSelected ? 'linear-gradient(135deg, var(--jamun-bg), var(--white))' : 'var(--white)'}; 
+                            transition: all 0.2s ease;">
+                    <div class="card-body" style="padding: var(--space-3) var(--space-4);">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="flex items-center gap-2">
+                                <span style="font-size: 1.1rem;">👩‍🍳</span>
+                                <span style="font-weight: 700; font-size: 0.95rem; color: var(--text);">${baker.business_name}</span>
+                                ${idx === 0 ? '<span class="tag" style="background: var(--pista-bg); color: var(--pista-dark); font-size: 0.6rem; font-weight: 700;">Top Match</span>' : ''}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span style="color: var(--honey-dark); font-weight: 700; font-size: 0.85rem;">⭐ ${baker.avg_rating}</span>
+                                <div class="baker-radio-indicator" style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid ${isSelected ? 'var(--jamun)' : 'var(--cream-border)'}; display: flex; align-items: center; justify-content: center; background: ${isSelected ? 'var(--jamun)' : 'transparent'}; color: white; font-size: 10px;">
+                                    ${isSelected ? '✓' : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-muted mb-2" style="font-size: 0.8rem;">
+                            <span>${distanceDisplay}</span>
+                            <span>·</span>
+                            <span>⏱️ ~${baker.avg_prep_time_mins} mins prep</span>
+                            ${baker.area ? `<span>·</span><span>${baker.area}</span>` : ''}
+                        </div>
+
+                        <div class="flex flex-wrap gap-1">
+                            ${tags}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        checkOrderButtonState();
+    } catch (err) {
+        console.error('Error fetching bakers:', err);
+        listContainer.innerHTML = `<div class="text-danger p-2" style="font-size: 0.8rem;">Failed to load nearby bakers.</div>`;
+    }
+}
+
+function selectBaker(bakerId) {
+    document.getElementById('selected-baker-id').value = bakerId;
+    document.querySelectorAll('.baker-choice-card').forEach(el => {
+        el.style.border = '2px solid var(--cream-border)';
+        el.style.background = 'var(--white)';
+        const radio = el.querySelector('.baker-radio-indicator');
+        if (radio) {
+            radio.style.border = '2px solid var(--cream-border)';
+            radio.style.background = 'transparent';
+            radio.textContent = '';
+        }
+    });
+
+    const active = document.getElementById(`baker-card-${bakerId}`);
+    if (active) {
+        active.style.border = '2px solid var(--jamun)';
+        active.style.background = 'linear-gradient(135deg, var(--jamun-bg), var(--white))';
+        const radio = active.querySelector('.baker-radio-indicator');
+        if (radio) {
+            radio.style.border = '2px solid var(--jamun)';
+            radio.style.background = 'var(--jamun)';
+            radio.textContent = '✓';
+        }
+    }
+    checkOrderButtonState();
+}
+
+function checkOrderButtonState() {
+    const btn = document.getElementById('place-order-btn');
+    const selected = document.getElementById('selected-baker-id').value;
+    if (!selected && matchingBakers.length > 0) {
+        btn.disabled = true;
+        btn.textContent = 'Please choose a baker above';
+    } else {
+        btn.disabled = false;
+        btn.textContent = 'Place Order 🎉';
+    }
+}
+
+function renderCheckout() {
+    const cart = Cart.get();
+    if (cart.length === 0) {
+        window.location.href = '/app/cart';
+        return;
+    }
+
+    const fulfillment = localStorage.getItem('cravin_fulfillment') || 'delivery';
+    const deliveryFee = fulfillment === 'delivery' ? 30 : 0;
+
+    if (fulfillment === 'pickup') {
+        document.getElementById('delivery-fields').style.display = 'none';
+        document.getElementById('baker-section-subtitle').textContent = 'Select your preferred pickup kitchen:';
+    }
+
+    let subtotal = 0;
+    const itemsHtml = cart.map(item => {
+        const total = item.price * item.quantity;
+        subtotal += total;
+        return `<div class="nutrition-row">
+            <span class="label">${item.name} × ${item.quantity} ${item.customization ? '<span class="tag tag-balanced" style="font-size:0.6rem; padding: 1px 4px;">Customized</span>' : ''}</span>
+            <span class="value">₹${total}</span>
+        </div>`;
+    }).join('');
+
+    document.getElementById('checkout-items').innerHTML = itemsHtml;
+    document.getElementById('co-subtotal').textContent = `₹${subtotal}`;
+    document.getElementById('co-delivery').textContent = `₹${deliveryFee}`;
+    document.getElementById('co-total').textContent = `₹${subtotal + deliveryFee}`;
+
+    fetchMatchingBakers();
+}
+
+async function placeOrder(e) {
+    e.preventDefault();
+    const btn = document.getElementById('place-order-btn');
+    const selectedBakerId = document.getElementById('selected-baker-id').value;
+
+    btn.textContent = 'Placing order...';
+    btn.disabled = true;
+
+    const cart = Cart.get();
+    const fulfillment = localStorage.getItem('cravin_fulfillment') || 'delivery';
+    const lat = parseFloat(document.getElementById('delivery-lat').value) || null;
+    const lng = parseFloat(document.getElementById('delivery-lng').value) || null;
+
+    try {
+        const res = await fetch('/api/customer/orders', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                items: cart.map(item => ({
+                    dessert_id: item.dessert_id,
+                    quantity: item.quantity,
+                    customization: item.customization || null,
+                })),
+                fulfillment_type: fulfillment,
+                baker_id: selectedBakerId || null,
+                delivery_address: document.getElementById('address')?.value || null,
+                delivery_latitude: lat,
+                delivery_longitude: lng,
+                delivery_notes: document.getElementById('notes')?.value || null,
+                payment_method: document.getElementById('payment-method').value,
+            }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            Cart.clear();
+            window.location.href = `/app/order/${data.order_id}`;
+        } else {
+            showToast(data.detail || 'Failed to place order', 'danger');
+            btn.textContent = 'Place Order 🎉';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        showToast('Connection error', 'danger');
+        btn.textContent = 'Place Order 🎉';
+        btn.disabled = false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', renderCheckout);
+</script>
+{% endblock %}
+
