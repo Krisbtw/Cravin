@@ -5,6 +5,7 @@ Uses async SQLAlchemy with SQLite (dev) or PostgreSQL (prod).
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 from app.config import get_settings
 
 settings = get_settings()
@@ -22,12 +23,25 @@ def sanitize_database_url(url: str) -> str:
 
 
 database_url = sanitize_database_url(settings.database_url)
+is_sqlite = "sqlite" in database_url
+
+connect_args = {}
+engine_kwargs = {
+    "echo": settings.debug,
+}
+
+if is_sqlite:
+    connect_args["check_same_thread"] = False
+else:
+    # Disable prepared statement caching for PgBouncer / Supabase / Neon transaction pooling
+    connect_args["statement_cache_size"] = 0
+    connect_args["prepared_statement_cache_size"] = 0
+    engine_kwargs["poolclass"] = NullPool
 
 engine = create_async_engine(
     database_url,
-    echo=settings.debug,
-    # SQLite needs this for async
-    connect_args={"check_same_thread": False} if "sqlite" in database_url else {},
+    connect_args=connect_args,
+    **engine_kwargs,
 )
 
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
