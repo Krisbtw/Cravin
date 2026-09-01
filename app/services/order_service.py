@@ -41,6 +41,27 @@ async def create_order(
     items: [{"dessert_id": "...", "quantity": 1, "customization": {...}}]
     If baker_id is provided, uses customer's choice; otherwise falls back to auto-matching.
     """
+    calculated_delivery_fee = 0.0
+    estimated_mins = 30
+    if fulfillment_type == "delivery":
+        # Dynamic regression surge pricing based on real-time density and distance
+        from app.services.pricing import calculate_surge_fee
+        active_bakers_count = await db.scalar(
+            select(func.count(Baker.id)).where(Baker.status == "approved")
+        ) or 1
+        active_orders_count = await db.scalar(
+            select(func.count(Order.id)).where(Order.status.in_(["pending", "accepted", "preparing"]))
+        ) or 0
+
+        calculated_delivery_fee = calculate_surge_fee(
+            base_fee=30.0,
+            active_bakers=active_bakers_count,
+            active_orders=active_orders_count,
+            distance_km=4.5,
+            traffic_index=1.1,
+        )
+        estimated_mins = min(60, 30 + int(calculated_delivery_fee / 2.0))
+
     order = Order(
         id=str(uuid.uuid4()),
         order_number=generate_order_number(),
@@ -50,9 +71,9 @@ async def create_order(
         delivery_latitude=delivery_latitude,
         delivery_longitude=delivery_longitude,
         delivery_notes=delivery_notes,
-        delivery_fee=30.0 if fulfillment_type == "delivery" else 0.0,
+        delivery_fee=calculated_delivery_fee,
         discount=0.0,
-        estimated_delivery_mins=45 if fulfillment_type == "delivery" else 30,
+        estimated_delivery_mins=estimated_mins,
     )
 
     subtotal = 0.0

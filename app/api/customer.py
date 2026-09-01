@@ -20,14 +20,33 @@ from app.schemas.dessert import DessertResponse, DessertDetail, CustomizationReq
 from app.models.baker import Baker
 from app.schemas.order import CreateOrder, OrderResponse, BakerMatchRequest
 from app.schemas.loyalty import LoyaltyAccountResponse
-from app.services.auth_service import get_current_user
+from app.services.auth_service import get_current_user, get_current_user_optional
 from app.services.ai_service import customize_dessert
 from app.services.nutrition_engine import calculate_recipe_nutrition, get_daily_nutrition_summary
 from app.services.order_service import create_order, get_user_orders
 from app.services.baker_matcher import find_matching_bakers
 from app.services.loyalty_service import award_order_points
+from app.services.recommendation import get_recommendations
 
 router = APIRouter(prefix="/api/customer", tags=["customer"])
+
+
+@router.get("/recommendations", response_model=list[DessertResponse])
+async def get_customer_recommendations(
+    time: str = Query("evening"),
+    weather: str = Query("warm"),
+    user: Optional[User] = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get personalized dessert recommendations based on hybrid scoring."""
+    user_id = user.id if user else None
+    recommended = await get_recommendations(
+        user_id=user_id,
+        db=db,
+        context={"time": time, "weather": weather},
+        limit=6,
+    )
+    return [DessertResponse.model_validate(d) for d in recommended]
 
 
 @router.get("/desserts")

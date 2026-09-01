@@ -1,11 +1,17 @@
+"""
+Cravin — LLM Chatbot Service
+Natural language conversational ordering assistant with allergen validation.
+"""
+
 import json
 import openai
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from app.models.dessert import Dessert, DessertModifier
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.models.dessert import DessertModifier
 from app.models.user import User
+from app.config import get_settings
 
-client = openai.AsyncOpenAI()
+settings = get_settings()
 
 # Define the tool schema for OpenAI
 tools = [
@@ -27,8 +33,23 @@ tools = [
     }
 ]
 
-async def process_natural_language_request(user_prompt: str, user: User, db: Session, active_desserts_context: str):
-    # 1. Provide Context to LLM
+
+async def process_natural_language_request(
+    user_prompt: str,
+    user: User,
+    db: AsyncSession,
+    active_desserts_context: str = "",
+) -> dict:
+    """
+    Process conversational request and validate modifications.
+    """
+    if settings.is_ai_mock_mode:
+        return {
+            "message": f"I can help customize your order! (Mock Mode: User preferences for {user.full_name} applied)."
+        }
+
+    client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+
     system_prompt = f"""
     You are Cravin's AI ordering assistant. The user has allergies: {user.allergies} and preferences: {user.dietary_prefs}.
     Current available modifiers for their cart items: {active_desserts_context}.
@@ -37,7 +58,7 @@ async def process_natural_language_request(user_prompt: str, user: User, db: Ses
     """
 
     response = await client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -51,22 +72,29 @@ async def process_natural_language_request(user_prompt: str, user: User, db: Ses
         for tool_call in message.tool_calls:
             if tool_call.function.name == "modify_cart_item":
                 args = json.loads(tool_call.function.arguments)
-                # 2. Validate Allergies before applying
-                return apply_cart_modification(db, user, args)
-    
+                return await apply_cart_modification(db, user, args)
+
     return {"message": message.content}
 
-def apply_cart_modification(db: Session, user: User, args: dict):
-    # Strict validation logic here against user.allergies
+
+async def apply_cart_modification(db: AsyncSession, user: User, args: dict) -> dict:
+    """
+    Strict validation against user.allergies before applying cart changes.
+    """
     added_modifiers = args.get("added_modifier_ids", [])
     if user.allergies:
         for mod_id in added_modifiers:
-            modifier = db.query(DessertModifier).filter(DessertModifier.id == mod_id).first()
+            result = await db.execute(
+                select(DessertModifier).where(DessertModifier.id == mod_id)
+            )
+            modifier = result.scalar_one_or_none()
             if modifier and modifier.allergen_adds:
                 # Check for conflicts
                 for allergen in modifier.allergen_adds:
                     if allergen in user.allergies:
-                        return {"status": "error", "message": f"Cannot apply modifier: introduces allergen '{allergen}'"}
-                        
-    # Return updated cart state (sync via WebSockets/REST)
+                        return {
+                            "status": "error",
+                            "message": f"Cannot apply modifier: introduces allergen '{allergen}'",
+                        }
+
     return {"status": "success", "cart_updated": True, "details": args}

@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     # Google Maps
     google_maps_api_key: str = ""
 
+    # Redis (for distributed rate limiting)
+    redis_url: str = ""
+
     @property
     def is_ai_mock_mode(self) -> bool:
         """When no API key is set, AI customizer returns pre-written responses."""

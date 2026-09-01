@@ -46,6 +46,40 @@
             style="background: var(--tag-heavy-bg); color: var(--tag-heavy); border: 1px solid var(--jamun); border-radius: var(--radius-full);">🍫 Heavy</button>
     </div>
 
+    {% if recommended %}
+    <!-- AI Recommendations Section -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+            <h3 style="font-size: 1.1rem; font-weight: 700;">✨ Recommended For You</h3>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--honey-dark); font-size: 0.7rem; border: 1px solid rgba(245, 158, 11, 0.3);">AI Powered</span>
+        </div>
+        <div style="display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-2); scroll-snap-type: x mandatory;">
+            {% for dessert in recommended %}
+            <a href="/app/dessert/{{ dessert.id }}" class="card" style="min-width: 200px; max-width: 200px; flex-shrink: 0; scroll-snap-align: start; text-decoration: none; color: inherit; border-radius: var(--radius-lg); background: var(--malai-deep); border: 1px solid rgba(255,255,255,0.08); overflow: hidden;">
+                <div style="height: 100px; background: linear-gradient(135deg, {% if dessert.tag == 'light' %}var(--pista-bg){% elif dessert.tag == 'heavy' %}var(--jamun-bg){% else %}var(--honey-bg){% endif %}, var(--malai-deep)); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; position: relative;">
+                    {% if 'chocolate' in dessert.name.lower() or 'brownie' in dessert.name.lower() %}🍫
+                    {% elif 'cheesecake' in dessert.name.lower() or 'mango' in dessert.name.lower() %}🥭
+                    {% elif 'gulab' in dessert.name.lower() or 'rasmalai' in dessert.name.lower() %}🍮
+                    {% elif 'ladoo' in dessert.name.lower() or 'barfi' in dessert.name.lower() %}🟡
+                    {% elif 'kheer' in dessert.name.lower() or 'payasam' in dessert.name.lower() %}🥣
+                    {% else %}🍰{% endif %}
+                    <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 8px; left: 8px; font-size: 0.65rem; padding: 2px 6px;">
+                        {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+                    </span>
+                </div>
+                <div style="padding: var(--space-3);">
+                    <h5 style="font-size: 0.85rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
+                    <div class="flex items-center justify-between" style="font-size: 0.8rem;">
+                        <span class="price" style="font-weight: 700; color: var(--honey);">₹{{ dessert.price|int }}</span>
+                        <span class="calories" style="color: var(--warm-gray);">{{ dessert.calories|int }} cal</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Dessert Grid -->
     <h2 class="mb-4">Our Signature Menu</h2>
     <div class="grid-2 stagger" id="dessert-grid">

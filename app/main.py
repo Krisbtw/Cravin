@@ -141,8 +141,19 @@ async def customer_home(request: Request, db: AsyncSession = Depends(get_db)):
     )
     desserts = result.scalars().all()
 
+    # Fetch personalized AI recommendations
+    from app.services.recommendation import get_recommendations
+    recommended = await get_recommendations(
+        user_id=user["id"] if user else None,
+        db=db,
+        context={"time": "evening", "weather": "warm"},
+        limit=4,
+    )
+
     return TR(request, "customer/home.html", {
-        "user": user, "desserts": desserts,
+        "user": user,
+        "desserts": desserts,
+        "recommended": recommended,
         "featured": desserts[:3] if desserts else [],
     })
 

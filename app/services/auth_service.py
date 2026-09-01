@@ -136,6 +136,32 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: AsyncSession = Depends(get_db),
+) -> Optional[User]:
+    """FastAPI dependency — returns User if valid JWT cookie/header present, otherwise None."""
+    token = None
+    if credentials:
+        token = credentials.credentials
+    else:
+        token = request.cookies.get("access_token")
+
+    if not token:
+        return None
+
+    try:
+        payload = decode_token(token)
+        user_id = payload.get("sub")
+        if user_id:
+            result = await db.execute(select(User).where(User.id == user_id))
+            return result.scalar_one_or_none()
+    except Exception:
+        pass
+    return None
+
+
 def require_role(*roles: str):
     """Dependency factory — restricts access to specific roles."""
     async def role_checker(user: User = Depends(get_current_user)):
