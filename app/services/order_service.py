@@ -12,7 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.order import Order, OrderItem, OrderStatus, PaymentStatus
 from app.models.dessert import Dessert
-from app.models.baker import Baker
+from app.models.baker import Baker, BakerStatus
 from app.models.nutrition_log import NutritionLog
 from app.services.baker_matcher import assign_baker_to_order
 from app.services.loyalty_service import award_order_points
@@ -48,10 +48,12 @@ async def create_order(
         # Dynamic regression surge pricing based on real-time density and distance
         from app.services.pricing import calculate_surge_fee
         active_bakers_count = await db.scalar(
-            select(func.count(Baker.id)).where(Baker.status == "approved")
+            select(func.count(Baker.id)).where(Baker.status == BakerStatus.APPROVED)
         ) or 1
         active_orders_count = await db.scalar(
-            select(func.count(Order.id)).where(Order.status.in_(["pending", "accepted", "preparing"]))
+            select(func.count(Order.id)).where(
+                Order.status.in_([OrderStatus.PLACED.value, OrderStatus.ACCEPTED.value, OrderStatus.PREPARING.value])
+            )
         ) or 0
 
         calculated_delivery_fee = calculate_surge_fee(
@@ -134,7 +136,7 @@ async def create_order(
     assigned_baker_id = None
     if baker_id:
         baker_check = await db.execute(
-            select(Baker).where(Baker.id == baker_id, Baker.status == "approved")
+            select(Baker).where(Baker.id == baker_id, Baker.status == BakerStatus.APPROVED)
         )
         valid_baker = baker_check.scalar_one_or_none()
         if valid_baker:

@@ -70,18 +70,29 @@ async def init_db():
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-
-            # Safe column migrations for schema additions
-            from sqlalchemy import text
-            try:
-                await conn.execute(text("ALTER TABLE orders ADD COLUMN is_group_order BOOLEAN DEFAULT FALSE"))
-            except Exception:
-                pass
-            try:
-                await conn.execute(text("ALTER TABLE order_items ADD COLUMN consumed_quantity INTEGER DEFAULT 1"))
-            except Exception:
-                pass
     except Exception as e:
-        # In serverless / concurrent environments, tables may already exist
-        # or another worker may be creating them concurrently.
-        print(f"init_db notice (non-fatal): {e}")
+        print(f"init_db create_all notice: {e}")
+
+    # Run column migrations in separate isolated connections to avoid transaction rollbacks
+    from sqlalchemy import text
+    if is_sqlite:
+        for sql in [
+            "ALTER TABLE orders ADD COLUMN is_group_order BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE order_items ADD COLUMN consumed_quantity INTEGER DEFAULT 1",
+        ]:
+            try:
+                async with engine.begin() as conn:
+                    await conn.execute(text(sql))
+            except Exception:
+                pass
+    else:
+        # PostgreSQL syntax with native IF NOT EXISTS
+        for sql in [
+            "ALTER TABLE orders ADD COLUMN IF NOT EXISTS is_group_order BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE order_items ADD COLUMN IF NOT EXISTS consumed_quantity INTEGER DEFAULT 1",
+        ]:
+            try:
+                async with engine.begin() as conn:
+                    await conn.execute(text(sql))
+            except Exception as e:
+                print(f"PostgreSQL migration notice for {sql}: {e}")

@@ -168,34 +168,45 @@ async def place_order(
     db: AsyncSession = Depends(get_db),
 ):
     """Place a new order from cart with optional customer-chosen baker."""
-    items = [item.model_dump() for item in data.items]
+    try:
+        items = [item.model_dump() for item in data.items]
+        if not items:
+            raise HTTPException(status_code=400, detail="Cart is empty")
 
-    order = await create_order(
-        user_id=user.id,
-        items=items,
-        fulfillment_type=data.fulfillment_type,
-        is_group_order=data.is_group_order,
-        delivery_address=data.delivery_address,
-        delivery_notes=data.delivery_notes,
-        city=user.city,
-        db=db,
-        baker_id=data.baker_id,
-        delivery_latitude=data.delivery_latitude,
-        delivery_longitude=data.delivery_longitude,
-    )
+        order = await create_order(
+            user_id=user.id,
+            items=items,
+            fulfillment_type=data.fulfillment_type,
+            is_group_order=data.is_group_order,
+            delivery_address=data.delivery_address,
+            delivery_notes=data.delivery_notes,
+            city=user.city,
+            db=db,
+            baker_id=data.baker_id,
+            delivery_latitude=data.delivery_latitude,
+            delivery_longitude=data.delivery_longitude,
+        )
 
-    # Mock payment (Phase 1)
-    order.payment_status = "paid"
-    order.payment_id = f"mock_{order.order_number}"
+        # Mock payment (Phase 1)
+        order.payment_status = "paid"
+        order.payment_id = f"mock_{order.order_number}"
+        await db.commit()
 
-    return {
-        "order_id": order.id,
-        "order_number": order.order_number,
-        "baker_id": order.baker_id,
-        "total_amount": order.total_amount,
-        "status": order.status,
-        "message": "Order placed successfully! 🎉",
-    }
+        return {
+            "order_id": order.id,
+            "order_number": order.order_number,
+            "baker_id": order.baker_id,
+            "total_amount": order.total_amount,
+            "status": order.status,
+            "message": "Order placed successfully! 🎉",
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Order creation failed: {str(e)}")
 
 
 @router.get("/orders")
