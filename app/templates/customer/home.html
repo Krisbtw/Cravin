@@ -146,11 +146,10 @@
     </div>
     {% endif %}
 
-    <!-- Dessert Grid -->
     <h2 class="mb-4" style="color: #FFFFFF; font-size: 1.35rem; font-weight: 800;">Our Signature Menu</h2>
     <div class="grid-2 stagger" id="dessert-grid">
         {% for dessert in desserts %}
-        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card animate-fade-in-up" data-tag="{{ dessert.tag }}">
+        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card" data-tag="{{ dessert.tag }}">
             <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #18202F;">
                 {% if dessert.image_url %}
                 <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
