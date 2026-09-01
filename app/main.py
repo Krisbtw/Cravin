@@ -6,7 +6,7 @@ Three apps, one server: Customer (/app), Baker (/baker), Admin (/admin).
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from contextlib import asynccontextmanager
@@ -128,6 +128,16 @@ async def seed_endpoint(db: AsyncSession = Depends(get_db)):
         return HTMLResponse(content=f"<div style='font-family:sans-serif;padding:2rem;background:#111;color:#fff;min-height:100vh;'><h2>🌱 Seeding Status</h2><p>{msg}</p><p><a href='/app/' style='color:#f59e0b;font-weight:bold;'>👉 Go to Cravin Menu</a></p></div>")
     except Exception as e:
         return HTMLResponse(content=f"<div style='font-family:sans-serif;padding:2rem;background:#111;color:#fff;'><h2>❌ Seeding Error</h2><p>{e}</p></div>", status_code=500)
+
+
+@app.get("/sw.js")
+async def service_worker():
+    return FileResponse(os.path.join(static_dir, "sw.js"), media_type="application/javascript")
+
+
+@app.get("/manifest.json")
+async def manifest_file():
+    return FileResponse(os.path.join(static_dir, "manifest.json"), media_type="application/manifest+json")
 
 
 @app.get("/app/", response_class=HTMLResponse)

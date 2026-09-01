@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181824"/>
+      <stop offset="100%" stop-color="#08080C"/>
+    </linearGradient>
+    <linearGradient id="jamunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="honeyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <linearGradient id="pistaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6EE7B7"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="none" stroke="url(#jamunGrad)" stroke-width="4" stroke-opacity="0.3"/>
+
+  <!-- Glowing background ring -->
+  <circle cx="256" cy="256" r="170" fill="url(#jamunGrad)" opacity="0.12" filter="url(#glow)"/>
+
+  <!-- Stylized Cupcake / Dessert Icon -->
+  <g transform="translate(106, 96)">
+    <!-- Base Cup -->
+    <path d="M50 180 L80 290 Q85 305 100 305 L200 305 Q215 305 220 290 L250 180 Z" 
+          fill="url(#honeyGrad)" opacity="0.95"/>
+    <path d="M70 190 L90 285 M120 190 L130 295 M150 190 L150 295 M180 190 L170 295 M210 190 L200 285" 
+          stroke="#78350F" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+
+    <!-- Swirling Frosting Layers (Zero-Sugar Whipped Cream) -->
+    <!-- Bottom Swirl Layer -->
+    <path d="M30 180 Q30 150 65 150 Q75 125 110 125 Q150 110 190 125 Q225 125 235 150 Q270 150 270 180 Q270 200 240 200 L60 200 Q30 200 30 180 Z" 
+          fill="url(#jamunGrad)" filter="url(#glow)"/>
+
+    <!-- Middle Frosting Swirl -->
+    <path d="M60 145 Q65 105 105 105 Q125 75 150 75 Q175 75 195 105 Q235 105 240 145 Z" 
+          fill="url(#jamunGrad)"/>
+
+    <!-- Top Frosting Peak -->
+    <path d="M105 100 Q120 45 150 45 Q180 45 195 100 Z" 
+          fill="#DDD6FE"/>
+
+    <!-- Golden Cherry / Pista Leaf Garnish on Top -->
+    <circle cx="150" cy="35" r="18" fill="url(#honeyGrad)" filter="url(#glow)"/>
+    <!-- Leaf -->
+    <path d="M155 25 C175 10 185 20 180 32 C170 35 160 30 155 25 Z" fill="url(#pistaGrad)"/>
+    
+    <!-- Sparkles -->
+    <path d="M260 60 L266 75 L281 81 L266 87 L260 102 L254 87 L239 81 L254 75 Z" fill="url(#honeyGrad)"/>
+    <path d="M40 90 L44 100 L54 104 L44 108 L40 118 L36 108 L26 104 L36 100 Z" fill="url(#pistaGrad)"/>
+  </g>
+</svg>

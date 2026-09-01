@@ -13,10 +13,47 @@ import json
 from app.database import get_db, async_session
 from app.models.order import Order
 from app.models.user import User
-from app.schemas.order import UpdatePortionLogRequest
+from app.schemas.order import CreateOrder, UpdatePortionLogRequest
 from app.services.auth_service import get_current_user
+from app.services.order_service import create_order, update_order_portion_log
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
+
+
+@router.post("")
+@router.post("/")
+@router.post("/checkout")
+async def place_order_api(
+    data: CreateOrder,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Place a new order via /api/orders or /api/orders/checkout."""
+    items = [item.model_dump() for item in data.items]
+    order = await create_order(
+        user_id=user.id,
+        items=items,
+        fulfillment_type=data.fulfillment_type,
+        is_group_order=data.is_group_order,
+        delivery_address=data.delivery_address,
+        delivery_notes=data.delivery_notes,
+        city=user.city,
+        db=db,
+        baker_id=data.baker_id,
+        delivery_latitude=data.delivery_latitude,
+        delivery_longitude=data.delivery_longitude,
+    )
+    order.payment_status = "paid"
+    order.payment_id = f"mock_{order.order_number}"
+
+    return {
+        "order_id": order.id,
+        "order_number": order.order_number,
+        "baker_id": order.baker_id,
+        "total_amount": order.total_amount,
+        "status": order.status,
+        "message": "Order placed successfully! 🎉",
+    }
 
 
 @router.get("/{order_id}/track")

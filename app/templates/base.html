@@ -4,7 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Cravin — Zero Sugar, Zero Maida desserts from home bakers. AI-customized, nutrition-tracked, fresh & delivered.">
-    <meta name="theme-color" content="#08080C">
+    <meta name="theme-color" content="#8B5CF6">
+
+    <!-- PWA Manifest & App Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/static/icons/icon.svg">
+    <link rel="apple-touch-icon" href="/static/icons/icon.svg">
+
+    <!-- iOS PWA Optimizations -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cravin">
+
     <title>{% block title %}Cravin{% endblock %} — Zero Sugar, Full Flavor</title>
     <link rel="stylesheet" href="/static/css/design-system.css">
     {% block extra_css %}{% endblock %}
@@ -16,6 +27,9 @@
     </style>
 </head>
 <body>
+    <!-- Dedicated Global Toast Container (Fixed Center, Stacked & Non-Blocking) -->
+    <div id="toast-container" style="position: fixed; top: 24px; left: 0; right: 0; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 10000; pointer-events: none; max-width: 90vw; width: max-content;"></div>
+
     {% block body %}
     <div class="page">
         <div class="container">
@@ -25,6 +39,23 @@
     {% endblock %}
 
     {% block nav %}{% endblock %}
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="hidden" style="position: fixed; bottom: 84px; left: 16px; right: 16px; max-width: 480px; margin: 0 auto; z-index: 999; background: linear-gradient(135deg, var(--bg-surface), var(--bg-elevated)); border: 1px solid var(--jamun); border-radius: var(--radius-lg); padding: 12px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); animation: fadeInUp 0.4s ease;">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <img src="/static/icons/icon.svg" width="38" height="38" style="border-radius: 9px;" alt="Cravin">
+                <div>
+                    <div style="font-size: 0.88rem; font-weight: 700; color: white;">Install Cravin App</div>
+                    <div style="font-size: 0.73rem; color: var(--text-secondary);">One-tap healthy dessert ordering</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="pwa-install-btn" class="btn btn-sm" style="background: var(--jamun); color: white; padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 9999px; border: none; cursor: pointer;">Install</button>
+                <button onclick="dismissInstallBanner()" class="btn btn-ghost btn-sm" style="padding: 4px; color: var(--text-tertiary); font-size: 0.85rem; border: none; background: transparent; cursor: pointer;">✕</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         /* ── Shared JS Utilities ── */
@@ -60,18 +91,16 @@
                 if (existing && !item.customization) {
                     existing.quantity += item.quantity || 1;
                 } else {
-                    cart.push({...item, quantity: item.quantity || 1});
+                    cart.push(item);
                 }
                 localStorage.setItem(this.KEY, JSON.stringify(cart));
                 this.updateBadge();
-                return cart;
             },
             remove(index) {
                 const cart = this.get();
                 cart.splice(index, 1);
                 localStorage.setItem(this.KEY, JSON.stringify(cart));
                 this.updateBadge();
-                return cart;
             },
             clear() {
                 localStorage.removeItem(this.KEY);
@@ -93,17 +122,125 @@
         // Update cart badge on page load
         document.addEventListener('DOMContentLoaded', () => Cart.updateBadge());
 
-        /* Toast notification */
-        function showToast(message, type = 'success') {
+        /* ── Unified Global Toast Notification System (No Displacement / Glitch-Free) ── */
+        function showToast(message, type = 'success', duration = 3000) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            // Remove excessive active toasts (keep max 2)
+            while (container.children.length >= 2) {
+                container.removeChild(container.firstChild);
+            }
+
             const toast = document.createElement('div');
-            toast.className = `alert alert-${type}`;
-            toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:1000;min-width:280px;text-align:center;animation:fadeInUp 0.3s ease;box-shadow: 0 8px 30px rgba(0,0,0,0.5);border-radius: 9999px;padding: 10px 20px;';
-            toast.innerHTML = message;
-            document.body.appendChild(toast);
+            toast.className = `cravin-toast cravin-toast-${type}`;
+
+            let icon = '✨';
+            let borderColor = 'var(--jamun)';
+            let bgColor = 'rgba(139, 92, 246, 0.15)';
+            let textColor = '#FFFFFF';
+
+            if (type === 'success') {
+                icon = '✅';
+                borderColor = 'rgba(16, 185, 129, 0.6)';
+                bgColor = 'rgba(16, 185, 129, 0.18)';
+                textColor = '#34D399';
+            } else if (type === 'danger' || type === 'error') {
+                icon = '⚠️';
+                borderColor = 'rgba(239, 68, 68, 0.6)';
+                bgColor = 'rgba(239, 68, 68, 0.18)';
+                textColor = '#F87171';
+            } else if (type === 'warning') {
+                icon = '⏳';
+                borderColor = 'rgba(245, 158, 11, 0.6)';
+                bgColor = 'rgba(245, 158, 11, 0.18)';
+                textColor = '#FCD34D';
+            }
+
+            toast.style.cssText = `
+                pointer-events: auto;
+                background: #111116;
+                background-image: linear-gradient(135deg, ${bgColor}, rgba(17, 17, 22, 0.98));
+                color: #FFFFFF;
+                border: 1px solid ${borderColor};
+                border-radius: 9999px;
+                padding: 10px 20px;
+                font-size: 0.86rem;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(0,0,0,0.4);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                opacity: 0;
+                transform: translateY(-10px) scale(0.96);
+                transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                user-select: none;
+                max-width: 90vw;
+                text-align: center;
+            `;
+
+            toast.innerHTML = `<span style="font-size: 1rem; flex-shrink: 0;">${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Trigger smooth vertical entrance
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0) scale(1)';
+            });
+
+            // Smooth exit
             setTimeout(() => {
-                toast.style.animation = 'fadeIn 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-6px) scale(0.96)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 250);
+            }, duration);
+        }
+
+        /* ── PWA Service Worker & Install Prompt ── */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW notice:', err));
+            });
+        }
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = document.getElementById('pwa-install-banner');
+            const dismissed = sessionStorage.getItem('cravin_pwa_dismissed');
+            if (banner && !dismissed) {
+                banner.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        deferredPrompt = null;
+                        document.getElementById('pwa-install-banner')?.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        function dismissInstallBanner() {
+            document.getElementById('pwa-install-banner')?.classList.add('hidden');
+            sessionStorage.setItem('cravin_pwa_dismissed', 'true');
         }
     </script>
     {% block extra_js %}{% endblock %}

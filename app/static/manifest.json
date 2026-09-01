@@ -1,0 +1,54 @@
+{
+  "name": "Cravin — Zero Sugar Desserts",
+  "short_name": "Cravin",
+  "description": "Zero Sugar, Zero Maida, Full Flavor. AI-customized healthy desserts from certified home bakers.",
+  "start_url": "/app/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#08080C",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "food",
+    "health",
+    "lifestyle",
+    "shopping"
+  ],
+  "shortcuts": [
+    {
+      "name": "Explore Menu",
+      "short_name": "Menu",
+      "description": "Browse healthy signature desserts",
+      "url": "/app/",
+      "icons": [{ "src": "/static/icons/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Cart",
+      "short_name": "Cart",
+      "description": "View items in your cart",
+      "url": "/app/cart",
+      "icons": [{ "src": "/static/icons/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Track Orders",
+      "short_name": "Orders",
+      "description": "Track live dessert deliveries",
+      "url": "/app/orders",
+      "icons": [{ "src": "/static/icons/icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}

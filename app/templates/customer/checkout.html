@@ -328,49 +328,84 @@ async function placeOrder(e) {
     const btn = document.getElementById('place-order-btn');
     const selectedBakerId = document.getElementById('selected-baker-id').value;
 
+    const cart = Cart.get();
+    if (!cart || cart.length === 0) {
+        showToast('Your cart is empty. Add desserts before placing an order!', 'warning');
+        return;
+    }
+
     btn.textContent = 'Placing order...';
     btn.disabled = true;
 
-    const cart = Cart.get();
     const fulfillment = localStorage.getItem('cravin_fulfillment') || 'delivery';
     const isGroup = localStorage.getItem('cravin_is_group_order') === 'true';
     const lat = parseFloat(document.getElementById('delivery-lat').value) || null;
     const lng = parseFloat(document.getElementById('delivery-lng').value) || null;
 
+    const payload = {
+        items: cart.map(item => ({
+            dessert_id: item.dessert_id,
+            quantity: item.quantity || 1,
+            consumed_quantity: item.consumed_quantity !== undefined ? item.consumed_quantity : (isGroup ? 1 : item.quantity || 1),
+            customization: item.customization || null,
+        })),
+        fulfillment_type: fulfillment,
+        is_group_order: isGroup,
+        baker_id: selectedBakerId || null,
+        delivery_address: document.getElementById('address')?.value || null,
+        delivery_latitude: lat,
+        delivery_longitude: lng,
+        delivery_notes: document.getElementById('notes')?.value || null,
+        payment_method: document.getElementById('payment-method')?.value || 'upi',
+    };
+
+    console.log('[Checkout] Submitting order payload:', payload);
+
     try {
+        const token = document.cookie.match(/access_token=([^;]+)/)?.[1];
+        const headers = {
+            'Content-Type': 'application/json',
+            ...(token ? {'Authorization': `Bearer ${token}`} : {})
+        };
+
         const res = await fetch('/api/customer/orders', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                items: cart.map(item => ({
-                    dessert_id: item.dessert_id,
-                    quantity: item.quantity,
-                    consumed_quantity: item.consumed_quantity !== undefined ? item.consumed_quantity : (isGroup ? 1 : item.quantity),
-                    customization: item.customization || null,
-                })),
-                fulfillment_type: fulfillment,
-                is_group_order: isGroup,
-                baker_id: selectedBakerId || null,
-                delivery_address: document.getElementById('address')?.value || null,
-                delivery_latitude: lat,
-                delivery_longitude: lng,
-                delivery_notes: document.getElementById('notes')?.value || null,
-                payment_method: document.getElementById('payment-method').value,
-            }),
+            credentials: 'include',
+            headers: headers,
+            body: JSON.stringify(payload),
         });
-        const data = await res.json();
+
+        let data;
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await res.json();
+        } else {
+            const rawText = await res.text();
+            console.error('[Checkout] Non-JSON API Response:', res.status, rawText);
+            data = { detail: `Server error (${res.status})` };
+        }
 
         if (res.ok) {
             Cart.clear();
             localStorage.removeItem('cravin_is_group_order');
-            window.location.href = `/app/order/${data.order_id}`;
+            showToast('Order placed successfully! 🎉', 'success');
+            setTimeout(() => {
+                window.location.href = `/app/order/${data.order_id}`;
+            }, 600);
         } else {
-            showToast(data.detail || 'Failed to place order', 'danger');
+            console.error('[Checkout] Order placement failed:', res.status, data);
+            if (res.status === 401) {
+                showToast('Please log in to complete your order', 'warning');
+                setTimeout(() => window.location.href = '/app/login', 1500);
+            } else {
+                showToast(data.detail || `Order placement failed (${res.status})`, 'danger');
+            }
             btn.textContent = 'Place Order 🎉';
             btn.disabled = false;
         }
     } catch (err) {
-        showToast('Connection error', 'danger');
+        console.error('[Checkout] Exception during placeOrder:', err);
+        showToast('Connection error: ' + (err.message || 'Unable to reach checkout service'), 'danger');
         btn.textContent = 'Place Order 🎉';
         btn.disabled = false;
     }
