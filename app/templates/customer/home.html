@@ -121,7 +121,7 @@
         </div>
         <div style="display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-2); scroll-snap-type: x mandatory;">
             {% for dessert in recommended %}
-            <a href="/app/dessert/{{ dessert.id }}" class="card" style="min-width: 200px; max-width: 200px; flex-shrink: 0; scroll-snap-align: start; text-decoration: none; color: inherit; border-radius: var(--radius-xl); background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); overflow: hidden;">
+            <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card" style="min-width: 200px; max-width: 200px; flex-shrink: 0; scroll-snap-align: start;">
                 <div class="card-img-container" style="height: 110px; width: 100%; position: relative; background: #18202F;">
                     {% if dessert.image_url %}
                     <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
@@ -150,7 +150,7 @@
     <h2 class="mb-4" style="color: #FFFFFF; font-size: 1.35rem; font-weight: 800;">Our Signature Menu</h2>
     <div class="grid-2 stagger" id="dessert-grid">
         {% for dessert in desserts %}
-        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card animate-fade-in-up" data-tag="{{ dessert.tag }}" style="text-decoration: none; color: inherit; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl); overflow: hidden;">
+        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card animate-fade-in-up" data-tag="{{ dessert.tag }}">
             <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #18202F;">
                 {% if dessert.image_url %}
                 <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">

@@ -365,16 +365,20 @@ a:hover { color: var(--honey-light); }
 
 /* ── Cards (Modern Glassmorphism) ────────────────────────── */
 .card {
-    background: rgba(17, 23, 34, 0.60);
+    background: rgba(17, 23, 34, 0.65);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: var(--radius-xl);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.28s ease, 
+                background-color 0.28s ease, 
+                border-color 0.28s ease;
     position: relative;
+    will-change: transform, box-shadow;
 }
 
 /* Subtle top highlight line on all cards */
@@ -390,11 +394,15 @@ a:hover { color: var(--honey-light); }
 }
 
 .card:hover, .dessert-card:hover {
-    border-color: rgba(255, 255, 255, 0.20);
-    border-top-color: rgba(255, 255, 255, 0.30);
-    background: rgba(255, 255, 255, 0.07);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
-    transform: translateY(-4px);
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55), 0 0 24px rgba(139, 92, 246, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    border-top-color: rgba(255, 255, 255, 0.35) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.card:active, .dessert-card:active {
+    transform: translateY(-2px) scale(0.99) !important;
 }
 
 .card-body {
@@ -441,11 +449,11 @@ a:hover { color: var(--honey-light); }
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform var(--duration-normal) var(--ease-out);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dessert-card:hover .food-img {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 .img-scrim {
@@ -456,7 +464,14 @@ a:hover { color: var(--honey-light); }
 }
 
 /* Dessert card */
-.dessert-card { position: relative; }
+.dessert-card { 
+    position: relative; 
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
 .dessert-card .card-img { position: relative; }
 .dessert-card .tag-badge { position: absolute; top: var(--space-3); left: var(--space-3); }
 .dessert-card .price {
@@ -1023,18 +1038,48 @@ select.form-input option {
 .alert-warning { background: var(--honey-bg);  color: var(--honey-light); border-color: var(--honey); }
 .alert-danger  { background: rgba(239,68,68,0.08); color: #FCA5A5; border-color: var(--danger); }
 
-/* ── Toast Notifications ────────────────────────────────────── */
+/* ── Toast Notifications (Strict Viewport Top-Center) ──────── */
 #toast-container {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    pointer-events: none;
+    position: fixed !important;
+    top: 24px !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    pointer-events: none !important;
+    width: max-content !important;
+    max-width: 92vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
+
+.cravin-toast {
+    pointer-events: auto;
+    background: #111116;
+    color: #FFFFFF;
+    border-radius: 9999px;
+    padding: 10px 20px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), 0 0 16px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    user-select: none;
+    max-width: 90vw;
+    text-align: center;
+    white-space: nowrap;
+}
+
 .toast {
     padding: var(--space-3) var(--space-5);
     border-radius: var(--radius-full);
@@ -1050,14 +1095,14 @@ select.form-input option {
 .toast-danger  { background: var(--bg-elevated); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
 .toast-info    { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-default); }
 @keyframes toastIn {
-    from { opacity: 0; transform: translateY(12px) scale(0.92); }
+    from { opacity: 0; transform: translateY(-12px) scale(0.92); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── Animations ─────────────────────────────────────────────── */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -1078,7 +1123,7 @@ select.form-input option {
 }
 
 .animate-fade-in      { animation: fadeIn var(--duration-normal) var(--ease-out); }
-.animate-fade-in-up   { animation: fadeInUp var(--duration-normal) var(--ease-out) both; }
+.animate-fade-in-up   { animation: fadeInUp 0.4s var(--ease-out); }
 .animate-slide-in     { animation: slideInRight var(--duration-normal) var(--ease-out); }
 .animate-pulse        { animation: pulse 2s var(--ease-out) infinite; }
 .animate-celebration  { animation: celebration var(--duration-slow) var(--ease-spring); }
