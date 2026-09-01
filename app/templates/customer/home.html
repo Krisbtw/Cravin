@@ -2,9 +2,14 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="page-content">
+<div class="page-content ambient-glow-wrapper">
+    <!-- Ambient Background Glows (for natural glass refraction) -->
+    <div class="ambient-orb" style="top: -60px; left: 50%; transform: translateX(-50%); width: 380px; height: 380px; background: rgba(139, 92, 246, 0.15);"></div>
+    <div class="ambient-orb" style="top: 45%; left: -80px; width: 320px; height: 320px; background: rgba(245, 158, 11, 0.10);"></div>
+    <div class="ambient-orb" style="top: 75%; right: -70px; width: 300px; height: 300px; background: rgba(16, 185, 129, 0.08);"></div>
+
     <!-- Top Bar -->
-    <div class="top-bar">
+    <div class="top-bar" style="position: relative; z-index: 10;">
         <div class="logo">Crav<span style="color: var(--honey);">in</span></div>
         <div class="flex items-center gap-2">
             <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px;">
@@ -19,22 +24,22 @@
         </div>
     </div>
 
-    <!-- Hero Section -->
-    <div class="hero-section mb-6" style="background: linear-gradient(135deg, var(--jamun-bg) 0%, var(--honey-bg) 100%); border-radius: var(--radius-xl); padding: var(--space-6); position: relative; overflow: hidden;">
+    <!-- Hero Section (Frosted Glassmorphism Banner) -->
+    <div class="hero-glass mb-6 animate-fade-in-up">
         <div style="position: relative; z-index: 1;">
-            <p class="text-label mb-2" style="color: var(--jamun);">Zero Sugar · Zero Maida</p>
-            <h1 class="text-display mb-2" style="font-size: 1.8rem;">Desserts that love you back 🍰</h1>
-            <p class="text-subtitle mb-4">AI-customized, nutrition-tracked, fresh from home bakers near you.</p>
+            <p class="text-label mb-2" style="color: var(--honey-light); font-weight: 700; letter-spacing: 0.1em;">ZERO SUGAR · ZERO MAIDA</p>
+            <h1 class="text-display mb-2" style="font-size: 1.85rem; font-weight: 800; color: #FFFFFF;">Desserts that love you back 🍰</h1>
+            <p class="text-subtitle mb-4" style="color: var(--text-secondary); max-width: 90%;">AI-customized, nutrition-tracked, fresh from verified home bakers near you.</p>
             {% if not user %}
-            <a href="/app/register" class="btn btn-primary">Start Your Flavor Journey</a>
+            <a href="/app/register" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700;">Start Your Flavor Journey</a>
             {% elif not user.onboarding_complete %}
-            <a href="/app/onboarding" class="btn btn-primary">Take the Flavor DNA Quiz 🧬</a>
+            <a href="/app/onboarding" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700;">Take the Flavor DNA Quiz 🧬</a>
             {% endif %}
         </div>
-        <div style="position: absolute; right: -20px; bottom: -10px; font-size: 5rem; opacity: 0.15;">🍩</div>
+        <div style="position: absolute; right: -15px; bottom: -15px; font-size: 5.5rem; opacity: 0.12; pointer-events: none;">🍩</div>
     </div>
 
-    <!-- Tag Filters -->
+    <!-- Tag Filters (Frosted Glass Pills) -->
     <style>
         .filter-container {
             display: flex;
@@ -43,82 +48,65 @@
             overflow-x: auto;
             padding-bottom: 0.5rem;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
         .filter-btn {
-            padding: 0.45rem 1.1rem;
+            padding: 0.45rem 1.15rem;
             border-radius: 9999px;
             font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
             outline: none !important;
             -webkit-tap-highlight-color: transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
             white-space: nowrap;
             user-select: none;
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text-secondary);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #CBD5E1;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            border-top: 1px solid rgba(255, 255, 255, 0.16);
         }
         .filter-btn:focus, .filter-btn:active, .filter-btn:visited {
             outline: none !important;
             box-shadow: none;
         }
         .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.10);
+            border-color: rgba(255, 255, 255, 0.20);
+            color: #FFFFFF;
             transform: translateY(-1px);
         }
 
-        /* "All" button */
-        .filter-btn[data-tag="all"] {
-            border-color: rgba(139, 92, 246, 0.3);
-            color: #E2E8F0;
-        }
+        /* Active Filter Pill States */
         .filter-btn[data-tag="all"].active {
             background: #8B5CF6 !important;
             color: #FFFFFF !important;
             border-color: #8B5CF6 !important;
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
-        }
-
-        /* "Light" button */
-        .filter-btn[data-tag="light"] {
-            background: rgba(16, 185, 129, 0.08);
-            color: #10B981;
-            border: 1px solid rgba(16, 185, 129, 0.5);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.45);
         }
         .filter-btn[data-tag="light"].active {
             background: #10B981 !important;
             color: #FFFFFF !important;
             border-color: #10B981 !important;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
-        }
-
-        /* "Balanced" button */
-        .filter-btn[data-tag="balanced"] {
-            background: rgba(245, 158, 11, 0.08);
-            color: #F59E0B;
-            border: 1px solid rgba(245, 158, 11, 0.5);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
         }
         .filter-btn[data-tag="balanced"].active {
             background: #F59E0B !important;
-            color: #FFFFFF !important;
+            color: #020617 !important;
+            font-weight: 700;
             border-color: #F59E0B !important;
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
-        }
-
-        /* "Heavy" button */
-        .filter-btn[data-tag="heavy"] {
-            background: rgba(139, 92, 246, 0.08);
-            color: #A78BFA;
-            border: 1px solid rgba(139, 92, 246, 0.5);
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45);
         }
         .filter-btn[data-tag="heavy"].active {
-            background: #8B5CF6 !important;
+            background: #A855F7 !important;
             color: #FFFFFF !important;
-            border-color: #8B5CF6 !important;
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            border-color: #A855F7 !important;
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.45);
         }
     </style>
 

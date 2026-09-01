@@ -358,16 +358,17 @@ a:hover { color: var(--honey-light); }
 .btn-block { width: 100%; }
 .btn-icon { width: 44px; height: 44px; padding: 0; border-radius: var(--radius-full); }
 
-/* ── Cards (Standardized Frosted Slate) ────────────────────── */
+/* ── Cards (Modern Glassmorphism) ────────────────────────── */
 .card {
-    background: var(--bg-surface-glass);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-subtle);
+    background: rgba(17, 23, 34, 0.60);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
     overflow: hidden;
-    transition: all var(--duration-normal) var(--ease-out);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
 }
 
@@ -379,18 +380,48 @@ a:hover { color: var(--honey-light); }
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
     pointer-events: none;
 }
 
-.card:hover {
-    border-color: var(--border-default);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+.card:hover, .dessert-card:hover {
+    border-color: rgba(255, 255, 255, 0.20);
+    border-top-color: rgba(255, 255, 255, 0.30);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    transform: translateY(-4px);
 }
 
 .card-body {
     padding: var(--space-5);
+}
+
+/* ── Hero Glass Banner ───────────────────────────────────────── */
+.hero-glass {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.20);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.40);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Ambient Background Glows ────────────────────────────────── */
+.ambient-glow-wrapper {
+    position: relative;
+    isolation: isolate;
+}
+
+.ambient-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: -10;
 }
 
 .card-img {
@@ -421,7 +452,7 @@ a:hover { color: var(--honey-light); }
 }
 
 .dessert-card:hover .food-img {
-    transform: scale(1.04);
+    transform: scale(1.05);
 }
 
 .img-scrim {
@@ -437,12 +468,12 @@ a:hover { color: var(--honey-light); }
 .dessert-card .tag-badge { position: absolute; top: var(--space-3); left: var(--space-3); }
 .dessert-card .price {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 800;
     font-size: 1.1rem;
-    color: var(--honey);
+    color: var(--honey-light);
 }
 .dessert-card .calories {
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.82rem;
     color: var(--text-secondary);
 }
