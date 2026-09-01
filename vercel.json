@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "{app/**,Cravin/app/**}"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
