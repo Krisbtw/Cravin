@@ -105,6 +105,9 @@ def TR(request: Request, template: str, context: dict = None):
 # ═══════════════════════════════════════════════════════════════════
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/api/index", response_class=HTMLResponse)
+@app.get("/api/index.py", response_class=HTMLResponse)
+@app.get("/api", response_class=HTMLResponse)
 async def root():
     """Redirect root to customer app."""
     return RedirectResponse(url="/app/")
