@@ -33,9 +33,24 @@ from sqlalchemy import select, func
 
 
 async def populate_seed_data(db):
-    """Populate database if no desserts exist."""
+    """Populate database if no desserts exist or sync authentic photography."""
+    data_dir = os.path.join(os.path.dirname(__file__), "app", "data")
+    with open(os.path.join(data_dir, "seed_desserts.json"), "r", encoding="utf-8") as f:
+        dessert_data = json.load(f)
+
     existing_count = await db.scalar(select(func.count(Dessert.id)))
     if existing_count and existing_count > 0:
+        # Sync high-res photography URLs for existing items
+        image_map = {d["name"]: d.get("image_url") for d in dessert_data if d.get("image_url")}
+        all_desserts = (await db.execute(select(Dessert))).scalars().all()
+        updated = 0
+        for d in all_desserts:
+            if d.name in image_map and d.image_url != image_map[d.name]:
+                d.image_url = image_map[d.name]
+                updated += 1
+        if updated > 0:
+            await db.commit()
+            return f"Updated {updated} desserts with authentic food photography!"
         return f"Database already populated ({existing_count} desserts exist)."
 
     print("🌱 Seeding Cravin database...")

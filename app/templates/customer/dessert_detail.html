@@ -17,81 +17,88 @@
         </div>
     </div>
 
-    <!-- Hero Image -->
-    <div style="background: linear-gradient(135deg, 
-        {% if dessert.tag == 'light' %}var(--pista-bg), var(--malai-deep)
-        {% elif dessert.tag == 'heavy' %}var(--jamun-bg), var(--malai-deep)
-        {% else %}var(--honey-bg), var(--malai-deep){% endif %}); 
-        border-radius: var(--radius-xl); height: 220px; display: flex; align-items: center; justify-content: center; font-size: 5rem; margin-bottom: var(--space-5);">
-        {% if 'chocolate' in dessert.name.lower() or 'brownie' in dessert.name.lower() %}🍫
-        {% elif 'cheesecake' in dessert.name.lower() or 'mango' in dessert.name.lower() %}🥭
-        {% elif 'gulab' in dessert.name.lower() or 'rasmalai' in dessert.name.lower() %}🍮
-        {% elif 'ladoo' in dessert.name.lower() or 'barfi' in dessert.name.lower() %}🟡
-        {% elif 'kheer' in dessert.name.lower() or 'payasam' in dessert.name.lower() %}🥣
-        {% elif 'banana' in dessert.name.lower() %}🍌
-        {% else %}🍰{% endif %}
+    <!-- Hero Food Photography -->
+    <div class="card-img-container mb-5 animate-fade-in-up" style="position: relative; width: 100%; height: 260px; border-radius: var(--radius-xl); overflow: hidden; background: #18202F; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-md);">
+        {% if dessert.image_url %}
+        <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
+        {% else %}
+        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 5rem;">🍰</div>
+        {% endif %}
+        
+        <!-- Scrim -->
+        <div class="img-scrim" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(11, 15, 23, 0.88) 100%); pointer-events: none;"></div>
+        
+        <!-- Bottom left badge -->
+        <div style="position: absolute; bottom: 16px; left: 16px; z-index: 2;">
+            <span class="tag tag-{{ dessert.tag }}" style="backdrop-filter: blur(8px); font-size: 0.75rem; font-weight: 700;">
+                {% if dessert.tag == 'light' %}🌿 Light Category{% elif dessert.tag == 'heavy' %}🍫 Heavy Indulgence{% else %}⚖️ Balanced Energy{% endif %}
+            </span>
+        </div>
     </div>
 
     <!-- Title & Price -->
-    <h1 style="font-size: 1.6rem; margin-bottom: var(--space-2);">{{ dessert.name }}</h1>
-    <p class="text-subtitle mb-4">{{ dessert.description }}</p>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: #FFFFFF; margin-bottom: var(--space-2);">{{ dessert.name }}</h1>
+    <p class="text-subtitle mb-4" style="color: var(--text-secondary); line-height: 1.5;">{{ dessert.description }}</p>
 
     <div class="flex items-center justify-between mb-6">
-        <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--jamun);">₹{{ dessert.price|int }}</span>
-        <span class="text-muted">{{ dessert.serving_size_g|int }}g per serving</span>
+        <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+        <span class="text-muted" style="font-size: 0.85rem;">{{ dessert.serving_size_g|int }}g per serving</span>
     </div>
 
     <!-- Nutrition Panel (NEVER buried!) -->
-    <div class="nutrition-panel mb-6 animate-fade-in-up">
-        <div class="panel-title">📊 Nutrition per serving</div>
-
-        <!-- Macro bars -->
-        <div class="macro-bars mb-4">
-            <div class="macro-bar">
-                <div class="bar-value">{{ dessert.calories|int }}</div>
-                <div class="bar-fill bar-carbs" style="background: var(--honey);"></div>
-                <div class="bar-label">Calories</div>
+    <div class="card mb-6 animate-fade-in-up" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
+        <div class="card-body" style="padding: var(--space-5);">
+            <div class="flex items-center justify-between mb-4">
+                <span style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: #FFFFFF; text-transform: uppercase; letter-spacing: 0.05em;">
+                    📊 Nutrition per serving
+                </span>
+                <span class="text-muted" style="font-size: 0.78rem;">{{ dessert.serving_size_g|int }}g serving</span>
             </div>
-            <div class="macro-bar">
-                <div class="bar-value">{{ dessert.protein_g|round(1) }}g</div>
-                <div class="bar-fill bar-protein"></div>
-                <div class="bar-label">Protein</div>
-            </div>
-            <div class="macro-bar">
-                <div class="bar-value">{{ dessert.carbs_g|round(1) }}g</div>
-                <div class="bar-fill" style="background: var(--honey);"></div>
-                <div class="bar-label">Carbs</div>
-            </div>
-            <div class="macro-bar">
-                <div class="bar-value">{{ dessert.fat_g|round(1) }}g</div>
-                <div class="bar-fill" style="background: var(--pista);"></div>
-                <div class="bar-label">Fat</div>
-            </div>
-        </div>
 
-        <div class="nutrition-row">
-            <span class="label">Fiber</span>
-            <span class="value">{{ dessert.fiber_g|round(1) }}g</span>
-        </div>
-        <div class="nutrition-row">
-            <span class="label">Sugar equivalent</span>
-            <span class="value">{{ dessert.sugar_equivalent_g|round(1) }}g</span>
-        </div>
+            <!-- 4 clean mini-stat cards inside a grid -->
+            <div class="macro-stat-grid mb-4">
+                <div class="mini-stat-card">
+                    <div class="stat-number">{{ dessert.calories|int }}</div>
+                    <div class="stat-label">CALORIES</div>
+                </div>
+                <div class="mini-stat-card">
+                    <div class="stat-number">{{ dessert.protein_g|round(1) }}g</div>
+                    <div class="stat-label">PROTEIN</div>
+                </div>
+                <div class="mini-stat-card">
+                    <div class="stat-number">{{ dessert.carbs_g|round(1) }}g</div>
+                    <div class="stat-label">CARBS</div>
+                </div>
+                <div class="mini-stat-card">
+                    <div class="stat-number">{{ dessert.fat_g|round(1) }}g</div>
+                    <div class="stat-label">FAT</div>
+                </div>
+            </div>
 
-        {% if dessert.allergens %}
-        <div class="nutrition-row">
-            <span class="label">⚠️ Allergens</span>
-            <span class="value" style="color: var(--danger);">{{ dessert.allergens|join(', ') }}</span>
-        </div>
-        {% endif %}
+            <div class="nutrition-row" style="border-bottom: 1px solid var(--border-subtle);">
+                <span class="label">Fiber</span>
+                <span class="value">{{ dessert.fiber_g|round(1) }}g</span>
+            </div>
+            <div class="nutrition-row" style="border-bottom: 1px solid var(--border-subtle);">
+                <span class="label">Sugar equivalent</span>
+                <span class="value" style="color: var(--pista);">0g Added Sugar ({{ dessert.sugar_equivalent_g|round(1) }}g eq)</span>
+            </div>
 
-        {% if dessert.dietary_flags %}
-        <div class="flex gap-2 mt-4">
-            {% for flag in dessert.dietary_flags %}
-            <span class="tag" style="background: var(--pista-bg); color: var(--pista-dark);">{{ flag }}</span>
-            {% endfor %}
+            {% if dessert.allergens %}
+            <div class="nutrition-row" style="border-bottom: none;">
+                <span class="label">⚠️ Allergens</span>
+                <span class="value" style="color: var(--danger);">{{ dessert.allergens|join(', ') }}</span>
+            </div>
+            {% endif %}
+
+            {% if dessert.dietary_flags %}
+            <div class="flex flex-wrap gap-1 mt-4">
+                {% for flag in dessert.dietary_flags %}
+                <span class="soft-tag">{{ flag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
     <!-- Ingredients -->

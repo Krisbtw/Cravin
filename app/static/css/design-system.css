@@ -13,60 +13,59 @@
 
 /* ── Design Tokens ──────────────────────────────────────────── */
 :root {
-    /* ── Dark Backgrounds ── */
-    --bg-base:          #08080C;   /* near-black page bg */
-    --bg-surface:       #111116;   /* card surface */
-    --bg-elevated:      #1A1A22;   /* elevated card / modal */
-    --bg-overlay:       #22222E;   /* hover / active state */
-    --bg-input:         #16161E;   /* form inputs */
+    /* ── Rich Dark Slate Backgrounds ── */
+    --bg-base:          #0B0F17;   /* sleek obsidian slate page bg */
+    --bg-surface:       #111722;   /* card surface */
+    --bg-surface-glass: rgba(17, 23, 34, 0.72); /* frosted card surface */
+    --bg-elevated:      #18202F;   /* elevated card / modal */
+    --bg-overlay:       #1F293D;   /* hover / active state */
+    --bg-input:         #101520;   /* form inputs */
 
-    /* ── Borders ── */
-    --border-subtle:    #1E1E28;
-    --border-default:   #2A2A38;
-    --border-emphasis:  #3A3A50;
+    /* ── Subtle Translucent Borders ── */
+    --border-subtle:    rgba(255, 255, 255, 0.07);
+    --border-default:   rgba(255, 255, 255, 0.12);
+    --border-emphasis:  rgba(255, 255, 255, 0.20);
 
     /* ── Jamun — Primary accent (violet-purple) ── */
     --jamun:            #8B5CF6;   /* vivid violet */
     --jamun-light:      #A78BFA;
-    --jamun-dark:       #6D28D9;
-    --jamun-bg:         rgba(139, 92, 246, 0.08);
-    --jamun-glow:       rgba(139, 92, 246, 0.25);
+    --jamun-dark:       #7C3AED;
+    --jamun-bg:         rgba(139, 92, 246, 0.10);
+    --jamun-glow:       rgba(139, 92, 246, 0.20);
 
-    /* ── Honey — CTA accent (amber-gold) ── */
+    /* ── Amber-Orange Premium CTA Gradient ── */
+    --amber-cta-start:  #FBBF24;
+    --amber-cta-mid:    #F59E0B;
+    --amber-cta-end:    #EA580C;
     --honey:            #F59E0B;
     --honey-light:      #FCD34D;
     --honey-dark:       #D97706;
-    --honey-bg:         rgba(245, 158, 11, 0.08);
-    --honey-glow:       rgba(245, 158, 11, 0.30);
+    --honey-bg:         rgba(245, 158, 11, 0.10);
+    --honey-glow:       rgba(245, 158, 11, 0.20);
 
     /* ── Pista — Success/secondary (emerald) ── */
     --pista:            #10B981;
     --pista-light:      #34D399;
     --pista-dark:       #059669;
-    --pista-bg:         rgba(16, 185, 129, 0.08);
-    --pista-glow:       rgba(16, 185, 129, 0.20);
+    --pista-bg:         rgba(16, 185, 129, 0.10);
+    --pista-glow:       rgba(16, 185, 129, 0.18);
 
-    /* ── Text (High Contrast) ── */
+    /* ── Text (High Contrast Slate Hierarchy) ── */
     --text-primary:     #FFFFFF;
-    --text-secondary:   #E2E8F0;   /* Slate 200 — highly visible secondary text */
-    --text-tertiary:    #CBD5E1;   /* Slate 300 — clear label text */
-    --text-inverted:    #08080C;
+    --text-secondary:   #94A3B8;   /* Slate 400 */
+    --text-tertiary:    #64748B;   /* Slate 500 */
+    --text-inverted:    #020617;
 
-    /* ── Legacy aliases (keeps templates working) ── */
+    /* ── Legacy aliases ── */
     --malai:            var(--bg-base);
     --malai-deep:       var(--bg-overlay);
     --malai-mid:        var(--bg-elevated);
-    --white:            #1A1A26;   /* dark card background when templates use var(--white) */
+    --white:            var(--bg-surface);
     --charcoal:         var(--text-primary);
     --charcoal-light:   var(--text-secondary);
     --warm-gray:        var(--text-secondary);
     --warm-gray-light:  var(--text-tertiary);
-    --cream-border:     var(--border-default);
-    --jamun-bg:         rgba(139, 92, 246, 0.08);
-    --pista-bg:         rgba(16, 185, 129, 0.08);
-    --honey-bg:         rgba(245, 158, 11, 0.08);
-    --pista-dark:       #34D399;   /* bright emerald */
-    --honey-dark:       #FCD34D;   /* bright gold */
+    --cream-border:     var(--border-subtle);
 
     /* ── Semantic ── */
     --success:          #10B981;
@@ -102,14 +101,14 @@
     --radius-sm:   8px;
     --radius-md:   12px;
     --radius-lg:   16px;
-    --radius-xl:   24px;
+    --radius-xl:   20px;
     --radius-full: 9999px;
 
-    /* ── Shadows (dark-mode glows) ── */
-    --shadow-sm:   0 1px 4px rgba(0, 0, 0, 0.5);
-    --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.5);
-    --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.6);
-    --shadow-xl:   0 20px 60px rgba(0, 0, 0, 0.7);
+    /* ── Shadows ── */
+    --shadow-sm:   0 1px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md:   0 4px 20px rgba(0, 0, 0, 0.35);
+    --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.45);
+    --shadow-xl:   0 20px 60px rgba(0, 0, 0, 0.55);
     --shadow-glow: 0 0 24px var(--honey-glow);
     --glow-jamun:  0 0 24px var(--jamun-glow);
     --glow-pista:  0 0 20px var(--pista-glow);
@@ -118,8 +117,8 @@
     --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     --duration-fast:   150ms;
-    --duration-normal: 300ms;
-    --duration-slow:   500ms;
+    --duration-normal: 250ms;
+    --duration-slow:   400ms;
 }
 
 /* ── Reset & Base ───────────────────────────────────────────── */
@@ -295,46 +294,59 @@ a:hover { color: var(--honey-light); }
 }
 .btn:hover::before { opacity: 1; }
 
-/* Primary — amber glow CTA */
-.btn-primary {
-    background: linear-gradient(135deg, var(--honey) 0%, var(--honey-light) 100%);
-    color: #0A0A0F;
+/* Primary — Premium Amber-Orange CTA */
+.btn-primary, .btn-cta {
+    background: linear-gradient(135deg, var(--amber-cta-start) 0%, var(--amber-cta-mid) 45%, var(--amber-cta-end) 100%);
+    color: #020617 !important;
     font-weight: 700;
-    box-shadow: var(--shadow-md), var(--shadow-glow);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.18);
+    border: none;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
 }
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), 0 0 40px var(--honey-glow);
+.btn-primary:hover, .btn-cta:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 26px rgba(245, 158, 11, 0.28);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active, .btn-cta:active {
+    transform: scale(0.98);
+}
 
 /* Secondary — violet */
 .btn-secondary {
     background: linear-gradient(135deg, var(--jamun) 0%, var(--jamun-light) 100%);
     color: #fff;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md), var(--glow-jamun);
 }
 .btn-secondary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), 0 0 40px var(--jamun-glow);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg), 0 0 32px var(--jamun-glow);
+}
+.btn-secondary:active {
+    transform: scale(0.98);
 }
 
 /* Outline */
 .btn-outline {
     background: transparent;
-    color: var(--jamun-light);
-    border: 1.5px solid var(--border-emphasis);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
 }
 .btn-outline:hover {
-    background: var(--jamun-bg);
-    border-color: var(--jamun);
-    color: var(--jamun-light);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-emphasis);
+    color: var(--text-primary);
 }
 
 /* Ghost */
 .btn-ghost {
     background: transparent;
     color: var(--text-secondary);
+    border-radius: var(--radius-md);
 }
 .btn-ghost:hover {
     background: var(--bg-overlay);
@@ -342,15 +354,17 @@ a:hover { color: var(--honey-light); }
 }
 
 .btn-sm  { padding: var(--space-2) var(--space-4); font-size: 0.82rem; min-height: 34px; }
-.btn-lg  { padding: var(--space-4) var(--space-8); font-size: 1.05rem; min-height: 56px; }
+.btn-lg  { padding: 14px 24px; font-size: 1rem; min-height: 50px; }
 .btn-block { width: 100%; }
 .btn-icon { width: 44px; height: 44px; padding: 0; border-radius: var(--radius-full); }
 
-/* ── Cards ──────────────────────────────────────────────────── */
+/* ── Cards (Standardized Frosted Slate) ────────────────────── */
 .card {
-    background: var(--bg-surface);
+    background: var(--bg-surface-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
     transition: all var(--duration-normal) var(--ease-out);
@@ -365,17 +379,18 @@ a:hover { color: var(--honey-light); }
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent 0%, var(--border-emphasis) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+    pointer-events: none;
 }
 
 .card:hover {
     border-color: var(--border-default);
     box-shadow: var(--shadow-md);
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 .card-body {
-    padding: var(--space-4);
+    padding: var(--space-5);
 }
 
 .card-img {
@@ -387,6 +402,33 @@ a:hover { color: var(--honey-light); }
     align-items: center;
     justify-content: center;
     font-size: 4rem;
+}
+
+/* ── Realistic Food Image Styles ────────────────────────────── */
+.card-img-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #18202F;
+}
+
+.food-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.dessert-card:hover .food-img {
+    transform: scale(1.04);
+}
+
+.img-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(11, 15, 23, 0.85) 100%);
+    pointer-events: none;
 }
 
 /* Dessert card */
@@ -402,27 +444,28 @@ a:hover { color: var(--honey-light); }
 .dessert-card .calories {
     font-weight: 500;
     font-size: 0.82rem;
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
 }
 
-/* ── Tags / Badges ──────────────────────────────────────────── */
-.tag {
+/* ── Tags / Badges / Pill Tags ───────────────────────────────── */
+.tag, .soft-tag {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-3);
+    gap: 4px;
+    padding: 3px 10px;
     border-radius: var(--radius-full);
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    border: 1px solid;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.tag-light    { background: var(--pista-bg); color: var(--pista-light); border-color: rgba(16,185,129,0.2); }
-.tag-balanced { background: var(--honey-bg); color: var(--honey-light); border-color: rgba(245,158,11,0.2); }
-.tag-heavy    { background: var(--jamun-bg); color: var(--jamun-light); border-color: rgba(139,92,246,0.2); }
+.tag-light    { background: var(--pista-bg); color: var(--pista-light); border-color: rgba(16,185,129,0.25); }
+.tag-balanced { background: var(--honey-bg); color: var(--honey-light); border-color: rgba(245,158,11,0.25); }
+.tag-heavy    { background: var(--jamun-bg); color: var(--jamun-light); border-color: rgba(139,92,246,0.25); }
 
 .badge {
     display: inline-flex;
@@ -436,8 +479,48 @@ a:hover { color: var(--honey-light); }
     font-weight: 700;
 }
 .badge-jamun { background: var(--jamun); color: #fff; }
-.badge-honey { background: var(--honey); color: #0A0A0F; }
+.badge-honey { background: var(--honey); color: #020617; }
 .badge-pista { background: var(--pista); color: #fff; }
+
+/* ── Macro Mini-Stat Cards ────────────────────────────────────── */
+.macro-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.mini-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 10px 6px;
+    text-align: center;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.mini-stat-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.mini-stat-card .stat-number {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.2;
+}
+
+.mini-stat-card .stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #94A3B8;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
 
 /* Tier badges */
 .tier-badge {

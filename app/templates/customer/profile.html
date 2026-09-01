@@ -10,22 +10,22 @@
 
     {% if user %}
     <!-- User Info -->
-    <div class="card mb-6" style="border: 1px solid var(--cream-border);">
-        <div class="card-body flex items-center gap-4">
-            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--jamun-bg), var(--honey-bg)); display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+    <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
+        <div class="card-body flex items-center gap-4" style="padding: var(--space-5);">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--jamun), var(--honey)); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 700; color: #020617;">
                 {{ user.full_name[0] if user.full_name else '?' }}
             </div>
             <div>
-                <h3 style="font-size: 1.1rem;">{{ user.full_name }}</h3>
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">{{ user.full_name }}</h3>
                 <p class="text-muted" style="font-size: 0.85rem; margin: 0;">{{ user.email }}</p>
             </div>
         </div>
     </div>
 
     <!-- Calorie Donut (Signature Element) -->
-    <h3 class="mb-3">🍩 Today's Nutrition</h3>
-    <div class="card mb-6" style="border: 1px solid var(--cream-border);">
-        <div class="card-body text-center">
+    <h3 class="mb-3" style="font-size: 1.05rem; font-weight: 700; color: #FFFFFF;">🍩 Today's Nutrition</h3>
+    <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
+        <div class="card-body text-center" style="padding: var(--space-5);">
             <div class="calorie-donut {{ 'state-low' if nutrition.progress_percent < 50 else 'state-mid' if nutrition.progress_percent < 85 else 'state-high' }}" 
                  style="--progress: {{ nutrition.progress_percent }};">
                 <div class="donut-ring">
@@ -35,18 +35,18 @@
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between mt-4 p-4" style="background: var(--malai-deep); border-radius: var(--radius-md);">
+            <div class="flex justify-between mt-4 p-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
                 <div class="text-center">
-                    <div style="font-weight: 700;">{{ nutrition.consumed.calories|int }}</div>
-                    <div class="text-label" style="font-size: 0.6rem;">Consumed</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: #FFFFFF;">{{ nutrition.consumed.calories|int }}</div>
+                    <div class="text-label" style="font-size: 0.65rem; color: var(--text-secondary);">Consumed</div>
                 </div>
                 <div class="text-center">
-                    <div style="font-weight: 700;">{{ nutrition.calorie_goal|int }}</div>
-                    <div class="text-label" style="font-size: 0.6rem;">Goal</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: #FFFFFF;">{{ nutrition.calorie_goal|int }}</div>
+                    <div class="text-label" style="font-size: 0.65rem; color: var(--text-secondary);">Goal</div>
                 </div>
                 <div class="text-center">
-                    <div style="font-weight: 700;">{{ nutrition.consumed.protein_g|round(1) }}g</div>
-                    <div class="text-label" style="font-size: 0.6rem;">Protein</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--pista-light);">{{ nutrition.consumed.protein_g|round(1) }}g</div>
+                    <div class="text-label" style="font-size: 0.65rem; color: var(--text-secondary);">Protein</div>
                 </div>
             </div>
         </div>
@@ -54,29 +54,29 @@
 
     <!-- Quick Links -->
     <div class="flex flex-col gap-3 mb-6">
-        <a href="/app/onboarding" class="card" style="border: 1px solid var(--cream-border); text-decoration: none; color: inherit;">
-            <div class="card-body flex items-center justify-between">
-                <span>🧬 Update Flavor DNA</span><span class="text-muted">→</span>
+        <a href="/app/onboarding" class="card" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); text-decoration: none; color: inherit;">
+            <div class="card-body flex items-center justify-between" style="padding: var(--space-4) var(--space-5);">
+                <span style="font-weight: 600; color: #FFFFFF;">🧬 Update Flavor DNA</span><span class="text-muted">→</span>
             </div>
         </a>
-        <a href="/app/rewards" class="card" style="border: 1px solid var(--cream-border); text-decoration: none; color: inherit;">
-            <div class="card-body flex items-center justify-between">
-                <span>🏆 Sweet Streak Rewards</span><span class="text-muted">→</span>
+        <a href="/app/rewards" class="card" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); text-decoration: none; color: inherit;">
+            <div class="card-body flex items-center justify-between" style="padding: var(--space-4) var(--space-5);">
+                <span style="font-weight: 600; color: #FFFFFF;">🏆 Sweet Streak Rewards</span><span class="text-muted">→</span>
             </div>
         </a>
-        <a href="/app/orders" class="card" style="border: 1px solid var(--cream-border); text-decoration: none; color: inherit;">
-            <div class="card-body flex items-center justify-between">
-                <span>📦 Order History</span><span class="text-muted">→</span>
+        <a href="/app/orders" class="card" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); text-decoration: none; color: inherit;">
+            <div class="card-body flex items-center justify-between" style="padding: var(--space-4) var(--space-5);">
+                <span style="font-weight: 600; color: #FFFFFF;">📦 Order History</span><span class="text-muted">→</span>
             </div>
         </a>
     </div>
 
     {% if user.allergies %}
     <div class="mb-4">
-        <p class="text-label mb-2">Your Allergens</p>
+        <p class="text-label mb-2" style="font-size: 0.7rem; color: var(--text-secondary);">Your Allergens</p>
         <div class="flex flex-wrap gap-2">
             {% for a in user.allergies %}
-            <span class="tag" style="background: #FFEBEE; color: var(--danger);">⚠️ {{ a }}</span>
+            <span class="soft-tag" style="background: rgba(239, 68, 68, 0.12); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.25);">⚠️ {{ a }}</span>
             {% endfor %}
         </div>
     </div>

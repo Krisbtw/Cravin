@@ -9,13 +9,13 @@
     </div>
 
     <!-- Group Order Toggle Banner -->
-    <div id="group-order-banner" class="card mb-4 hidden" style="border: 1px solid var(--jamun); background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), var(--bg-surface)); border-radius: var(--radius-lg);">
-        <div class="card-body flex items-center justify-between" style="padding: var(--space-3) var(--space-4);">
+    <div id="group-order-banner" class="card mb-4 hidden" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+        <div class="card-body flex items-center justify-between" style="padding: var(--space-4);">
             <div class="flex items-center gap-3">
                 <span style="font-size: 1.6rem;">👥</span>
                 <div>
-                    <h4 style="font-size: 0.92rem; margin-bottom: 2px;">Ordering for a group / party?</h4>
-                    <p class="text-muted" style="font-size: 0.75rem;">Log only what you personally eat into your daily calories</p>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">Ordering for a group / party?</h4>
+                    <p class="text-muted" style="font-size: 0.78rem; margin-bottom: 0;">Log only what you personally eat into your daily calories</p>
                 </div>
             </div>
             <label class="toggle-switch">
@@ -29,13 +29,13 @@
 
     <div id="cart-empty" class="text-center p-6 hidden">
         <div style="font-size: 4rem; margin-bottom: var(--space-4);">🛒</div>
-        <h3>Your cart is empty</h3>
+        <h3 style="color: #FFFFFF;">Your cart is empty</h3>
         <p class="text-muted mb-4">Find something delicious to add!</p>
-        <a href="/app/" class="btn btn-primary">Browse Desserts</a>
+        <a href="/app/" class="btn btn-primary" style="padding: 12px 24px;">Browse Desserts</a>
     </div>
 
     <!-- Cart Summary -->
-    <div id="cart-summary" class="hidden" style="background: var(--bg-surface); border-radius: var(--radius-lg); padding: var(--space-5); margin-top: var(--space-4); border: 1px solid var(--border-default);">
+    <div id="cart-summary" class="card hidden mb-4" style="background: var(--bg-surface-glass); border-radius: var(--radius-xl); padding: var(--space-5); margin-top: var(--space-4); border: 1px solid var(--border-subtle);">
         <div class="nutrition-row">
             <span class="label">Subtotal</span>
             <span class="value" id="subtotal">₹0</span>
@@ -44,17 +44,17 @@
             <span class="label">Delivery fee</span>
             <span class="value" id="delivery-fee">₹30</span>
         </div>
-        <div class="nutrition-row" style="border-bottom: 2px solid var(--jamun);">
-            <span class="label" style="font-weight: 700; font-size: 1rem;">Total</span>
-            <span class="value" style="font-size: 1.2rem; color: var(--jamun);" id="total">₹0</span>
+        <div class="nutrition-row" style="border-bottom: 1px solid var(--border-subtle); padding-top: 6px;">
+            <span class="label" style="font-weight: 700; font-size: 1rem; color: #FFFFFF;">Total</span>
+            <span class="value" style="font-size: 1.25rem; font-weight: 800; color: var(--honey-light);" id="total">₹0</span>
         </div>
         <div class="nutrition-row">
             <span class="label">🔥 Total Order Calories</span>
             <span class="value" id="total-cal">0 cal</span>
         </div>
-        <div class="nutrition-row" id="personal-cal-row" style="border-bottom: none; display: none; background: rgba(16, 185, 129, 0.08); padding: 6px 10px; border-radius: var(--radius-sm); margin-top: 4px;">
-            <span class="label" style="color: var(--pista); font-weight: 700;">🥗 My Personal Intake</span>
-            <span class="value" id="personal-cal" style="color: var(--pista); font-weight: 700;">0 cal</span>
+        <div class="nutrition-row" id="personal-cal-row" style="border-bottom: none; display: none; background: rgba(16, 185, 129, 0.08); padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 6px;">
+            <span class="label" style="color: var(--pista-light); font-weight: 700;">🥗 My Personal Intake</span>
+            <span class="value" id="personal-cal" style="color: var(--pista-light); font-weight: 700;">0 cal</span>
         </div>
     </div>
 
@@ -62,11 +62,11 @@
         <!-- Fulfillment toggle -->
         <div class="flex gap-3 mb-4">
             <button class="btn btn-block fulfillment-btn active" id="delivery-btn" onclick="setFulfillment('delivery')"
-                style="background: var(--jamun); color: white;">🚚 Delivery</button>
-            <button class="btn btn-outline btn-block fulfillment-btn" id="pickup-btn" onclick="setFulfillment('pickup')">🏃 Pickup</button>
+                style="background: var(--jamun); color: white; border-radius: var(--radius-lg);">🚚 Delivery</button>
+            <button class="btn btn-outline btn-block fulfillment-btn" id="pickup-btn" onclick="setFulfillment('pickup')" style="border-radius: var(--radius-lg);">🏃 Pickup</button>
         </div>
 
-        <a href="/app/checkout" class="btn btn-primary btn-block btn-lg">
+        <a href="/app/checkout" class="btn btn-primary btn-block btn-lg" style="font-weight: 700; font-size: 1rem;">
             Proceed to Checkout →
         </a>
     </div>
@@ -188,20 +188,20 @@ function renderCart() {
         personalCal += itemCal * myPortion;
 
         return `
-            <div class="card mb-3 animate-fade-in-up" style="border: 1px solid var(--border-default); background: var(--bg-surface);">
+            <div class="card mb-3 animate-fade-in-up" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: 16px;">
                 <div class="card-body" style="padding: var(--space-4);">
                     <div class="flex items-center justify-between mb-2">
                         <div style="flex: 1;">
-                            <h4 style="font-size: 0.95rem; margin-bottom: 2px;">${item.name}</h4>
+                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">${item.name}</h4>
                             <div class="flex items-center gap-3">
-                                <span style="font-weight: 700; color: var(--honey);">₹${item.price}</span>
+                                <span style="font-weight: 700; color: var(--honey-light);">₹${item.price}</span>
                                 <span class="text-muted" style="font-size: 0.8rem;">${Math.round(itemCal)} cal/ea</span>
                             </div>
-                            ${item.customization ? '<span class="tag" style="background: var(--jamun-bg); color: var(--jamun-light); font-size: 0.65rem; margin-top: 4px;">✨ Customized</span>' : ''}
+                            ${item.customization ? '<span class="soft-tag" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.65rem; margin-top: 4px;">✨ Customized</span>' : ''}
                         </div>
                         <div class="flex items-center gap-2">
                             <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, -1)" style="min-height: 32px; padding: 4px 8px;">−</button>
-                            <span style="font-weight: 700; min-width: 24px; text-align: center;">${item.quantity}</span>
+                            <span style="font-weight: 700; min-width: 24px; text-align: center; color: #FFFFFF;">${item.quantity}</span>
                             <button class="btn btn-ghost btn-sm" onclick="changeQty(${i}, 1)" style="min-height: 32px; padding: 4px 8px;">+</button>
                             <button class="btn btn-ghost btn-sm" onclick="removeItem(${i})" style="color: var(--danger); min-height: 32px; margin-left: 4px;">✕</button>
                         </div>
@@ -214,7 +214,7 @@ function renderCart() {
                         </span>
                         <div class="flex items-center gap-2">
                             <button class="btn btn-ghost btn-sm" onclick="changePortion(${i}, -1)" style="min-height: 26px; padding: 2px 6px; font-size: 0.75rem;">−</button>
-                            <span style="font-weight: 700; min-width: 20px; text-align: center; color: var(--pista);">${myPortion}</span>
+                            <span style="font-weight: 700; min-width: 20px; text-align: center; color: var(--pista-light);">${myPortion}</span>
                             <button class="btn btn-ghost btn-sm" onclick="changePortion(${i}, 1)" style="min-height: 26px; padding: 2px 6px; font-size: 0.75rem;">+</button>
                             <span class="text-muted" style="font-size: 0.75rem;">/ ${item.quantity} ordered</span>
                         </div>

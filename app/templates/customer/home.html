@@ -138,23 +138,23 @@
         </div>
         <div style="display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-2); scroll-snap-type: x mandatory;">
             {% for dessert in recommended %}
-            <a href="/app/dessert/{{ dessert.id }}" class="card" style="min-width: 200px; max-width: 200px; flex-shrink: 0; scroll-snap-align: start; text-decoration: none; color: inherit; border-radius: var(--radius-lg); background: var(--malai-deep); border: 1px solid rgba(255,255,255,0.08); overflow: hidden;">
-                <div style="height: 100px; background: linear-gradient(135deg, {% if dessert.tag == 'light' %}var(--pista-bg){% elif dessert.tag == 'heavy' %}var(--jamun-bg){% else %}var(--honey-bg){% endif %}, var(--malai-deep)); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; position: relative;">
-                    {% if 'chocolate' in dessert.name.lower() or 'brownie' in dessert.name.lower() %}🍫
-                    {% elif 'cheesecake' in dessert.name.lower() or 'mango' in dessert.name.lower() %}🥭
-                    {% elif 'gulab' in dessert.name.lower() or 'rasmalai' in dessert.name.lower() %}🍮
-                    {% elif 'ladoo' in dessert.name.lower() or 'barfi' in dessert.name.lower() %}🟡
-                    {% elif 'kheer' in dessert.name.lower() or 'payasam' in dessert.name.lower() %}🥣
-                    {% else %}🍰{% endif %}
-                    <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 8px; left: 8px; font-size: 0.65rem; padding: 2px 6px;">
+            <a href="/app/dessert/{{ dessert.id }}" class="card" style="min-width: 200px; max-width: 200px; flex-shrink: 0; scroll-snap-align: start; text-decoration: none; color: inherit; border-radius: var(--radius-xl); background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); overflow: hidden;">
+                <div class="card-img-container" style="height: 110px; width: 100%; position: relative; background: #18202F;">
+                    {% if dessert.image_url %}
+                    <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">🍰</div>
+                    {% endif %}
+                    <div class="img-scrim"></div>
+                    <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 8px; left: 8px; font-size: 0.65rem; padding: 2px 6px; z-index: 2; backdrop-filter: blur(8px);">
                         {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
                     </span>
                 </div>
                 <div style="padding: var(--space-3);">
-                    <h5 style="font-size: 0.85rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
+                    <h5 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
                     <div class="flex items-center justify-between" style="font-size: 0.8rem;">
-                        <span class="price" style="font-weight: 700; color: var(--honey);">₹{{ dessert.price|int }}</span>
-                        <span class="calories" style="color: var(--warm-gray);">{{ dessert.calories|int }} cal</span>
+                        <span class="price" style="font-weight: 700; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+                        <span class="calories" style="color: var(--text-secondary);">{{ dessert.calories|int }} cal</span>
                     </div>
                 </div>
             </a>
@@ -164,32 +164,29 @@
     {% endif %}
 
     <!-- Dessert Grid -->
-    <h2 class="mb-4">Our Signature Menu</h2>
+    <h2 class="mb-4" style="color: #FFFFFF; font-size: 1.35rem; font-weight: 800;">Our Signature Menu</h2>
     <div class="grid-2 stagger" id="dessert-grid">
         {% for dessert in desserts %}
-        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card animate-fade-in-up" data-tag="{{ dessert.tag }}" style="text-decoration: none; color: inherit;">
-            <div class="card-img" style="background: linear-gradient(135deg, 
-                {% if dessert.tag == 'light' %}var(--pista-bg), var(--malai-deep)
-                {% elif dessert.tag == 'heavy' %}var(--jamun-bg), var(--malai-deep)
-                {% else %}var(--honey-bg), var(--malai-deep){% endif %}); 
-                display: flex; align-items: center; justify-content: center; font-size: 3.5rem;">
-                {% if 'chocolate' in dessert.name.lower() or 'brownie' in dessert.name.lower() %}🍫
-                {% elif 'cheesecake' in dessert.name.lower() or 'mango' in dessert.name.lower() %}🥭
-                {% elif 'gulab' in dessert.name.lower() or 'rasmalai' in dessert.name.lower() %}🍮
-                {% elif 'ladoo' in dessert.name.lower() or 'barfi' in dessert.name.lower() %}🟡
-                {% elif 'kheer' in dessert.name.lower() or 'payasam' in dessert.name.lower() %}🥣
-                {% elif 'banana' in dessert.name.lower() %}🍌
-                {% else %}🍰{% endif %}
-                <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 12px; left: 12px;">
+        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card animate-fade-in-up" data-tag="{{ dessert.tag }}" style="text-decoration: none; color: inherit; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl); overflow: hidden;">
+            <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #18202F;">
+                {% if dessert.image_url %}
+                <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem;">🍰</div>
+                {% endif %}
+                
+                <div class="img-scrim"></div>
+
+                <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 10px; left: 10px; z-index: 2; backdrop-filter: blur(8px); font-size: 0.7rem;">
                     {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
                 </span>
             </div>
-            <div class="card-body">
-                <h4 style="font-size: 0.95rem; margin-bottom: var(--space-1);">{{ dessert.name }}</h4>
-                <p style="font-size: 0.75rem; color: var(--warm-gray); margin-bottom: var(--space-2); line-height: 1.4;">{{ dessert.short_description }}</p>
+            <div class="card-body" style="padding: var(--space-4);">
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; margin-bottom: var(--space-1);">{{ dessert.name }}</h4>
+                <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: var(--space-3); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ dessert.short_description }}</p>
                 <div class="flex items-center justify-between">
-                    <span class="price">₹{{ dessert.price|int }}</span>
-                    <span class="calories">{{ dessert.calories|int }} cal</span>
+                    <span class="price" style="font-size: 1.05rem; font-weight: 800; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+                    <span class="calories" style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">{{ dessert.calories|int }} cal</span>
                 </div>
             </div>
         </a>

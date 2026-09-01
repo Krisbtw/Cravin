@@ -35,12 +35,12 @@
         </div>
 
         <!-- 2. Choose Your Baker Section -->
-        <div class="card mb-6" style="border: 1px solid var(--honey); background: linear-gradient(180deg, var(--honey-bg), var(--white));">
+        <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
             <div class="card-body">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--jamun); margin-bottom: 2px;">🧑‍🍳 Choose Your Baker</h3>
-                        <p class="text-muted" style="font-size: 0.8rem;" id="baker-section-subtitle">Matching top home bakers near your address in Goa</p>
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">🧑‍🍳 Choose Your Baker</h3>
+                        <p class="text-muted" style="font-size: 0.8rem;" id="baker-section-subtitle">Matching top certified home bakers near your address in Goa</p>
                     </div>
                     <span class="badge badge-jamun" id="baker-match-count" style="font-size: 0.75rem;">Loading...</span>
                 </div>
@@ -60,8 +60,8 @@
         </div>
 
         <!-- 3. Payment Method -->
-        <div class="form-group">
-            <label class="form-label">💳 Payment Method</label>
+        <div class="form-group mb-6">
+            <label class="form-label" style="font-weight: 600; font-size: 0.88rem; color: #FFFFFF; margin-bottom: 6px; display: block;">💳 Payment Method</label>
             <select class="form-input" id="payment-method">
                 <option value="upi">UPI (PhonePe / Google Pay / Paytm)</option>
                 <option value="card">Credit / Debit Card</option>
@@ -70,16 +70,16 @@
         </div>
 
         <!-- 4. Order Summary -->
-        <div class="card mb-6" style="border: 1px solid var(--cream-border);">
+        <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
             <div class="card-body">
-                <h3 class="mb-3" style="font-size: 1rem;">Order Summary</h3>
+                <h3 class="mb-3" style="font-size: 1rem; color: #FFFFFF;">Order Summary</h3>
                 <div id="checkout-items"></div>
-                <hr style="border: none; border-top: 1px solid var(--malai-deep); margin: var(--space-3) 0;">
+                <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: var(--space-3) 0;">
                 <div class="nutrition-row"><span class="label">Subtotal</span><span class="value" id="co-subtotal">₹0</span></div>
                 <div class="nutrition-row"><span class="label">Delivery Fee</span><span class="value" id="co-delivery">₹30</span></div>
-                <div class="nutrition-row" style="border-bottom: none;">
-                    <span class="label" style="font-weight: 700;">Total</span>
-                    <span class="value" style="font-size: 1.2rem; color: var(--jamun);" id="co-total">₹0</span>
+                <div class="nutrition-row" style="border-bottom: none; padding-top: 6px;">
+                    <span class="label" style="font-weight: 700; color: #FFFFFF;">Total</span>
+                    <span class="value" style="font-size: 1.25rem; font-weight: 800; color: var(--honey-light);" id="co-total">₹0</span>
                 </div>
             </div>
         </div>
@@ -89,7 +89,7 @@
             <span>Mock payment for Phase 1. Zero real charges will be made.</span>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block btn-lg" id="place-order-btn">
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="place-order-btn" style="font-weight: 700; font-size: 1rem;">
             Place Order 🎉
         </button>
     </form>
@@ -197,26 +197,27 @@ async function fetchMatchingBakers() {
                 ? `📍 ${baker.distance_km} km away` 
                 : `📍 ${baker.area || baker.city || 'Goa'}`;
             const tags = (baker.skills || []).slice(0, 3).map(s => 
-                `<span class="tag" style="font-size: 0.65rem; padding: 2px 6px; background: var(--malai-deep); color: var(--text);">${s}</span>`
+                `<span class="soft-tag" style="background: rgba(255, 255, 255, 0.05); color: #CBD5E1; border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.7rem; padding: 2px 8px; border-radius: 9999px;">${s}</span>`
             ).join(' ');
 
             return `
                 <div class="card baker-choice-card" 
                      id="baker-card-${baker.baker_id}"
                      onclick="selectBaker('${baker.baker_id}')"
-                     style="cursor: pointer; border: 2px solid ${isSelected ? 'var(--jamun)' : 'var(--cream-border)'}; 
-                            background: ${isSelected ? 'linear-gradient(135deg, var(--jamun-bg), var(--white))' : 'var(--white)'}; 
+                     style="cursor: pointer; border: 1px solid ${isSelected ? 'var(--jamun)' : 'rgba(255, 255, 255, 0.08)'}; 
+                            background: ${isSelected ? 'rgba(139, 92, 246, 0.12)' : 'rgba(255, 255, 255, 0.02)'}; 
+                            border-radius: 16px;
                             transition: all 0.2s ease;">
-                    <div class="card-body" style="padding: var(--space-3) var(--space-4);">
+                    <div class="card-body" style="padding: var(--space-4);">
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
                                 <span style="font-size: 1.1rem;">👩‍🍳</span>
-                                <span style="font-weight: 700; font-size: 0.95rem; color: var(--text);">${baker.business_name}</span>
-                                ${idx === 0 ? '<span class="tag" style="background: var(--pista-bg); color: var(--pista-dark); font-size: 0.6rem; font-weight: 700;">Top Match</span>' : ''}
+                                <span style="font-weight: 700; font-size: 0.95rem; color: #FFFFFF;">${baker.business_name}</span>
+                                ${idx === 0 ? '<span class="soft-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--pista-light); border-color: rgba(16, 185, 129, 0.3); font-size: 0.65rem; font-weight: 700;">TOP MATCH</span>' : ''}
                             </div>
                             <div class="flex items-center gap-2">
-                                <span style="color: var(--honey-dark); font-weight: 700; font-size: 0.85rem;">⭐ ${baker.avg_rating}</span>
-                                <div class="baker-radio-indicator" style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid ${isSelected ? 'var(--jamun)' : 'var(--cream-border)'}; display: flex; align-items: center; justify-content: center; background: ${isSelected ? 'var(--jamun)' : 'transparent'}; color: white; font-size: 10px;">
+                                <span style="color: var(--honey-light); font-weight: 700; font-size: 0.85rem;">⭐ ${baker.avg_rating}</span>
+                                <div class="baker-radio-indicator" style="width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid ${isSelected ? 'var(--jamun)' : 'rgba(255, 255, 255, 0.2)'}; display: flex; align-items: center; justify-content: center; background: ${isSelected ? 'var(--jamun)' : 'transparent'}; color: white; font-size: 10px;">
                                     ${isSelected ? '✓' : ''}
                                 </div>
                             </div>
@@ -247,11 +248,11 @@ async function fetchMatchingBakers() {
 function selectBaker(bakerId) {
     document.getElementById('selected-baker-id').value = bakerId;
     document.querySelectorAll('.baker-choice-card').forEach(el => {
-        el.style.border = '2px solid var(--cream-border)';
-        el.style.background = 'var(--white)';
+        el.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+        el.style.background = 'rgba(255, 255, 255, 0.02)';
         const radio = el.querySelector('.baker-radio-indicator');
         if (radio) {
-            radio.style.border = '2px solid var(--cream-border)';
+            radio.style.border = '1.5px solid rgba(255, 255, 255, 0.2)';
             radio.style.background = 'transparent';
             radio.textContent = '';
         }
@@ -259,11 +260,11 @@ function selectBaker(bakerId) {
 
     const active = document.getElementById(`baker-card-${bakerId}`);
     if (active) {
-        active.style.border = '2px solid var(--jamun)';
-        active.style.background = 'linear-gradient(135deg, var(--jamun-bg), var(--white))';
+        active.style.border = '1px solid var(--jamun)';
+        active.style.background = 'rgba(139, 92, 246, 0.12)';
         const radio = active.querySelector('.baker-radio-indicator');
         if (radio) {
-            radio.style.border = '2px solid var(--jamun)';
+            radio.style.border = '1.5px solid var(--jamun)';
             radio.style.background = 'var(--jamun)';
             radio.textContent = '✓';
         }
