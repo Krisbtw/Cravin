@@ -230,6 +230,101 @@ def _check_badges(account: LoyaltyAccount) -> list[str]:
         new_badges.append("gold_member")
 
     if new_badges:
+        from sqlalchemy.orm.attributes import flag_modified
         account.badges = list(current_badges | set(new_badges))
+        flag_modified(account, "badges")
 
     return new_badges
+
+
+async def sync_user_loyalty(user_id: str, db: AsyncSession) -> LoyaltyAccount:
+    """Ensure user loyalty account exists and badges/points are synchronized with order history."""
+    from app.models.order import Order, OrderItem
+    from sqlalchemy.orm import selectinload
+    from sqlalchemy.orm.attributes import flag_modified
+
+    result = await db.execute(
+        select(LoyaltyAccount).where(LoyaltyAccount.user_id == user_id)
+    )
+    account = result.scalar_one_or_none()
+    if not account:
+        import random, string
+        ref_code = "CRAV" + "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        account = LoyaltyAccount(
+            id=str(uuid.uuid4()),
+            user_id=user_id,
+            points_balance=0,
+            lifetime_points=0,
+            tier=LoyaltyTier.BRONZE.value,
+            current_streak=0,
+            longest_streak=0,
+            referral_code=ref_code,
+            badges=[],
+        )
+        db.add(account)
+        await db.flush()
+
+    # Query all active/placed/delivered orders for this user
+    orders_res = await db.execute(
+        select(Order)
+        .options(selectinload(Order.items).selectinload(OrderItem.dessert))
+        .where(Order.user_id == user_id, Order.status != "cancelled")
+    )
+    orders = orders_res.scalars().all()
+
+    current_badges = set(account.badges or [])
+    new_badges = set()
+
+    # 1. First Order badge and points
+    if len(orders) >= 1:
+        new_badges.add("first_order")
+        # Ensure user has points earned for their placed orders
+        if account.lifetime_points == 0:
+            total_earned = 0
+            for o in orders:
+                pts = POINTS_PER_ORDER + int(o.total_amount / 100) * POINTS_PER_100_INR
+                total_earned += pts
+            account.points_balance = total_earned
+            account.lifetime_points = total_earned
+            if account.current_streak == 0:
+                account.current_streak = 1
+                account.longest_streak = 1
+            account.last_order_date = date.today()
+
+    # 2. Check bakers count
+    baker_ids = {o.baker_id for o in orders if o.baker_id}
+    if len(baker_ids) >= 5:
+        new_badges.add("tried_5_bakers")
+
+    # 3. Check customizer orders
+    custom_count = sum(1 for o in orders for item in o.items if item.is_customized)
+    if custom_count >= 5:
+        new_badges.add("customizer_pro")
+
+    # 4. Check ragi lovers
+    ragi_count = sum(1 for o in orders for item in o.items if item.dessert and "ragi" in item.dessert.name.lower())
+    if ragi_count >= 3:
+        new_badges.add("ragi_lover")
+
+    # 5. Check streak badges
+    if account.current_streak >= 5:
+        new_badges.add("5_streak")
+    if account.current_streak >= 10:
+        new_badges.add("10_streak")
+
+    # 6. Check tier badges
+    account.tier = _calculate_tier(account.lifetime_points)
+    if account.tier == LoyaltyTier.SILVER.value:
+        new_badges.add("silver_member")
+    if account.tier == LoyaltyTier.GOLD.value:
+        new_badges.add("gold_member")
+
+    combined = list(current_badges | new_badges)
+    account.badges = combined
+    flag_modified(account, "badges")
+
+    await db.commit()
+    await db.refresh(account)
+    return account
+
+

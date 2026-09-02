@@ -164,6 +164,9 @@ async def create_order(
 
     # Immediately log personal portion nutrition into user's daily tracker
     await _log_order_nutrition(order, db, created_order_items)
+
+    # Immediately award points & milestone badges for placing order
+    await award_order_points(order.user_id, order.total_amount, order.id, db)
     return order
 
 

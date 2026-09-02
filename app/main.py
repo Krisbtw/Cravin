@@ -320,10 +320,8 @@ async def customer_rewards(request: Request, db: AsyncSession = Depends(get_db))
     if not user:
         return RedirectResponse(url="/app/login")
 
-    result = await db.execute(
-        select(LoyaltyAccount).where(LoyaltyAccount.user_id == user["id"])
-    )
-    loyalty = result.scalar_one_or_none()
+    from app.services.loyalty_service import sync_user_loyalty
+    loyalty = await sync_user_loyalty(user["id"], db)
 
     return TR(request, "customer/rewards.html", {"user": user, "loyalty": loyalty})
 
