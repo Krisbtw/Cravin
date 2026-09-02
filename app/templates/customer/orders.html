@@ -1,48 +1,235 @@
 {% extends "base.html" %}
 {% block title %}My Orders{% endblock %}
 
+{% block extra_css %}
+<style>
+    .order-card {
+        border-radius: 20px !important;
+        background: rgba(17, 23, 34, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        padding: 16px 18px !important;
+        margin-bottom: 16px !important;
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block !important;
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+        position: relative !important;
+    }
+    .order-card:hover {
+        transform: translateY(-2px) !important;
+        border-color: rgba(139, 92, 246, 0.35) !important;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+        background: rgba(17, 23, 34, 0.92) !important;
+    }
+    .status-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 4px 10px !important;
+        border-radius: 9999px !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.03em !important;
+    }
+    .status-pill.status-placed {
+        background: rgba(139, 92, 246, 0.15) !important;
+        color: #C4B5FD !important;
+        border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    }
+    .status-pill.status-baking {
+        background: rgba(245, 158, 11, 0.15) !important;
+        color: #FDE68A !important;
+        border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    }
+    .status-pill.status-delivering {
+        background: rgba(16, 185, 129, 0.15) !important;
+        color: #6EE7B7 !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    }
+    .status-pill.status-delivered {
+        background: rgba(16, 185, 129, 0.12) !important;
+        color: #34D399 !important;
+        border: 1px solid rgba(16, 185, 129, 0.25) !important;
+    }
+    .pulse-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulseDot 1.8s infinite;
+    }
+    @keyframes pulseDot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.3); }
+    }
+    .order-filter-btn {
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.05);
+        color: #94A3B8;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+    }
+    .order-filter-btn.active {
+        background: #8B5CF6;
+        color: #FFFFFF;
+        border-color: #8B5CF6;
+        box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+    }
+    .order-filter-btn:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-content" style="padding-bottom: 90px;">
-    <div class="top-bar">
-        <h1 style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF;">📦 My Orders</h1>
+<div class="page-content" style="padding-bottom: 110px;">
+    <!-- Top Bar Header -->
+    <div class="top-bar mb-4" style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h1 style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin-bottom: 2px; display: flex; align-items: center; gap: 8px;">
+                <span>📦</span> My Orders
+            </h1>
+            <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Track live kitchen prep & past clean treats</p>
+        </div>
+        <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px;">
+            {{ orders|length }} Total
+        </span>
     </div>
 
     {% if orders %}
-    <div class="stagger">
+    <!-- Order Filter Pills -->
+    <div class="flex items-center gap-2 mb-4">
+        <button type="button" class="order-filter-btn active" onclick="filterOrderTab('all', this)">All Orders ({{ orders|length }})</button>
+        <button type="button" class="order-filter-btn" onclick="filterOrderTab('active', this)">Active 🛵</button>
+        <button type="button" class="order-filter-btn" onclick="filterOrderTab('delivered', this)">Delivered 🎉</button>
+    </div>
+
+    <!-- Orders Feed -->
+    <div class="stagger" id="orders-list">
         {% for order in orders %}
-        <a href="/app/order/{{ order.id }}" class="card mb-3 animate-fade-in-up" style="text-decoration: none; color: inherit; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl); transition: all 0.2s ease;">
-            <div class="card-body" style="padding: var(--space-4) var(--space-5);">
-                <div class="flex items-center justify-between mb-2">
+        {% set is_active = order.status != 'delivered' and order.status != 'cancelled' %}
+        <div class="order-item-wrap" data-status="{{ 'active' if is_active else 'delivered' }}">
+            <a href="/app/order/{{ order.id }}" class="order-card animate-fade-in-up">
+                <!-- Top Meta: Baker Kitchen & Status Badge -->
+                <div class="flex items-center justify-between pb-3 mb-3" style="border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
                     <div class="flex items-center gap-2">
-                        <span style="font-size: 1.1rem;">
-                            {% if order.status == 'delivered' %}🎉{% elif order.status == 'out_for_delivery' %}🛵{% elif order.status == 'preparing' %}🔥{% else %}📝{% endif %}
-                        </span>
-                        <span style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: #FFFFFF;">#{{ order.order_number }}</span>
+                        <span style="font-size: 1.25rem;">👩‍🍳</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.9rem; color: #FFFFFF;">
+                                {{ order.baker.business_name if order.baker else 'Certified Cloud Kitchen' }}
+                            </div>
+                            <div class="text-muted" style="font-size: 0.72rem;">
+                                {{ order.baker.area if order.baker else 'Panjim, Goa' }}
+                            </div>
+                        </div>
                     </div>
-                    <span class="soft-tag" style="font-size: 0.72rem; font-weight: 700; 
-                        {% if order.status == 'delivered' %}background: rgba(16, 185, 129, 0.15); color: var(--pista-light); border-color: rgba(16, 185, 129, 0.3);
-                        {% elif order.status == 'out_for_delivery' %}background: rgba(245, 158, 11, 0.15); color: var(--honey-light); border-color: rgba(245, 158, 11, 0.3);
-                        {% else %}background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); border-color: rgba(139, 92, 246, 0.3);{% endif %}">
-                        {{ order.status|replace('_', ' ')|capitalize }}
+
+                    <!-- Status Pill -->
+                    {% if order.status == 'delivered' %}
+                    <span class="status-pill status-delivered">
+                        <span>✅</span> Delivered
                     </span>
+                    {% elif order.status == 'out_for_delivery' %}
+                    <span class="status-pill status-delivering">
+                        <span class="pulse-dot" style="background: #10B981;"></span> On the Way
+                    </span>
+                    {% elif order.status == 'baking' or order.status == 'preparing' or order.status == 'accepted' %}
+                    <span class="status-pill status-baking">
+                        <span class="pulse-dot" style="background: #F59E0B;"></span> Baking Now
+                    </span>
+                    {% else %}
+                    <span class="status-pill status-placed">
+                        <span class="pulse-dot" style="background: #8B5CF6;"></span> Order Placed
+                    </span>
+                    {% endif %}
                 </div>
-                <div class="flex items-center justify-between pt-1">
-                    <span style="font-weight: 800; color: var(--honey-light); font-size: 1.05rem;">₹{{ order.total_amount|round(0)|int }}</span>
-                    <span class="text-muted" style="font-size: 0.8rem;">{{ order.placed_at.strftime('%b %d, %I:%M %p') if order.placed_at else '' }} →</span>
+
+                <!-- Middle Content: Item Preview & Thumbnail -->
+                {% set first_item = order.items[0] if order.items else None %}
+                <div class="flex items-center gap-3 mb-3">
+                    <div style="width: 58px; height: 58px; border-radius: 12px; background: #161E30; overflow: hidden; flex-shrink: 0; position: relative;">
+                        {% if first_item and first_item.dessert and first_item.dessert.image_url %}
+                        <img src="{{ first_item.dessert.image_url }}" alt="Dessert" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">🍰</div>
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 700; font-size: 0.92rem; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {% if first_item %}
+                                {{ first_item.dessert.name if first_item.dessert else 'Custom AI Treat' }} × {{ first_item.quantity }}
+                                {% if order.items|length > 1 %}
+                                    <span style="font-size: 0.74rem; color: var(--text-tertiary); font-weight: 600;">+ {{ order.items|length - 1 }} more</span>
+                                {% endif %}
+                            {% else %}
+                                Cravin Healthy Treat
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center gap-2 mt-1" style="font-size: 0.74rem; color: var(--text-secondary);">
+                            <span style="color: var(--honey-light); font-weight: 600;">{{ order.total_calories|int }} cal</span>
+                            <span>·</span>
+                            <span>#{{ order.order_number }}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </a>
+
+                <!-- Bottom Row: Price & Action CTA -->
+                <div class="flex items-center justify-between pt-2" style="border-top: 1px dashed rgba(255, 255, 255, 0.06);">
+                    <div>
+                        <span style="font-size: 0.68rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 700; display: block; letter-spacing: 0.04em;">Total Paid</span>
+                        <span style="font-size: 1.15rem; font-weight: 900; color: #FFFFFF;">₹{{ order.total_amount|round(0)|int }}</span>
+                    </div>
+
+                    {% if is_active %}
+                    <div class="btn btn-sm btn-primary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>Track Live 🛵</span>
+                        <span>→</span>
+                    </div>
+                    {% else %}
+                    <div class="btn btn-sm btn-outline" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 9999px;">
+                        Reorder 🔄
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center p-6 card" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl);">
-        <div style="font-size: 4rem; margin-bottom: var(--space-4);">📦</div>
-        <h3 style="color: #FFFFFF; font-weight: 800;">No orders yet</h3>
-        <p class="text-muted mb-4">Craving clean, healthy desserts? Treat yourself today!</p>
-        <a href="/app/" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700;">Explore Desserts →</a>
+    <div class="text-center p-6 card" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); margin-top: 20px;">
+        <div style="font-size: 3.5rem; margin-bottom: 12px;">🍰</div>
+        <h3 style="color: #FFFFFF; font-weight: 800; font-size: 1.2rem; margin-bottom: 6px;">No orders yet</h3>
+        <p class="text-muted mb-4" style="font-size: 0.84rem; max-width: 280px; margin: 0 auto 16px auto;">Crave zero-sugar, high-protein desserts? Order freshly baked treats today!</p>
+        <a href="/app/" class="btn btn-primary" style="padding: 10px 24px; font-weight: 700; border-radius: 9999px; display: inline-block;">Explore Treats →</a>
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterOrderTab(tab, btn) {
+    document.querySelectorAll('.order-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const items = document.querySelectorAll('.order-item-wrap');
+    items.forEach(item => {
+        if (tab === 'all') {
+            item.style.display = 'block';
+        } else if (tab === 'active') {
+            item.style.display = item.dataset.status === 'active' ? 'block' : 'none';
+        } else if (tab === 'delivered') {
+            item.style.display = item.dataset.status === 'delivered' ? 'block' : 'none';
+        }
+    });
+}
+</script>
 {% endblock %}
 
 {% block nav %}
@@ -56,4 +243,3 @@
     <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
 </nav>
 {% endblock %}
-

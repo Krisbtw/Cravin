@@ -31,25 +31,84 @@
             <span class="badge badge-jamun" style="font-size: 0.72rem; font-weight: 700; padding: 5px 12px; border-radius: 9999px;">⭐ Member</span>
         </div>
 
-        <!-- SVG Calorie Ring with Generous Negative Space -->
-        <div class="text-center" style="margin: 32px 0 28px 0;">
-            {% set progress = nutrition.progress_percent if nutrition else 0 %}
-            {% set stroke_dashoffset = 471 - (471 * (progress / 100)) %}
-            <div style="position: relative; width: 160px; height: 160px; margin: 0 auto;">
-                <svg class="calorie-svg-ring" width="160" height="160" viewBox="0 0 170 170">
-                    <circle class="calorie-svg-bg" cx="85" cy="85" r="75"></circle>
-                    <circle class="calorie-svg-meter" cx="85" cy="85" r="75"
-                            style="stroke: {{ 'var(--pista)' if progress < 70 else 'var(--honey)' if progress < 90 else 'var(--danger)' }};
-                                   stroke-dashoffset: {{ stroke_dashoffset if stroke_dashoffset > 0 else 0 }};">
-                    </circle>
+        <!-- SVG Two-Tone Calorie Ring (Yellow Consumed + Green Remaining) -->
+        <div class="text-center" style="margin: 28px 0 20px 0;">
+            {% set goal = (nutrition.calorie_goal if nutrition and nutrition.calorie_goal else 2000)|float %}
+            {% set consumed = (nutrition.consumed.calories if nutrition and nutrition.consumed else 0)|float %}
+            {% set remaining = (nutrition.calories_remaining if nutrition else (goal - consumed))|float %}
+            {% set consumed_ratio = (consumed / goal) if goal > 0 else 0 %}
+            {% if consumed_ratio > 1 %}{% set consumed_ratio = 1.0 %}{% endif %}
+            {% set remaining_ratio = 1.0 - consumed_ratio %}
+            {% set circ = 452.39 %}
+            {% set consumed_offset = circ * (1.0 - consumed_ratio) %}
+            {% set remaining_offset = circ * (1.0 - remaining_ratio) %}
+
+            <div style="position: relative; width: 176px; height: 176px; margin: 0 auto;">
+                <svg width="176" height="176" viewBox="0 0 180 180" style="transform: rotate(-90deg); overflow: visible;">
+                    <defs>
+                        <!-- Consumed Amber-Yellow Gradient -->
+                        <linearGradient id="consumedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#F59E0B" />
+                            <stop offset="100%" stop-color="#FCD34D" />
+                        </linearGradient>
+                        <!-- Remaining Emerald-Green Gradient -->
+                        <linearGradient id="remainingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#10B981" />
+                            <stop offset="100%" stop-color="#34D399" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Background Track -->
+                    <circle cx="90" cy="90" r="72" 
+                            fill="rgba(15, 21, 35, 0.6)" 
+                            stroke="rgba(255, 255, 255, 0.08)" 
+                            stroke-width="12" />
+
+                    <!-- Green Arc (Remaining Calories) -->
+                    {% if remaining_ratio > 0 %}
+                    <circle cx="90" cy="90" r="72" 
+                            fill="none" 
+                            stroke="url(#remainingGrad)" 
+                            stroke-width="12" 
+                            stroke-dasharray="452.39"
+                            stroke-dashoffset="{{ remaining_offset }}"
+                            style="transform-origin: 90px 90px; transform: rotate({{ consumed_ratio * 360 }}deg); transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));" />
+                    {% endif %}
+
+                    <!-- Yellow Arc (Consumed Calories) -->
+                    {% if consumed_ratio > 0 %}
+                    <circle cx="90" cy="90" r="72" 
+                            fill="none" 
+                            stroke="url(#consumedGrad)" 
+                            stroke-width="12" 
+                            stroke-linecap="round"
+                            stroke-dasharray="452.39"
+                            stroke-dashoffset="{{ consumed_offset }}"
+                            style="transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));" />
+                    {% endif %}
                 </svg>
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <div style="font-family: var(--font-display); font-weight: 900; font-size: 1.85rem; color: #FFFFFF; line-height: 1; letter-spacing: -0.02em;">
-                        {{ nutrition.calories_remaining|int if nutrition else 0 }}
+
+                <!-- Center Metric HUD -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
+                    <div style="font-family: var(--font-display); font-weight: 900; font-size: 2rem; color: #FFFFFF; line-height: 1; letter-spacing: -0.02em;">
+                        {{ remaining|int }}
                     </div>
-                    <div style="font-size: 0.72rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; margin-top: 6px;">
+                    <div style="font-size: 0.72rem; color: #34D399; text-transform: uppercase; font-weight: 800; letter-spacing: 0.08em; margin-top: 5px;">
                         cal left
                     </div>
+                </div>
+            </div>
+
+            <!-- Mini Dual Indicators -->
+            <div class="flex items-center justify-center gap-3 mt-3" style="font-size: 0.76rem; font-weight: 700;">
+                <div class="flex items-center gap-1.5" style="color: #FCD34D;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #F59E0B; display: inline-block; box-shadow: 0 0 6px rgba(245, 158, 11, 0.7);"></span>
+                    <span>{{ consumed|int }} Consumed</span>
+                </div>
+                <div style="color: rgba(255,255,255,0.25);">•</div>
+                <div class="flex items-center gap-1.5" style="color: #6EE7B7;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; display: inline-block; box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);"></span>
+                    <span>{{ remaining|int }} Left</span>
                 </div>
             </div>
         </div>

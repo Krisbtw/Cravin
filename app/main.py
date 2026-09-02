@@ -270,8 +270,16 @@ async def customer_orders(request: Request, db: AsyncSession = Depends(get_db)):
     if not user:
         return RedirectResponse(url="/app/login")
 
+    from sqlalchemy.orm import selectinload
+    from app.models.order import OrderItem
     result = await db.execute(
-        select(Order).where(Order.user_id == user["id"]).order_by(Order.placed_at.desc())
+        select(Order)
+        .options(
+            selectinload(Order.items).selectinload(OrderItem.dessert),
+            selectinload(Order.baker)
+        )
+        .where(Order.user_id == user["id"])
+        .order_by(Order.placed_at.desc())
     )
     orders = result.scalars().all()
 

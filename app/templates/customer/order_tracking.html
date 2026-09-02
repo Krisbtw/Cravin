@@ -1,17 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Order Tracking — #{{ order.order_number if order else '' }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .tracking-card {
+        margin-bottom: 24px !important;
+        border-radius: 20px !important;
+        background: rgba(17, 23, 34, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-content" style="padding-bottom: 90px;">
-    <div class="top-bar">
-        <a href="/app/orders" class="btn btn-ghost btn-sm" style="padding: 4px 8px;">← Orders</a>
+<div class="page-content" style="padding-bottom: 110px;">
+    <div class="top-bar mb-4">
+        <a href="/app/orders" class="btn btn-ghost btn-sm" style="padding: 4px 10px; border-radius: 9999px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); color: #FFFFFF;">← Orders</a>
         <h2 style="font-size: 1.1rem; font-weight: 800; color: #FFFFFF;">#{{ order.order_number if order else '' }}</h2>
-        <div></div>
+        <div style="width: 70px;"></div>
     </div>
 
     {% if order %}
     <!-- Live Status HUD Banner -->
-    <div class="card mb-6 animate-fade-in-up" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: hidden; position: relative;">
+    <div class="card tracking-card animate-fade-in-up" style="overflow: hidden; position: relative;">
         <div class="card-body text-center" style="padding: var(--space-6);">
             <!-- Circular Status / ETA Visual -->
             <div style="position: relative; width: 84px; height: 84px; margin: 0 auto var(--space-3) auto; display: flex; align-items: center; justify-content: center;">
@@ -40,7 +52,7 @@
     </div>
 
     <!-- Order Tracker Progress Stepper -->
-    <div class="order-tracker mb-6">
+    <div class="order-tracker" style="margin-bottom: 28px !important;">
         <div class="progress-line" id="progress-line" style="width: 0%;"></div>
 
         <div class="tracker-step" id="step-placed" data-step="placed">
@@ -70,8 +82,7 @@
     </div>
 
     <!-- Delivery Partner Card (Active when Out for Delivery) -->
-    <div id="delivery-partner-card" class="card mb-5 animate-fade-in-up {{ 'hidden' if order.status not in ['out_for_delivery', 'delivered'] else '' }}" 
-         style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+    <div id="delivery-partner-card" class="card tracking-card animate-fade-in-up {{ 'hidden' if order.status not in ['out_for_delivery', 'delivered'] else '' }}">
         <div class="card-body" style="padding: var(--space-5);">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
@@ -101,8 +112,8 @@
 
     <!-- Baker Kitchen Info -->
     {% if order.baker %}
-    <div class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
-        <div class="card-body flex items-center justify-between" style="padding: var(--space-4) var(--space-5);">
+    <div class="card tracking-card">
+        <div class="card-body flex items-center justify-between" style="padding: 16px 20px;">
             <div class="flex items-center gap-3">
                 <span style="font-size: 1.5rem;">👩‍🍳</span>
                 <div>
@@ -116,8 +127,8 @@
     {% endif %}
 
     <!-- Order Items Summary & Portion Allocation -->
-    <div class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
-        <div class="card-body" style="padding: var(--space-5);">
+    <div class="card tracking-card">
+        <div class="card-body" style="padding: 20px;">
             <div class="flex items-center justify-between mb-3">
                 <h3 style="font-size: 1.05rem; color: #FFFFFF; font-weight: 700; margin: 0;">Order Details</h3>
                 {% if order.is_group_order %}
@@ -135,15 +146,25 @@
                         <span style="font-weight: 800; color: var(--honey-light);">₹{{ item.total_price|int }}</span>
                     </div>
 
-                    <div class="flex items-center justify-between text-xs text-muted pt-2 mt-1" style="border-top: 1px dashed var(--border-subtle);">
-                        <span style="font-weight: 600; color: var(--pista-light);">🥗 My Personal Portion:</span>
-                        <div class="flex items-center gap-2">
-                            <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', -1)" style="min-height: 24px; padding: 2px 6px; font-size: 0.75rem;">−</button>
-                            <span id="portion-val-{{ item.id }}" style="font-weight: 700; min-width: 18px; text-align: center; color: var(--pista-light);">${item.consumed_quantity}</span>
-                            <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', 1)" style="min-height: 24px; padding: 2px 6px; font-size: 0.75rem;">+</button>
-                            <span class="text-muted">/ {{ item.quantity }} total</span>
+                    {% if order.is_group_order %}
+                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 10px 12px; margin-top: 10px;">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span style="font-size: 1rem;">🥗</span>
+                                <div>
+                                    <div style="font-size: 0.8rem; font-weight: 700; color: #6EE7B7;">My Claimed Portion</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Your personal calorie share</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', -1)" style="width: 28px; height: 28px; padding: 0; min-height: 28px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #FFFFFF; font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer;">−</button>
+                                <span id="portion-val-{{ item.id }}" style="font-weight: 800; font-size: 0.95rem; min-width: 22px; text-align: center; color: #34D399;">{{ item.consumed_quantity if item.consumed_quantity is not none else item.quantity }}</span>
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', 1)" style="width: 28px; height: 28px; padding: 0; min-height: 28px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #FFFFFF; font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer;">+</button>
+                                <span style="font-size: 0.75rem; color: var(--text-tertiary); font-weight: 600; margin-left: 2px;">/ {{ item.quantity }}</span>
+                            </div>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -155,8 +176,9 @@
             </div>
             <div class="nutrition-row">
                 <span class="label">Total Order Calories</span>
-                <span class="value" style="color: var(--honey-light);">{{ order.total_calories|int }} cal</span>
+                <span class="value" style="color: var(--honey-light); font-weight: 700;">{{ order.total_calories|int }} cal</span>
             </div>
+            {% if order.is_group_order %}
             <div class="nutrition-row" style="background: rgba(16, 185, 129, 0.08); padding: 10px 14px; border-radius: var(--radius-md); margin-top: 6px; border: 1px solid rgba(16, 185, 129, 0.2); border-bottom: none;">
                 <span class="label" style="color: var(--pista-light); font-weight: 700;">🥗 Personal Intake Logged</span>
                 <span class="value" id="personal-cal-total" style="color: var(--pista-light); font-weight: 800; font-size: 1.05rem;">
@@ -167,6 +189,7 @@
                     {{ ns.cal|int }} cal
                 </span>
             </div>
+            {% endif %}
             {% if order.delivery_address %}
             <div class="nutrition-row" style="border-bottom: none; margin-top: 6px;">
                 <span class="label">Delivery Address</span>
