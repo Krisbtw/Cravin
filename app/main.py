@@ -214,16 +214,40 @@ async def customer_dessert_detail(dessert_id: str, request: Request, db: AsyncSe
     })
 
 
+@app.get("/app/customizer", response_class=HTMLResponse)
+@app.get("/app/customizer/", response_class=HTMLResponse)
+async def customer_customizer_default(request: Request, db: AsyncSession = Depends(get_db)):
+    user = await get_template_user(request, db)
+    prompt = request.query_params.get("prompt", "")
+    dessert = None
+    if prompt:
+        prompt_lower = prompt.lower()
+        result = await db.execute(select(Dessert))
+        all_desserts = result.scalars().all()
+        for d in all_desserts:
+            if d.name.lower() in prompt_lower or any(word in d.name.lower() for word in prompt_lower.split() if len(word) > 3):
+                dessert = d
+                break
+        if not dessert and all_desserts:
+            dessert = all_desserts[0]
+    else:
+        result = await db.execute(select(Dessert).limit(1))
+        dessert = result.scalar_one_or_none()
+
+    if not dessert:
+        return RedirectResponse(url="/app/")
+    return TR(request, "customer/customizer.html", {"user": user, "dessert": dessert, "initial_prompt": prompt})
+
+
 @app.get("/app/customizer/{dessert_id}", response_class=HTMLResponse)
 async def customer_customizer(dessert_id: str, request: Request, db: AsyncSession = Depends(get_db)):
     user = await get_template_user(request, db)
-    if not user:
-        return RedirectResponse(url="/app/login")
     result = await db.execute(select(Dessert).where(Dessert.id == dessert_id))
     dessert = result.scalar_one_or_none()
     if not dessert:
         return RedirectResponse(url="/app/")
-    return TR(request, "customer/customizer.html", {"user": user, "dessert": dessert})
+    prompt = request.query_params.get("prompt", "")
+    return TR(request, "customer/customizer.html", {"user": user, "dessert": dessert, "initial_prompt": prompt})
 
 
 @app.get("/app/cart", response_class=HTMLResponse)

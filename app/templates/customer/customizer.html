@@ -262,6 +262,18 @@
 <script>
 let lastCustomization = null;
 
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialPrompt = urlParams.get('prompt') || "{{ initial_prompt|default('')|replace('\"', '\\\"') }}";
+    if (initialPrompt && initialPrompt.trim()) {
+        const input = document.getElementById('user-input');
+        if (input) {
+            input.value = initialPrompt.trim();
+            setTimeout(() => sendMessage(), 350);
+        }
+    }
+});
+
 function handleKeyPress(e) {
     if (e.key === 'Enter') {
         sendMessage();

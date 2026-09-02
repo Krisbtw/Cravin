@@ -170,6 +170,43 @@
         flex-shrink: 0 !important;
         background: #161E30 !important;
     }
+
+    /* ── High-Contrast Photo Tag Badges ── */
+    .food-img-tag {
+        position: absolute !important;
+        top: 8px !important;
+        left: 8px !important;
+        z-index: 5 !important;
+        font-size: 0.72rem !important;
+        font-weight: 800 !important;
+        padding: 4px 10px !important;
+        border-radius: 9999px !important;
+        letter-spacing: 0.03em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75) !important;
+    }
+    .food-img-tag.tag-light {
+        background: rgba(4, 47, 31, 0.95) !important;
+        color: #6EE7B7 !important;
+        border: 1.5px solid #10B981 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    }
+    .food-img-tag.tag-balanced {
+        background: rgba(69, 26, 3, 0.95) !important;
+        color: #FDE68A !important;
+        border: 1.5px solid #F59E0B !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    }
+    .food-img-tag.tag-heavy {
+        background: rgba(59, 7, 100, 0.95) !important;
+        color: #E9D5FF !important;
+        border: 1.5px solid #A855F7 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    }
 </style>
 {% endblock %}
 
@@ -218,65 +255,93 @@
     <!-- Tag Filters (Sticky Frosted Glass Pills with Live Counts) -->
     <style>
         .filter-sticky-wrapper {
-            position: sticky;
-            top: 0;
-            z-index: 40;
-            background: rgba(8, 12, 20, 0.88);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 8px 0;
-            margin-bottom: 1rem;
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            padding: 4px 0;
+            margin-bottom: 1.25rem;
         }
         .filter-container {
             display: flex;
-            gap: 0.4rem;
+            gap: 0.5rem;
             overflow-x: auto;
-            padding-bottom: 0.25rem;
+            padding: 4px 2px;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
         .filter-btn {
-            padding: 0.4rem 0.95rem;
+            padding: 7px 15px;
             border-radius: 9999px;
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
             outline: none !important;
-            transition: all 0.2s ease;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.35rem;
             white-space: nowrap;
-            background: rgba(255, 255, 255, 0.04);
-            color: #94A3B8;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
+            color: #CBD5E1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            appearance: none;
+            -webkit-appearance: none;
         }
+        /* Dynamic Hover Pop-out Effect */
         .filter-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px) scale(1.06);
+            background: rgba(255, 255, 255, 0.12);
             color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+        }
+        .filter-btn:active {
+            transform: translateY(0) scale(0.96);
         }
 
-        /* Active Filter Pill States */
+        /* Active Filter Pill States with Vibrant Pop and Glow */
         .filter-btn[data-tag="all"].active {
-            background: #8B5CF6 !important;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
             color: #FFFFFF !important;
-            border-color: #8B5CF6 !important;
+            border-color: #A78BFA !important;
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.45) !important;
+        }
+        .filter-btn[data-tag="all"].active:hover {
+            transform: translateY(-3px) scale(1.06);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.65) !important;
         }
         .filter-btn[data-tag="light"].active {
-            background: #10B981 !important;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
             color: #FFFFFF !important;
-            border-color: #10B981 !important;
+            border-color: #34D399 !important;
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45) !important;
+        }
+        .filter-btn[data-tag="light"].active:hover {
+            transform: translateY(-3px) scale(1.06);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.65) !important;
         }
         .filter-btn[data-tag="balanced"].active {
-            background: #F59E0B !important;
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
             color: #020617 !important;
             font-weight: 700;
-            border-color: #F59E0B !important;
+            border-color: #FCD34D !important;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45) !important;
+        }
+        .filter-btn[data-tag="balanced"].active:hover {
+            transform: translateY(-3px) scale(1.06);
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.65) !important;
         }
         .filter-btn[data-tag="heavy"].active {
-            background: #A855F7 !important;
+            background: linear-gradient(135deg, #C084FC 0%, #9333EA 100%) !important;
             color: #FFFFFF !important;
-            border-color: #A855F7 !important;
+            border-color: #E9D5FF !important;
+            box-shadow: 0 4px 18px rgba(168, 85, 247, 0.45) !important;
+        }
+        .filter-btn[data-tag="heavy"].active:hover {
+            transform: translateY(-3px) scale(1.06);
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.65) !important;
         }
     </style>
 
@@ -304,30 +369,32 @@
             <h3 style="font-size: 1rem; font-weight: 700; color: #FFFFFF;">✨ Recommended For You</h3>
             <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: var(--honey-light); font-size: 0.68rem;">AI Match</span>
         </div>
-        <div class="no-scrollbar horizontal-carousel" style="display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;">
+        <div class="no-scrollbar horizontal-carousel" style="display: flex; gap: var(--space-3); overflow-x: auto; padding: 8px 4px 12px 4px; margin-top: -6px; margin-bottom: -6px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;">
             {% for dessert in recommended %}
-            <div class="card dessert-card" style="min-width: 190px; max-width: 190px; flex-shrink: 0; scroll-snap-align: start; border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-subtle);">
-                <div class="card-img-container" style="height: 110px; width: 100%; position: relative; background: #161E30;">
-                    {% if dessert.image_url %}
-                    <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
-                    {% else %}
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">🍰</div>
-                    {% endif %}
-                    <div class="img-scrim"></div>
-                    <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 6px; left: 6px; font-size: 0.62rem; padding: 2px 6px; z-index: 2;">
-                        {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
-                    </span>
-                    <!-- Quick Add Button -->
-                    <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
-                            onclick="event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
-                        +
-                    </button>
-                </div>
-                <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit; padding: var(--space-3); display: block;">
-                    <h5 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
-                    <div class="flex items-center justify-between" style="font-size: 0.78rem;">
-                        <span style="font-weight: 700; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
-                        <span class="text-muted">{{ dessert.calories|int }} cal</span>
+            <div class="card dessert-card" style="min-width: 190px; max-width: 190px; flex-shrink: 0; scroll-snap-align: start; border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-subtle); cursor: pointer;">
+                <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="card-img-container" style="height: 110px; width: 100%; position: relative; background: #161E30;">
+                        {% if dessert.image_url %}
+                        <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">🍰</div>
+                        {% endif %}
+                        <div class="img-scrim"></div>
+                        <span class="food-img-tag tag-{{ dessert.tag }}">
+                            {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+                        </span>
+                        <!-- Quick Add Button -->
+                        <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
+                                onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
+                            +
+                        </button>
+                    </div>
+                    <div style="padding: var(--space-3);">
+                        <h5 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
+                        <div class="flex items-center justify-between" style="font-size: 0.78rem;">
+                            <span style="font-weight: 700; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+                            <span class="text-muted">{{ dessert.calories|int }} cal</span>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -339,36 +406,38 @@
     <h2 class="mb-4" style="color: #FFFFFF; font-size: 1.25rem; font-weight: 800;">Our Signature Menu</h2>
     <div class="grid-2 stagger mb-6" id="dessert-grid" style="gap: var(--space-4);">
         {% for dessert in desserts %}
-        <div class="card dessert-card" data-tag="{{ dessert.tag }}" style="border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
-            <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #161E30;">
-                {% if dessert.image_url %}
-                <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
-                {% else %}
-                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🍰</div>
-                {% endif %}
-                
-                <div class="img-scrim"></div>
+        <div class="card dessert-card" data-tag="{{ dessert.tag }}" style="border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); cursor: pointer;">
+            <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #161E30;">
+                    {% if dessert.image_url %}
+                    <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🍰</div>
+                    {% endif %}
+                    
+                    <div class="img-scrim"></div>
 
-                <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 8px; left: 8px; z-index: 2; font-size: 0.65rem; padding: 2px 6px;">
-                    {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
-                </span>
+                    <span class="food-img-tag tag-{{ dessert.tag }}">
+                        {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+                    </span>
 
-                <!-- Quick Add Button -->
-                <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
-                        onclick="event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
-                    +
-                </button>
-            </div>
-            <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit; padding: var(--space-3); display: block;">
-                <h4 style="font-size: 0.9rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">{{ dessert.name }}</h4>
-                <div class="flex items-center gap-2 text-xs text-muted mb-2">
-                    <span style="color: var(--pista-light); font-weight: 600;">{{ dessert.protein_g|round(1) }}g protein</span>
-                    <span>·</span>
-                    <span>0g sugar</span>
+                    <!-- Quick Add Button -->
+                    <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
+                            onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
+                        +
+                    </button>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span style="font-size: 0.98rem; font-weight: 800; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
-                    <span style="font-size: 0.76rem; font-weight: 600; color: var(--text-tertiary);">{{ dessert.calories|int }} cal</span>
+                <div style="padding: var(--space-3);">
+                    <h4 style="font-size: 0.9rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">{{ dessert.name }}</h4>
+                    <div class="flex items-center gap-2 text-xs text-muted mb-2">
+                        <span style="color: var(--pista-light); font-weight: 600;">{{ dessert.protein_g|round(1) }}g protein</span>
+                        <span>·</span>
+                        <span>0g sugar</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span style="font-size: 0.98rem; font-weight: 800; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+                        <span style="font-size: 0.76rem; font-weight: 600; color: var(--text-tertiary);">{{ dessert.calories|int }} cal</span>
+                    </div>
                 </div>
             </a>
         </div>
@@ -845,8 +914,19 @@
     }
 
     function openAIWithQuery() {
-        const q = currentOverlayQuery || 'healthy zero-sugar treat';
-        window.location.href = `/app/customizer?prompt=${encodeURIComponent('I want a clean zero-sugar ' + q)}`;
+        const q = (currentOverlayQuery || 'clean treat').trim();
+        const matched = ALL_DESSERTS.find(d => 
+            d.name.toLowerCase().includes(q) ||
+            d.tag.toLowerCase().includes(q) ||
+            d.ingredients.toLowerCase().includes(q)
+        );
+        const targetId = matched ? matched.id : (ALL_DESSERTS.length > 0 ? ALL_DESSERTS[0].id : '');
+        const promptText = `I want a clean zero-sugar ${q}`;
+        if (targetId) {
+            window.location.href = `/app/customizer/${targetId}?prompt=${encodeURIComponent(promptText)}`;
+        } else {
+            window.location.href = `/app/customizer?prompt=${encodeURIComponent(promptText)}`;
+        }
     }
 
     function highlightMatch(text, query) {
