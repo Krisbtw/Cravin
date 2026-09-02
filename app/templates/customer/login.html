@@ -1,36 +1,39 @@
 {% extends "base.html" %}
-{% block title %}Sign In{% endblock %}
+{% block title %}Sign In — Cravin{% endblock %}
 
 {% block content %}
 <div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 90vh;">
-    <div class="text-center mb-8">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🍩</div>
-        <h1 class="logo" style="font-size: 2.5rem;">Crav<span style="color: var(--honey);">in</span></h1>
-        <p class="text-subtitle mt-2">Zero Sugar · Zero Maida · Full Flavor</p>
-    </div>
-
-    <form id="login-form" onsubmit="handleLogin(event)">
-        <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
+    <div class="card p-6 animate-fade-in-up" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); box-shadow: 0 16px 40px rgba(0,0,0,0.5);">
+        <div class="text-center mb-6">
+            <div style="font-size: 3.2rem; margin-bottom: var(--space-2);">🍩</div>
+            <h1 class="logo" style="font-size: 2.2rem; margin-bottom: 4px;">Crav<span style="color: var(--honey-light);">in</span></h1>
+            <p class="text-subtitle" style="font-size: 0.88rem; margin: 0;">Zero Sugar · Zero Maida · 100% Monk Fruit</p>
         </div>
-        <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="form-group mb-4">
+                <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #CBD5E1;">Email Address</label>
+                <input type="email" class="form-input" id="email" placeholder="your@email.com" value="kris@example.com" required>
+            </div>
+            <div class="form-group mb-5">
+                <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #CBD5E1;">Password</label>
+                <input type="password" class="form-input" id="password" placeholder="Enter your password" value="password123" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-btn" style="font-weight: 700; font-size: 1rem; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);">
+                Sign In →
+            </button>
+        </form>
+
+        <div class="text-center mt-5">
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0;">New to Cravin? <a href="/app/register" style="font-weight: 700; color: var(--honey-light);">Create an account</a></p>
         </div>
-        <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-btn">Sign In</button>
-    </form>
 
-    <div class="text-center mt-6">
-        <p class="text-muted">New to Cravin? <a href="/app/register" style="font-weight: 600;">Create an account</a></p>
+        <div class="text-center mt-4 pt-3" style="border-top: 1px dashed var(--border-subtle);">
+            <p class="text-muted" style="font-size: 0.78rem; margin: 0;">
+                🧑‍🍳 <a href="/baker/login" style="color: var(--jamun-light);">Baker Kitchen Portal</a> &nbsp;·&nbsp; 🛠️ <a href="/admin/login" style="color: var(--text-tertiary);">Admin Hub</a>
+            </p>
+        </div>
     </div>
-
-    <div class="text-center mt-4">
-        <p class="text-muted" style="font-size: 0.8rem;">
-            🧑‍🍳 <a href="/baker/login">Baker Login</a> &nbsp;·&nbsp; 🛠️ <a href="/admin/login">Admin Login</a>
-        </p>
-    </div>
-
 </div>
 {% endblock %}
 
@@ -54,24 +57,27 @@ async function handleLogin(e) {
         const data = await res.json();
 
         if (res.ok) {
-            // Redirect based on role
-            if (data.user.role === 'baker') {
-                window.location.href = '/baker/';
-            } else if (data.user.role === 'admin') {
-                window.location.href = '/admin/';
-            } else {
-                window.location.href = data.user.onboarding_complete ? '/app/' : '/app/onboarding';
-            }
+            showToast('Signed in successfully! 🎉', 'success');
+            setTimeout(() => {
+                if (data.user.role === 'baker') {
+                    window.location.href = '/baker/';
+                } else if (data.user.role === 'admin') {
+                    window.location.href = '/admin/';
+                } else {
+                    window.location.href = data.user.onboarding_complete ? '/app/' : '/app/onboarding';
+                }
+            }, 500);
         } else {
             showToast(data.detail || 'Login failed', 'danger');
-            btn.textContent = 'Sign In';
+            btn.textContent = 'Sign In →';
             btn.disabled = false;
         }
     } catch (err) {
         showToast('Connection error. Please try again.', 'danger');
-        btn.textContent = 'Sign In';
+        btn.textContent = 'Sign In →';
         btn.disabled = false;
     }
 }
 </script>
 {% endblock %}
+

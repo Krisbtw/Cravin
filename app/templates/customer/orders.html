@@ -2,36 +2,44 @@
 {% block title %}My Orders{% endblock %}
 
 {% block content %}
-<div class="page-content">
+<div class="page-content" style="padding-bottom: 90px;">
     <div class="top-bar">
-        <h1 style="font-size: 1.5rem;">📦 My Orders</h1>
+        <h1 style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF;">📦 My Orders</h1>
     </div>
 
     {% if orders %}
     <div class="stagger">
         {% for order in orders %}
-        <a href="/app/order/{{ order.id }}" class="card mb-3 animate-fade-in-up" style="text-decoration: none; color: inherit; border: 1px solid var(--cream-border);">
-            <div class="card-body">
+        <a href="/app/order/{{ order.id }}" class="card mb-3 animate-fade-in-up" style="text-decoration: none; color: inherit; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+            <div class="card-body" style="padding: var(--space-4) var(--space-5);">
                 <div class="flex items-center justify-between mb-2">
-                    <span style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;">#{{ order.order_number }}</span>
-                    <span class="tag tag-{{ 'light' if order.status == 'delivered' else 'balanced' if order.status in ['preparing', 'accepted'] else 'heavy' }}">
+                    <div class="flex items-center gap-2">
+                        <span style="font-size: 1.1rem;">
+                            {% if order.status == 'delivered' %}🎉{% elif order.status == 'out_for_delivery' %}🛵{% elif order.status == 'preparing' %}🔥{% else %}📝{% endif %}
+                        </span>
+                        <span style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: #FFFFFF;">#{{ order.order_number }}</span>
+                    </div>
+                    <span class="soft-tag" style="font-size: 0.72rem; font-weight: 700; 
+                        {% if order.status == 'delivered' %}background: rgba(16, 185, 129, 0.15); color: var(--pista-light); border-color: rgba(16, 185, 129, 0.3);
+                        {% elif order.status == 'out_for_delivery' %}background: rgba(245, 158, 11, 0.15); color: var(--honey-light); border-color: rgba(245, 158, 11, 0.3);
+                        {% else %}background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); border-color: rgba(139, 92, 246, 0.3);{% endif %}">
                         {{ order.status|replace('_', ' ')|capitalize }}
                     </span>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-muted" style="font-size: 0.85rem;">₹{{ order.total_amount|round(0)|int }}</span>
-                    <span class="text-muted" style="font-size: 0.8rem;">{{ order.placed_at.strftime('%b %d, %I:%M %p') if order.placed_at else '' }}</span>
+                <div class="flex items-center justify-between pt-1">
+                    <span style="font-weight: 800; color: var(--honey-light); font-size: 1.05rem;">₹{{ order.total_amount|round(0)|int }}</span>
+                    <span class="text-muted" style="font-size: 0.8rem;">{{ order.placed_at.strftime('%b %d, %I:%M %p') if order.placed_at else '' }} →</span>
                 </div>
             </div>
         </a>
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center p-6">
+    <div class="text-center p-6 card" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl);">
         <div style="font-size: 4rem; margin-bottom: var(--space-4);">📦</div>
-        <h3>No orders yet</h3>
-        <p class="text-muted mb-4">Time to treat yourself!</p>
-        <a href="/app/" class="btn btn-primary">Browse Desserts</a>
+        <h3 style="color: #FFFFFF; font-weight: 800;">No orders yet</h3>
+        <p class="text-muted mb-4">Craving clean, healthy desserts? Treat yourself today!</p>
+        <a href="/app/" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700;">Explore Desserts →</a>
     </div>
     {% endif %}
 </div>
@@ -48,3 +56,4 @@
     <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
 </nav>
 {% endblock %}
+

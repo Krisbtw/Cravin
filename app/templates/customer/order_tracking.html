@@ -1,37 +1,45 @@
 {% extends "base.html" %}
-{% block title %}Order Tracking{% endblock %}
+{% block title %}Order Tracking — #{{ order.order_number if order else '' }}{% endblock %}
 
 {% block content %}
-<div class="page-content">
+<div class="page-content" style="padding-bottom: 90px;">
     <div class="top-bar">
-        <a href="/app/orders" class="btn btn-ghost btn-sm">← Orders</a>
-        <h2 style="font-size: 1.1rem;">#{{ order.order_number if order else '' }}</h2>
+        <a href="/app/orders" class="btn btn-ghost btn-sm" style="padding: 4px 8px;">← Orders</a>
+        <h2 style="font-size: 1.1rem; font-weight: 800; color: #FFFFFF;">#{{ order.order_number if order else '' }}</h2>
         <div></div>
     </div>
 
     {% if order %}
-    <!-- Status Banner -->
-    <div class="card mb-6 animate-fade-in-up" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle);">
+    <!-- Live Status HUD Banner -->
+    <div class="card mb-6 animate-fade-in-up" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: hidden; position: relative;">
         <div class="card-body text-center" style="padding: var(--space-6);">
-            <div style="font-size: 2.5rem; margin-bottom: var(--space-2);" id="status-emoji">
-                {% if order.status == 'placed' %}📝{% elif order.status == 'accepted' %}👨‍🍳{% elif order.status == 'preparing' %}🔥{% elif order.status == 'ready' %}✅{% elif order.status == 'out_for_delivery' %}🚚{% elif order.status == 'delivered' %}🎉{% else %}❌{% endif %}
+            <!-- Circular Status / ETA Visual -->
+            <div style="position: relative; width: 84px; height: 84px; margin: 0 auto var(--space-3) auto; display: flex; align-items: center; justify-content: center;">
+                <div class="radar-pulse-ring" id="radar-pulse" style="display: {{ 'block' if order.status != 'delivered' and order.status != 'cancelled' else 'none' }};"></div>
+                <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, rgba(24, 32, 47, 0.9), rgba(17, 23, 34, 0.9)); border: 2px solid var(--jamun); display: flex; align-items: center; justify-content: center; font-size: 2.3rem; box-shadow: 0 0 20px var(--jamun-glow);" id="status-emoji">
+                    {% if order.status == 'placed' %}📝{% elif order.status == 'accepted' %}👨‍🍳{% elif order.status == 'preparing' %}🔥{% elif order.status == 'ready' %}✅{% elif order.status == 'out_for_delivery' %}🚚{% elif order.status == 'delivered' %}🎉{% else %}❌{% endif %}
+                </div>
             </div>
-            <h2 id="status-text" style="font-size: 1.25rem; font-weight: 700; text-transform: capitalize; color: #FFFFFF;">
+
+            <h2 id="status-text" style="font-size: 1.35rem; font-weight: 800; text-transform: capitalize; color: #FFFFFF; letter-spacing: -0.01em;">
                 {{ order.status|replace('_', ' ') }}
             </h2>
-            <p class="text-muted mt-2" id="eta-text" style="font-size: 0.85rem; margin-bottom: 0;">
+            
+            <p class="text-muted mt-2" id="eta-text" style="font-size: 0.88rem; margin-bottom: 0;">
                 {% if order.status == 'delivered' %}
-                Delivered! Enjoy your healthy indulgence.
+                🎉 Delivered! Enjoy your clean, zero-sugar indulgence.
                 {% elif order.status == 'out_for_delivery' %}
-                🚴 Delivery partner is on the way with your treats!
+                🛵 Delivery partner is on the way with your freshly baked treats!
                 {% elif order.estimated_delivery_mins %}
-                Estimated: ~{{ order.estimated_delivery_mins }} mins
+                ⏱️ Estimated Arrival: <strong style="color: var(--honey-light);">~{{ order.estimated_delivery_mins }} mins</strong>
+                {% else %}
+                Baking with pure Monk Fruit & zero maida...
                 {% endif %}
             </p>
         </div>
     </div>
 
-    <!-- Order Tracker Progress -->
+    <!-- Order Tracker Progress Stepper -->
     <div class="order-tracker mb-6">
         <div class="progress-line" id="progress-line" style="width: 0%;"></div>
 
@@ -53,7 +61,7 @@
         </div>
         <div class="tracker-step" id="step-out_for_delivery" data-step="out_for_delivery">
             <div class="step-dot">🚚</div>
-            <span class="step-label">On the Way</span>
+            <span class="step-label">En Route</span>
         </div>
         <div class="tracker-step" id="step-delivered" data-step="delivered">
             <div class="step-dot">🎉</div>
@@ -62,56 +70,59 @@
     </div>
 
     <!-- Delivery Partner Card (Active when Out for Delivery) -->
-    <div id="delivery-partner-card" class="card mb-4 animate-fade-in-up {{ 'hidden' if order.status not in ['out_for_delivery', 'delivered'] else '' }}" 
-         style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
-        <div class="card-body">
-            <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                    <span style="font-size: 1.6rem;">🛵</span>
+    <div id="delivery-partner-card" class="card mb-5 animate-fade-in-up {{ 'hidden' if order.status not in ['out_for_delivery', 'delivered'] else '' }}" 
+         style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+        <div class="card-body" style="padding: var(--space-5);">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span style="font-size: 1.8rem;">🛵</span>
                     <div>
-                        <div style="font-weight: 700; font-size: 0.95rem; color: #FFFFFF;" id="partner-name">Ramesh Kumar</div>
-                        <div class="text-muted" style="font-size: 0.75rem;" id="partner-vehicle">Electric Scooter (GA-07-EK-8821)</div>
+                        <div style="font-weight: 800; font-size: 0.98rem; color: #FFFFFF;" id="partner-name">Ramesh Kumar</div>
+                        <div class="text-muted" style="font-size: 0.78rem;" id="partner-vehicle">Eco Scooter (GA-07-EK-8821)</div>
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="soft-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--pista-light); font-size: 0.65rem; font-weight: 700;">⭐ 4.9 Verified</span>
-                </div>
+                <span class="soft-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--pista-light); font-size: 0.7rem; font-weight: 700;">⭐ 4.9 Verified Rider</span>
             </div>
-            <div class="flex items-center justify-between pt-2 mt-2" style="border-top: 1px dashed var(--border-subtle);">
-                <span style="font-size: 0.8rem; color: var(--pista-light);" id="delivery-status-detail">
+            <div class="flex items-center justify-between pt-3" style="border-top: 1px dashed var(--border-subtle);">
+                <span style="font-size: 0.82rem; color: var(--pista-light); font-weight: 600;" id="delivery-status-detail">
                     {% if order.status == 'out_for_delivery' %}⏱️ Arriving in ~15 mins{% else %}✅ Delivered successfully{% endif %}
                 </span>
-                <a href="tel:+919876543210" class="btn btn-sm btn-ghost" style="padding: 4px 10px; font-size: 0.75rem; text-decoration: none; border-radius: var(--radius-full); border: 1px solid var(--border-default);">
-                    📞 Call Rider
-                </a>
+                <div class="flex gap-2">
+                    <a href="tel:+919876543210" class="btn btn-sm btn-outline" style="padding: 4px 12px; font-size: 0.78rem; text-decoration: none; border-radius: var(--radius-full);">
+                        📞 Call
+                    </a>
+                    <a href="https://wa.me/919876543210" target="_blank" class="btn btn-sm" style="background: #25D366; color: white; padding: 4px 12px; font-size: 0.78rem; text-decoration: none; border-radius: var(--radius-full); font-weight: 700;">
+                        💬 WhatsApp
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Baker Kitchen Info -->
     {% if order.baker %}
-    <div class="card mb-4" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
-        <div class="card-body flex items-center justify-between" style="padding: var(--space-4);">
+    <div class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+        <div class="card-body flex items-center justify-between" style="padding: var(--space-4) var(--space-5);">
             <div class="flex items-center gap-3">
-                <span style="font-size: 1.3rem;">👩‍🍳</span>
+                <span style="font-size: 1.5rem;">👩‍🍳</span>
                 <div>
-                    <span class="text-label" style="font-size: 0.68rem;">Crafted by</span>
-                    <h4 style="font-size: 0.92rem; margin-top: -2px; color: #FFFFFF;">{{ order.baker.business_name }}</h4>
+                    <span class="text-label" style="font-size: 0.65rem; color: var(--honey-light);">Crafted by</span>
+                    <h4 style="font-size: 0.95rem; margin-top: 1px; color: #FFFFFF;">{{ order.baker.business_name }}</h4>
                 </div>
             </div>
-            <span style="font-size: 0.8rem; color: var(--honey-light); font-weight: 700;">⭐ {{ order.baker.avg_rating }} ({{ order.baker.area }})</span>
+            <span style="font-size: 0.82rem; color: var(--honey-light); font-weight: 700;">⭐ {{ order.baker.avg_rating }} ({{ order.baker.area }})</span>
         </div>
     </div>
     {% endif %}
 
     <!-- Order Items Summary & Portion Allocation -->
-    <div class="card mb-4" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
+    <div class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
         <div class="card-body" style="padding: var(--space-5);">
             <div class="flex items-center justify-between mb-3">
-                <h3 style="font-size: 1rem; color: #FFFFFF; margin: 0;">Order Details</h3>
+                <h3 style="font-size: 1.05rem; color: #FFFFFF; font-weight: 700; margin: 0;">Order Details</h3>
                 {% if order.is_group_order %}
                 <span class="soft-tag" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.72rem; border-color: rgba(139, 92, 246, 0.3);">
-                    👥 Group Order
+                    👥 Group Order Active
                 </span>
                 {% endif %}
             </div>
@@ -120,17 +131,17 @@
                 {% for item in order.items %}
                 <div class="card p-3 mb-2" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
                     <div class="flex items-center justify-between mb-1 text-sm">
-                        <span style="font-weight: 600; color: #FFFFFF;">{{ item.dessert.name if item.dessert else 'Dessert' }} × {{ item.quantity }}</span>
-                        <span style="font-weight: 700; color: var(--honey-light);">₹{{ item.total_price|int }}</span>
+                        <span style="font-weight: 700; color: #FFFFFF;">{{ item.dessert.name if item.dessert else 'Dessert' }} × {{ item.quantity }}</span>
+                        <span style="font-weight: 800; color: var(--honey-light);">₹{{ item.total_price|int }}</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs text-muted pt-2 mt-1" style="border-top: 1px dashed var(--border-subtle);">
-                        <span>🥗 My Personal Portion:</span>
+                        <span style="font-weight: 600; color: var(--pista-light);">🥗 My Personal Portion:</span>
                         <div class="flex items-center gap-2">
                             <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', -1)" style="min-height: 24px; padding: 2px 6px; font-size: 0.75rem;">−</button>
-                            <span id="portion-val-{{ item.id }}" style="font-weight: 700; min-width: 18px; text-align: center; color: var(--pista-light);">{{ item.consumed_quantity }}</span>
+                            <span id="portion-val-{{ item.id }}" style="font-weight: 700; min-width: 18px; text-align: center; color: var(--pista-light);">${item.consumed_quantity}</span>
                             <button type="button" class="btn btn-ghost btn-sm" onclick="adjustPortion('{{ item.id }}', 1)" style="min-height: 24px; padding: 2px 6px; font-size: 0.75rem;">+</button>
-                            <span class="text-muted">/ {{ item.quantity }}</span>
+                            <span class="text-muted">/ {{ item.quantity }} total</span>
                         </div>
                     </div>
                 </div>
@@ -140,15 +151,15 @@
             <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: var(--space-3) 0;">
             <div class="nutrition-row">
                 <span class="label">Total Amount</span>
-                <span class="value" style="font-weight: 700; color: #FFFFFF;">₹{{ order.total_amount|round(2) }}</span>
+                <span class="value" style="font-weight: 800; color: #FFFFFF; font-size: 1.1rem;">₹{{ order.total_amount|round(2) }}</span>
             </div>
             <div class="nutrition-row">
                 <span class="label">Total Order Calories</span>
-                <span class="value">{{ order.total_calories|int }} cal</span>
+                <span class="value" style="color: var(--honey-light);">{{ order.total_calories|int }} cal</span>
             </div>
-            <div class="nutrition-row" style="background: rgba(16, 185, 129, 0.08); padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 6px; border-bottom: none;">
-                <span class="label" style="color: var(--pista-light); font-weight: 700;">🥗 Personal Calories Logged</span>
-                <span class="value" id="personal-cal-total" style="color: var(--pista-light); font-weight: 700;">
+            <div class="nutrition-row" style="background: rgba(16, 185, 129, 0.08); padding: 10px 14px; border-radius: var(--radius-md); margin-top: 6px; border: 1px solid rgba(16, 185, 129, 0.2); border-bottom: none;">
+                <span class="label" style="color: var(--pista-light); font-weight: 700;">🥗 Personal Intake Logged</span>
+                <span class="value" id="personal-cal-total" style="color: var(--pista-light); font-weight: 800; font-size: 1.05rem;">
                     {% set ns = namespace(cal=0) %}
                     {% for item in order.items %}
                         {% set ns.cal = ns.cal + (item.calories_per_unit * (item.consumed_quantity if item.consumed_quantity is not none else item.quantity)) %}
@@ -157,9 +168,9 @@
                 </span>
             </div>
             {% if order.delivery_address %}
-            <div class="nutrition-row" style="border-bottom: none; margin-top: 4px;">
-                <span class="label">Delivery To</span>
-                <span class="value text-right" style="font-size: 0.8rem; max-width: 60%;">{{ order.delivery_address }}</span>
+            <div class="nutrition-row" style="border-bottom: none; margin-top: 6px;">
+                <span class="label">Delivery Address</span>
+                <span class="value text-right" style="font-size: 0.8rem; max-width: 60%; color: var(--text-secondary);">{{ order.delivery_address }}</span>
             </div>
             {% endif %}
         </div>
@@ -167,22 +178,23 @@
 
     {% if order.is_group_order %}
     <!-- Group Order Share & Portion Claim Card -->
-    <div class="card mb-4" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+    <div class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
         <div class="card-body" style="padding: var(--space-5);">
             <div class="flex items-center gap-3 mb-2">
                 <span style="font-size: 1.6rem;">🔗</span>
                 <div>
-                    <h4 style="font-size: 0.95rem; margin-bottom: 2px; color: #FFFFFF;">Share Group Calorie Link</h4>
-                    <p class="text-muted" style="font-size: 0.76rem; margin-bottom: 0;">Send to friends sharing these desserts so they can log what they eat into their app</p>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; color: #FFFFFF;">Share Group Calorie Link</h4>
+                    <p class="text-muted" style="font-size: 0.78rem; margin-bottom: 0;">Send to friends sharing these desserts so they can log what they eat into their app</p>
                 </div>
             </div>
 
             <div class="flex gap-2 mt-4">
-                <button type="button" class="btn btn-sm btn-block" onclick="shareWhatsApp()" style="background: #25D366; color: white; border: none; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-md);">
-                    <span>💬</span> WhatsApp
+                <button type="button" class="btn btn-sm btn-block" onclick="shareWhatsApp()" style="background: #25D366; color: white; border: none; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-md);">
+                    <span>💬</span> WhatsApp Friends
                 </button>
-                <button type="button" class="btn btn-sm btn-outline btn-block" onclick="copyClaimLink()" id="copy-btn" style="border-color: var(--border-default); color: #FFFFFF; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-md);">
+                <button type="button" class="btn btn-sm btn-outline btn-block" onclick="copyClaimLink()" id="copy-btn" style="border-color: var(--border-default); color: #FFFFFF; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-md);">
                     <span>📋</span> Copy Link
+                </button>
             </div>
         </div>
     </div>
@@ -249,10 +261,15 @@ function updateTracker(status, partnerData) {
     const emojiEl = document.getElementById('status-emoji');
     const textEl = document.getElementById('status-text');
     const etaEl = document.getElementById('eta-text');
+    const radarEl = document.getElementById('radar-pulse');
     const partnerCard = document.getElementById('delivery-partner-card');
 
     if (emojiEl) emojiEl.textContent = EMOJI_MAP[status] || '📝';
     if (textEl) textEl.textContent = status.replace(/_/g, ' ');
+
+    if (radarEl) {
+        radarEl.style.display = (status === 'delivered' || status === 'cancelled') ? 'none' : 'block';
+    }
 
     if (status === 'out_for_delivery') {
         if (etaEl) etaEl.textContent = '🚴 Delivery partner is on the way with your treats!';
@@ -283,13 +300,12 @@ eventSource.onmessage = function(event) {
     if (data.status === 'delivered' || data.status === 'cancelled') {
         eventSource.close();
         if (data.status === 'delivered') {
-            showToast('Order delivered! Enjoy your dessert 🎉');
+            showToast('Order delivered! Enjoy your dessert 🎉', 'success');
         }
     }
 };
 
 eventSource.onerror = function() {
-    // Reconnect silently
     setTimeout(() => location.reload(), 10000);
 };
 
@@ -353,4 +369,5 @@ function shareWhatsApp() {
 </script>
 {% endif %}
 {% endblock %}
+
 

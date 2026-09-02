@@ -2,106 +2,289 @@
 {% block title %}Flavor DNA Quiz{% endblock %}
 
 {% block content %}
-<div class="page-content" style="padding-top: var(--space-8);">
-    <div class="text-center mb-6">
-        <div style="font-size: 3rem; margin-bottom: var(--space-3);">🧬</div>
-        <h1 style="font-size: 1.6rem;">Your Flavor DNA</h1>
-        <p class="text-subtitle">5 quick questions so we can customize your experience</p>
-    </div>
+<div class="page-content" style="padding-top: var(--space-4); min-height: 85vh; display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+        <!-- Top Bar with Universal Back Button -->
+        <div class="top-bar mb-4" style="display: flex; align-items: center; justify-content: space-between;">
+            <button type="button" onclick="handleBackAction()" class="btn btn-ghost btn-sm" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; border: 1px solid var(--border-subtle); color: var(--text-secondary); font-weight: 600; font-size: 0.82rem; cursor: pointer;">
+                <span>←</span> <span id="top-back-label">Back</span>
+            </button>
+            <a href="/app/" class="btn btn-ghost btn-sm" style="color: var(--text-tertiary); font-size: 0.78rem; font-weight: 600;">Exit Quiz</a>
+        </div>
 
-    <form id="onboarding-form" onsubmit="saveOnboarding(event)">
-        <!-- Q1: Sweet vs Rich -->
-        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border);">
-            <div class="card-body">
-                <p class="form-label">What's your vibe? 🍰</p>
-                <div class="flex gap-3">
-                    <label class="form-check" style="flex: 1; padding: var(--space-3); background: var(--malai-deep); border-radius: var(--radius-md); justify-content: center;">
-                        <input type="radio" name="vibe" value="sweet" checked> Light & Sweet
+        <!-- Progress Bar & Stepper -->
+        <div class="mb-5">
+            <div class="flex items-center justify-between text-xs text-muted mb-2">
+                <span id="step-counter" style="font-weight: 700; color: var(--honey-light);">Step 1 of 5</span>
+                <span id="step-title-small" style="font-weight: 600; color: #FFFFFF;">Flavor Vibe</span>
+            </div>
+            <div class="delivery-progress-track" style="height: 5px;">
+                <div class="delivery-progress-fill" id="quiz-progress-fill" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <div class="text-center mb-6">
+            <div style="font-size: 2.8rem; margin-bottom: var(--space-2);" id="quiz-header-icon">🧬</div>
+            <h1 style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF;" id="quiz-header-title">What's your dessert vibe?</h1>
+            <p class="text-muted" style="font-size: 0.85rem;" id="quiz-header-subtitle">We tailor AI recipe modifications and recommendations to your taste.</p>
+        </div>
+
+        <form id="onboarding-form" onsubmit="saveOnboarding(event)">
+            <!-- STEP 1: VIBE -->
+            <div class="quiz-step animate-fade-in" id="quiz-step-1">
+                <div class="grid-2 mb-4" style="gap: var(--space-4);">
+                    <label class="card choice-card active" onclick="selectVibe('sweet', this)" style="cursor: pointer; padding: var(--space-5); text-align: center; border: 1.5px solid var(--jamun); background: rgba(139, 92, 246, 0.12); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <input type="radio" name="vibe" value="sweet" checked style="display: none;">
+                        <div style="font-size: 2.5rem; margin-bottom: 8px;">🍰</div>
+                        <h4 style="font-size: 1rem; color: #FFFFFF; margin-bottom: 4px;">Light & Clean</h4>
+                        <p class="text-muted" style="font-size: 0.76rem; margin: 0;">Subtle sweetness, refreshing and high protein</p>
                     </label>
-                    <label class="form-check" style="flex: 1; padding: var(--space-3); background: var(--malai-deep); border-radius: var(--radius-md); justify-content: center;">
-                        <input type="radio" name="vibe" value="rich"> Rich & Indulgent
+
+                    <label class="card choice-card" onclick="selectVibe('rich', this)" style="cursor: pointer; padding: var(--space-5); text-align: center; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <input type="radio" name="vibe" value="rich" style="display: none;">
+                        <div style="font-size: 2.5rem; margin-bottom: 8px;">🍫</div>
+                        <h4 style="font-size: 1rem; color: #FFFFFF; margin-bottom: 4px;">Rich & Decadent</h4>
+                        <p class="text-muted" style="font-size: 0.76rem; margin: 0;">Deep chocolate, nutty indulgence, creamy richness</p>
                     </label>
                 </div>
             </div>
-        </div>
 
-        <!-- Q2: Texture -->
-        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 60ms;">
-            <div class="card-body">
-                <p class="form-label">Texture preference? 🤤</p>
-                <select class="form-input" id="texture">
-                    <option value="creamy">Creamy & Smooth</option>
-                    <option value="crunchy">Crunchy & Nutty</option>
-                    <option value="chewy">Chewy & Dense</option>
-                    <option value="fluffy">Light & Fluffy</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Q3: Allergies -->
-        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 120ms;">
-            <div class="card-body">
-                <p class="form-label">Any allergies? 🛡️</p>
-                <div class="flex flex-wrap gap-2">
-                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
-                        <input type="checkbox" value="nuts" class="allergy-check"> Nuts
-                    </label>
-                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
-                        <input type="checkbox" value="dairy" class="allergy-check"> Dairy
-                    </label>
-                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
-                        <input type="checkbox" value="gluten" class="allergy-check"> Gluten
-                    </label>
-                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
-                        <input type="checkbox" value="eggs" class="allergy-check"> Eggs
-                    </label>
-                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
-                        <input type="checkbox" value="soy" class="allergy-check"> Soy
-                    </label>
+            <!-- STEP 2: TEXTURE -->
+            <div class="quiz-step animate-fade-in hidden" id="quiz-step-2">
+                <div class="grid-2 mb-4" style="gap: var(--space-3);">
+                    <div class="card choice-card active" onclick="selectTexture('creamy', this)" style="cursor: pointer; padding: var(--space-4); text-align: center; border: 1.5px solid var(--jamun); background: rgba(139, 92, 246, 0.12); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div style="font-size: 2rem; margin-bottom: 6px;">🥄</div>
+                        <h4 style="font-size: 0.95rem; color: #FFFFFF; margin-bottom: 2px;">Creamy</h4>
+                        <p class="text-muted" style="font-size: 0.72rem; margin: 0;">Smooth & silky mousse</p>
+                    </div>
+                    <div class="card choice-card" onclick="selectTexture('crunchy', this)" style="cursor: pointer; padding: var(--space-4); text-align: center; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div style="font-size: 2rem; margin-bottom: 6px;">🥜</div>
+                        <h4 style="font-size: 0.95rem; color: #FFFFFF; margin-bottom: 2px;">Crunchy</h4>
+                        <p class="text-muted" style="font-size: 0.72rem; margin: 0;">Nutty crusts & seeds</p>
+                    </div>
+                    <div class="card choice-card" onclick="selectTexture('chewy', this)" style="cursor: pointer; padding: var(--space-4); text-align: center; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div style="font-size: 2rem; margin-bottom: 6px;">🍪</div>
+                        <h4 style="font-size: 0.95rem; color: #FFFFFF; margin-bottom: 2px;">Chewy</h4>
+                        <p class="text-muted" style="font-size: 0.72rem; margin: 0;">Dense fudge & brownies</p>
+                    </div>
+                    <div class="card choice-card" onclick="selectTexture('fluffy', this)" style="cursor: pointer; padding: var(--space-4); text-align: center; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div style="font-size: 2rem; margin-bottom: 6px;">☁️</div>
+                        <h4 style="font-size: 0.95rem; color: #FFFFFF; margin-bottom: 2px;">Fluffy</h4>
+                        <p class="text-muted" style="font-size: 0.72rem; margin: 0;">Light sponges & cakes</p>
+                    </div>
                 </div>
+                <input type="hidden" id="texture" value="creamy">
             </div>
-        </div>
 
-        <!-- Q4: Calorie Goal -->
-        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 180ms;">
-            <div class="card-body">
-                <p class="form-label">Daily dessert calorie budget? 🍩</p>
-                <select class="form-input" id="calorie-goal">
-                    <option value="300">Light — under 300 cal/day</option>
-                    <option value="500" selected>Balanced — under 500 cal/day</option>
-                    <option value="800">Flexible — under 800 cal/day</option>
-                    <option value="2000">No limit — I'm here for taste!</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Q5: Favorite Flavors -->
-        <div class="card mb-6 animate-fade-in-up" style="border: 1px solid var(--cream-border); animation-delay: 240ms;">
-            <div class="card-body">
-                <p class="form-label">Pick your favorite flavors 🎨</p>
-                <div class="flex flex-wrap gap-2">
-                    {% for flavor in ['Chocolate', 'Mango', 'Pistachio', 'Cardamom', 'Coconut', 'Banana', 'Saffron', 'Rose'] %}
-                    <label class="form-check" style="padding: var(--space-2) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.85rem;">
-                        <input type="checkbox" value="{{ flavor.lower() }}" class="flavor-check"> {{ flavor }}
+            <!-- STEP 3: ALLERGIES -->
+            <div class="quiz-step animate-fade-in hidden" id="quiz-step-3">
+                <p class="text-label mb-3" style="font-size: 0.75rem; text-align: center;">Tap any allergens to strictly filter out:</p>
+                <div class="flex flex-wrap gap-2 justify-center mb-4">
+                    {% for allergen, icon in [('nuts', '🥜 Nuts'), ('dairy', '🥛 Dairy'), ('gluten', '🌾 Gluten'), ('eggs', '🥚 Eggs'), ('soy', '🫘 Soy')] %}
+                    <label class="choice-pill" onclick="toggleCheckbox(this)" style="cursor: pointer; padding: 10px 18px; border-radius: 9999px; background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.1); font-weight: 600; font-size: 0.85rem; color: #CBD5E1; transition: all 0.2s ease;">
+                        <input type="checkbox" value="{{ allergen }}" class="allergy-check" style="display: none;">
+                        <span>{{ icon }}</span>
                     </label>
                     {% endfor %}
                 </div>
             </div>
-        </div>
 
-        <button type="submit" class="btn btn-primary btn-block btn-lg" id="save-btn">
-            Save My Flavor DNA 🧬
+            <!-- STEP 4: CALORIE GOAL -->
+            <div class="quiz-step animate-fade-in hidden" id="quiz-step-4">
+                <div class="flex flex-col gap-3 mb-4">
+                    <label class="card choice-card" onclick="selectCalorie(300, this)" style="cursor: pointer; padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div>
+                            <h4 style="font-size: 0.95rem; color: #FFFFFF; margin: 0;">🌿 Light Budget</h4>
+                            <p class="text-muted" style="font-size: 0.75rem; margin: 0;">Under 300 kcal / day</p>
+                        </div>
+                        <span class="soft-tag" style="color: var(--pista-light);">&lt; 300 kcal</span>
+                    </label>
+
+                    <label class="card choice-card active" onclick="selectCalorie(500, this)" style="cursor: pointer; padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; border: 1.5px solid var(--jamun); background: rgba(139, 92, 246, 0.12); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div>
+                            <h4 style="font-size: 0.95rem; color: #FFFFFF; margin: 0;">⚖️ Balanced Healthy</h4>
+                            <p class="text-muted" style="font-size: 0.75rem; margin: 0;">Under 500 kcal / day (Popular)</p>
+                        </div>
+                        <span class="soft-tag" style="color: var(--honey-light);">&lt; 500 kcal</span>
+                    </label>
+
+                    <label class="card choice-card" onclick="selectCalorie(800, this)" style="cursor: pointer; padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div>
+                            <h4 style="font-size: 0.95rem; color: #FFFFFF; margin: 0;">💪 Flexible Fitness</h4>
+                            <p class="text-muted" style="font-size: 0.75rem; margin: 0;">Under 800 kcal / day</p>
+                        </div>
+                        <span class="soft-tag" style="color: var(--jamun-light);">&lt; 800 kcal</span>
+                    </label>
+
+                    <label class="card choice-card" onclick="selectCalorie(2000, this)" style="cursor: pointer; padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; border: 1.5px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-xl); transition: all 0.2s ease;">
+                        <div>
+                            <h4 style="font-size: 0.95rem; color: #FFFFFF; margin: 0;">👑 Pure Taste Explorer</h4>
+                            <p class="text-muted" style="font-size: 0.75rem; margin: 0;">No limit, prioritize rich texture & flavor</p>
+                        </div>
+                        <span class="soft-tag">Any</span>
+                    </label>
+                </div>
+                <input type="hidden" id="calorie-goal" value="500">
+            </div>
+
+            <!-- STEP 5: FAVORITE FLAVORS -->
+            <div class="quiz-step animate-fade-in hidden" id="quiz-step-5">
+                <p class="text-label mb-3" style="font-size: 0.75rem; text-align: center;">Pick your favorite flavor notes:</p>
+                <div class="flex flex-wrap gap-2 justify-center mb-4">
+                    {% for flavor, emoji in [('chocolate', '🍫 Dark Cocoa'), ('mango', '🥭 Alphonso Mango'), ('pistachio', '🟢 Roasted Pista'), ('cardamom', '🌿 Elaichi / Cardamom'), ('coconut', '🥥 Tender Coconut'), ('banana', '🍌 Banana Walnut'), ('saffron', '✨ Royal Kesar'), ('rose', '🌹 Rose Petal')] %}
+                    <label class="choice-pill" onclick="toggleCheckbox(this)" style="cursor: pointer; padding: 10px 16px; border-radius: 9999px; background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.1); font-weight: 600; font-size: 0.82rem; color: #CBD5E1; transition: all 0.2s ease;">
+                        <input type="checkbox" value="{{ flavor }}" class="flavor-check" style="display: none;">
+                        <span>{{ emoji }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bottom Step Navigation Buttons -->
+    <div class="flex gap-3 mt-6 pt-4" style="border-top: 1px solid var(--border-subtle);">
+        <button type="button" class="btn btn-outline btn-block" id="prev-btn" onclick="prevStep()" style="font-weight: 700; border-radius: 9999px;">
+            ← Back
         </button>
-    </form>
+        <button type="button" class="btn btn-primary btn-block btn-lg" id="next-btn" onclick="nextStep()" style="font-weight: 700; border-radius: 9999px;">
+            Next Step →
+        </button>
+        <button type="button" class="btn btn-primary btn-block btn-lg hidden" id="save-btn" onclick="saveOnboarding(event)" style="font-weight: 700; border-radius: 9999px;">
+            Generate My Flavor DNA 🧬
+        </button>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+let currentStep = 1;
+const TOTAL_STEPS = 5;
+
+const STEP_INFO = {
+    1: { icon: '🧬', title: "What's your dessert vibe?", subtitle: "We tailor AI recipe modifications and recommendations to your taste.", label: "Flavor Vibe" },
+    2: { icon: '🤤', title: "Preferred dessert texture?", subtitle: "Select your favorite mouthfeel for cakes, mousses, and sweets.", label: "Texture" },
+    3: { icon: '🛡️', title: "Any allergies or dietary filters?", subtitle: "Our AI Chef and home bakers strictly follow your dietary safeguards.", label: "Safeguards" },
+    4: { icon: '🎯', title: "Daily dessert calorie target?", subtitle: "We track your macros and keep your sweet tooth on point.", label: "Calorie Goal" },
+    5: { icon: '🎨', title: "Pick your signature flavor palette", subtitle: "Select the taste profiles you crave the most.", label: "Palette" },
+};
+
+function handleBackAction() {
+    if (currentStep > 1) {
+        prevStep();
+    } else {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = '/app/profile';
+        }
+    }
+}
+
+function updateStepUI() {
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const el = document.getElementById(`quiz-step-${i}`);
+        if (el) {
+            if (i === currentStep) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        }
+    }
+
+    const info = STEP_INFO[currentStep];
+    document.getElementById('quiz-header-icon').textContent = info.icon;
+    document.getElementById('quiz-header-title').textContent = info.title;
+    document.getElementById('quiz-header-subtitle').textContent = info.subtitle;
+    document.getElementById('step-title-small').textContent = info.label;
+    document.getElementById('step-counter').textContent = `Step ${currentStep} of ${TOTAL_STEPS}`;
+    document.getElementById('quiz-progress-fill').style.width = `${(currentStep / TOTAL_STEPS) * 100}%`;
+
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const topBackLabel = document.getElementById('top-back-label');
+
+    if (currentStep === 1) {
+        prevBtn.textContent = '← Exit';
+        topBackLabel.textContent = 'Back';
+    } else {
+        prevBtn.textContent = '← Back';
+        topBackLabel.textContent = `Step ${currentStep - 1}`;
+    }
+
+    if (currentStep === TOTAL_STEPS) {
+        nextBtn.classList.add('hidden');
+        saveBtn.classList.remove('hidden');
+    } else {
+        nextBtn.classList.remove('hidden');
+        saveBtn.classList.add('hidden');
+    }
+}
+
+function nextStep() {
+    if (currentStep < TOTAL_STEPS) {
+        currentStep++;
+        updateStepUI();
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStepUI();
+    } else {
+        handleBackAction();
+    }
+}
+
+function selectVibe(vibe, el) {
+    document.querySelectorAll('#quiz-step-1 .choice-card').forEach(c => {
+        c.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        c.style.background = 'rgba(255, 255, 255, 0.03)';
+    });
+    el.style.borderColor = 'var(--jamun)';
+    el.style.background = 'rgba(139, 92, 246, 0.12)';
+    el.querySelector('input').checked = true;
+}
+
+function selectTexture(texture, el) {
+    document.querySelectorAll('#quiz-step-2 .choice-card').forEach(c => {
+        c.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        c.style.background = 'rgba(255, 255, 255, 0.03)';
+    });
+    el.style.borderColor = 'var(--jamun)';
+    el.style.background = 'rgba(139, 92, 246, 0.12)';
+    document.getElementById('texture').value = texture;
+}
+
+function selectCalorie(cal, el) {
+    document.querySelectorAll('#quiz-step-4 .choice-card').forEach(c => {
+        c.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        c.style.background = 'rgba(255, 255, 255, 0.03)';
+    });
+    el.style.borderColor = 'var(--jamun)';
+    el.style.background = 'rgba(139, 92, 246, 0.12)';
+    document.getElementById('calorie-goal').value = cal;
+}
+
+function toggleCheckbox(el) {
+    const cb = el.querySelector('input');
+    cb.checked = !cb.checked;
+    if (cb.checked) {
+        el.style.borderColor = 'var(--honey)';
+        el.style.background = 'rgba(245, 158, 11, 0.15)';
+        el.style.color = '#FFFFFF';
+    } else {
+        el.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        el.style.background = 'rgba(255, 255, 255, 0.05)';
+        el.style.color = '#CBD5E1';
+    }
+}
+
 async function saveOnboarding(e) {
-    e.preventDefault();
+    e?.preventDefault();
     const btn = document.getElementById('save-btn');
-    btn.textContent = 'Saving...';
+    btn.textContent = 'Formulating Flavor DNA...';
     btn.disabled = true;
 
     const allergies = Array.from(document.querySelectorAll('.allergy-check:checked')).map(c => c.value);
@@ -128,18 +311,19 @@ async function saveOnboarding(e) {
         });
 
         if (res.ok) {
-            showToast('Flavor DNA saved! 🧬');
+            showToast('🧬 Flavor DNA Profile Saved! Welcome to Cravin 🎉', 'success', 4000);
             setTimeout(() => window.location.href = '/app/', 1000);
         } else {
             showToast('Failed to save. Please try again.', 'danger');
-            btn.textContent = 'Save My Flavor DNA 🧬';
+            btn.textContent = 'Generate My Flavor DNA 🧬';
             btn.disabled = false;
         }
     } catch (err) {
-        showToast('Connection error', 'danger');
-        btn.textContent = 'Save My Flavor DNA 🧬';
+        showToast('Connection error. Please try again.', 'danger');
+        btn.textContent = 'Generate My Flavor DNA 🧬';
         btn.disabled = false;
     }
 }
 </script>
 {% endblock %}
+

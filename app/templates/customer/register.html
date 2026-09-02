@@ -1,40 +1,44 @@
 {% extends "base.html" %}
-{% block title %}Create Account{% endblock %}
+{% block title %}Create Account — Cravin{% endblock %}
 
 {% block content %}
-<div class="page-content" style="padding-top: var(--space-8);">
-    <div class="text-center mb-6">
-        <h1>Join Crav<span style="color: var(--honey);">in</span> 🎉</h1>
-        <p class="text-subtitle">Desserts that love you back</p>
-    </div>
-
-    <form id="register-form" onsubmit="handleRegister(event)">
-        <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input type="text" class="form-input" id="full_name" placeholder="Your name" required>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Phone (optional)</label>
-            <input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" id="password" placeholder="Min 6 characters" required minlength="6">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Referral Code (optional)</label>
-            <input type="text" class="form-input" id="referral" placeholder="CRAVXXXXXX">
+<div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 90vh; padding-top: var(--space-4); padding-bottom: var(--space-6);">
+    <div class="card p-6 animate-fade-in-up" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); box-shadow: 0 16px 40px rgba(0,0,0,0.5);">
+        <div class="text-center mb-6">
+            <h1 style="font-size: 1.8rem; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">Join Crav<span style="color: var(--honey-light);">in</span> 🎉</h1>
+            <p class="text-subtitle" style="font-size: 0.88rem; margin: 0;">Clean, zero-sugar desserts baked with love in Goa</p>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block btn-lg" id="register-btn">Create Account</button>
-    </form>
+        <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="form-group mb-3">
+                <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #CBD5E1;">Full Name</label>
+                <input type="text" class="form-input" id="full_name" placeholder="e.g. Maya Fernandes" required>
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #CBD5E1;">Email Address</label>
+                <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #CBD5E1;">Phone Number (optional)</label>
+                <input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210">
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #CBD5E1;">Password</label>
+                <input type="password" class="form-input" id="password" placeholder="Minimum 6 characters" required minlength="6">
+            </div>
+            <div class="form-group mb-5">
+                <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #CBD5E1;">Referral Code (optional)</label>
+                <input type="text" class="form-input" id="referral" placeholder="e.g. CRAV123456" style="text-transform: uppercase;">
+            </div>
 
-    <div class="text-center mt-6">
-        <p class="text-muted">Already have an account? <a href="/app/login" style="font-weight: 600;">Sign in</a></p>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="register-btn" style="font-weight: 700; font-size: 1rem; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);">
+                Create Account & Unlock Flavor DNA →
+            </button>
+        </form>
+
+        <div class="text-center mt-5">
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0;">Already have an account? <a href="/app/login" style="font-weight: 700; color: var(--honey-light);">Sign in</a></p>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -44,7 +48,7 @@
 async function handleRegister(e) {
     e.preventDefault();
     const btn = document.getElementById('register-btn');
-    btn.textContent = 'Creating account...';
+    btn.textContent = 'Setting up account...';
     btn.disabled = true;
 
     try {
@@ -61,22 +65,25 @@ async function handleRegister(e) {
         const data = await res.json();
 
         if (res.ok) {
-            // Apply referral code if provided
             const referral = document.getElementById('referral').value.trim();
             if (referral) {
                 await fetch(`/api/auth/referral/${referral}`, {method: 'POST'});
             }
-            window.location.href = '/app/onboarding';
+            showToast('Account created! Taking you to Flavor DNA quiz 🧬', 'success');
+            setTimeout(() => {
+                window.location.href = '/app/onboarding';
+            }, 600);
         } else {
             showToast(data.detail || 'Registration failed', 'danger');
-            btn.textContent = 'Create Account';
+            btn.textContent = 'Create Account & Unlock Flavor DNA →';
             btn.disabled = false;
         }
     } catch (err) {
         showToast('Connection error. Please try again.', 'danger');
-        btn.textContent = 'Create Account';
+        btn.textContent = 'Create Account & Unlock Flavor DNA →';
         btn.disabled = false;
     }
 }
 </script>
 {% endblock %}
+

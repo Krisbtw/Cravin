@@ -2,15 +2,15 @@
 {% block title %}{{ dessert.name }}{% endblock %}
 
 {% block content %}
-<div class="page-content">
+<div class="page-content" style="padding-bottom: 120px;">
     <!-- Back & Cart button -->
     <div class="top-bar">
-        <a href="/app/" class="btn btn-ghost btn-sm">← Back</a>
+        <a href="/app/" class="btn btn-ghost btn-sm" style="padding: 4px 8px;">← Back</a>
         <div class="flex items-center gap-2">
             <span class="tag tag-{{ dessert.tag }}">
                 {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
             </span>
-            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;">
                 <span>🛒 Cart</span>
                 <span class="cart-badge badge badge-jamun" style="display: none; font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 99px;">0</span>
             </a>
@@ -26,23 +26,39 @@
         {% endif %}
         
         <!-- Scrim -->
-        <div class="img-scrim" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(11, 15, 23, 0.88) 100%); pointer-events: none;"></div>
+        <div class="img-scrim" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(11, 15, 23, 0.90) 100%); pointer-events: none;"></div>
         
         <!-- Bottom left badge -->
         <div style="position: absolute; bottom: 16px; left: 16px; z-index: 2;">
-            <span class="tag tag-{{ dessert.tag }}" style="backdrop-filter: blur(8px); font-size: 0.75rem; font-weight: 700;">
+            <span class="tag tag-{{ dessert.tag }}" style="backdrop-filter: blur(12px); font-size: 0.75rem; font-weight: 700; border-width: 1.5px;">
                 {% if dessert.tag == 'light' %}🌿 Light Category{% elif dessert.tag == 'heavy' %}🍫 Heavy Indulgence{% else %}⚖️ Balanced Energy{% endif %}
             </span>
         </div>
     </div>
 
     <!-- Title & Price -->
-    <h1 style="font-size: 1.6rem; font-weight: 800; color: #FFFFFF; margin-bottom: var(--space-2);">{{ dessert.name }}</h1>
-    <p class="text-subtitle mb-4" style="color: var(--text-secondary); line-height: 1.5;">{{ dessert.description }}</p>
+    <h1 style="font-size: 1.65rem; font-weight: 800; color: #FFFFFF; margin-bottom: var(--space-2);">{{ dessert.name }}</h1>
+    <p class="text-subtitle mb-4" style="color: var(--text-secondary); line-height: 1.55;">{{ dessert.description }}</p>
 
-    <div class="flex items-center justify-between mb-6">
-        <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
-        <span class="text-muted" style="font-size: 0.85rem;">{{ dessert.serving_size_g|int }}g per serving</span>
+    <div class="flex items-center justify-between mb-5">
+        <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+        <span class="text-muted" style="font-size: 0.85rem; font-weight: 600;">⚖️ {{ dessert.serving_size_g|int }}g per serving</span>
+    </div>
+
+    <!-- Comparative Macro vs Traditional Dessert Card -->
+    <div class="macro-compare-card mb-6 animate-fade-in-up">
+        <div class="flex items-center justify-between mb-1">
+            <span style="font-size: 0.82rem; font-weight: 700; color: var(--pista-light); display: flex; align-items: center; gap: 4px;">
+                ⚡ Clean Nutrition Edge
+            </span>
+            <span style="font-size: 0.72rem; color: var(--pista); font-weight: 700;">60% Less Calories</span>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px;">
+            Compared to traditional sugary bakery items (~{{ (dessert.calories * 2.3)|int }} kcal), Cravin uses 100% Monk Fruit & zero maida.
+        </p>
+        <div class="macro-compare-track">
+            <div class="macro-compare-fill" style="width: 42%;"></div>
+        </div>
     </div>
 
     <!-- Nutrition Panel (NEVER buried!) -->
@@ -55,33 +71,33 @@
                 <span class="text-muted" style="font-size: 0.78rem;">{{ dessert.serving_size_g|int }}g serving</span>
             </div>
 
-            <!-- 4 clean mini-stat cards inside a grid -->
+            <!-- 4 clean mini-stat cards inside a grid with signature glows -->
             <div class="macro-stat-grid mb-4">
-                <div class="mini-stat-card">
-                    <div class="stat-number">{{ dessert.calories|int }}</div>
+                <div class="mini-stat-card" style="border-color: rgba(245, 158, 11, 0.25); background: rgba(245, 158, 11, 0.05);">
+                    <div class="stat-number" style="color: var(--honey-light);">{{ dessert.calories|int }}</div>
                     <div class="stat-label">CALORIES</div>
                 </div>
-                <div class="mini-stat-card">
-                    <div class="stat-number">{{ dessert.protein_g|round(1) }}g</div>
+                <div class="mini-stat-card" style="border-color: rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.05);">
+                    <div class="stat-number" style="color: var(--pista-light);">{{ dessert.protein_g|round(1) }}g</div>
                     <div class="stat-label">PROTEIN</div>
                 </div>
-                <div class="mini-stat-card">
-                    <div class="stat-number">{{ dessert.carbs_g|round(1) }}g</div>
+                <div class="mini-stat-card" style="border-color: rgba(139, 92, 246, 0.25); background: rgba(139, 92, 246, 0.05);">
+                    <div class="stat-number" style="color: var(--jamun-light);">{{ dessert.carbs_g|round(1) }}g</div>
                     <div class="stat-label">CARBS</div>
                 </div>
-                <div class="mini-stat-card">
+                <div class="mini-stat-card" style="border-color: rgba(255, 255, 255, 0.12);">
                     <div class="stat-number">{{ dessert.fat_g|round(1) }}g</div>
                     <div class="stat-label">FAT</div>
                 </div>
             </div>
 
             <div class="nutrition-row" style="border-bottom: 1px solid var(--border-subtle);">
-                <span class="label">Fiber</span>
+                <span class="label">Dietary Fiber</span>
                 <span class="value">{{ dessert.fiber_g|round(1) }}g</span>
             </div>
             <div class="nutrition-row" style="border-bottom: 1px solid var(--border-subtle);">
-                <span class="label">Sugar equivalent</span>
-                <span class="value" style="color: var(--pista);">0g Added Sugar ({{ dessert.sugar_equivalent_g|round(1) }}g eq)</span>
+                <span class="label">Added Sugar</span>
+                <span class="value" style="color: var(--pista-light);">0g Added ({{ dessert.sugar_equivalent_g|round(1) }}g eq)</span>
             </div>
 
             {% if dessert.allergens %}
@@ -103,10 +119,10 @@
 
     <!-- Ingredients -->
     <div class="mb-6">
-        <h3 class="mb-3">🥣 Ingredients</h3>
+        <h3 class="mb-3" style="font-size: 1.05rem; color: #FFFFFF;">🥣 Wholesome Ingredients</h3>
         <div style="display: flex; flex-wrap: wrap; gap: var(--space-2);">
             {% for ing in dessert.base_ingredients %}
-            <span style="padding: var(--space-1) var(--space-3); background: var(--malai-deep); border-radius: var(--radius-full); font-size: 0.8rem;">
+            <span style="padding: 6px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); border-radius: var(--radius-full); font-size: 0.8rem; color: var(--text-secondary);">
                 {{ ing.name }} ({{ ing.quantity_g|int }}g)
             </span>
             {% endfor %}
@@ -114,17 +130,23 @@
     </div>
 
     {% if baker %}
-    <!-- Baker Story -->
-    <div class="card mb-6" style="border: 1px solid var(--cream-border);">
-        <div class="card-body flex items-center gap-4">
-            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--jamun-bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🧑‍🍳</div>
-            <div>
-                <h4 style="font-size: 0.95rem;">{{ baker.business_name or baker.name }}</h4>
-                <div class="flex items-center gap-2">
-                    <span style="color: var(--honey);">⭐ {{ baker.avg_rating }}</span>
-                    <span class="text-muted" style="font-size: 0.8rem;">· {{ baker.total_orders }} orders</span>
+    <!-- Baker Story & Trust -->
+    <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
+        <div class="card-body flex items-center justify-between" style="padding: var(--space-4) var(--space-5);">
+            <div class="flex items-center gap-3">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--jamun), var(--honey)); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">🧑‍🍳</div>
+                <div>
+                    <span class="text-label" style="font-size: 0.65rem; color: var(--honey-light);">VERIFIED HOME BAKER</span>
+                    <h4 style="font-size: 0.95rem; margin-top: 1px; color: #FFFFFF;">{{ baker.business_name or baker.name }}</h4>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span style="color: var(--honey-light); font-size: 0.78rem; font-weight: 700;">⭐ {{ baker.avg_rating }}</span>
+                        <span class="text-muted" style="font-size: 0.75rem;">· {{ baker.total_orders }} orders baked</span>
+                    </div>
                 </div>
             </div>
+            <span class="soft-tag" style="background: rgba(16, 185, 129, 0.12); color: var(--pista-light); font-size: 0.7rem; font-weight: 700;">
+                📍 Fresh in Goa
+            </span>
         </div>
     </div>
     {% endif %}
@@ -132,36 +154,28 @@
     <!-- Health disclaimer -->
     <div class="disclaimer mb-6">
         <span>⚕️</span>
-        <span>Nutrition values are calculated from our ingredient database and may vary slightly. This is for general reference only, not medical advice.</span>
+        <span>Nutrition values are calculated from our ingredient database and may vary slightly. 100% diabetic & health-conscious friendly.</span>
     </div>
+</div>
 
-    <!-- Action Buttons -->
-    <div class="flex flex-col gap-3" style="padding-bottom: var(--space-8);">
-        <button class="btn btn-primary btn-block btn-lg" onclick="addToCart()">
+<!-- Sticky Mobile Action Bar -->
+<div class="sticky-bottom-action">
+    <div class="container" style="padding: 0; display: flex; gap: 10px;">
+        <button class="btn btn-primary" style="flex: 1; font-weight: 700; font-size: 0.95rem;" onclick="addToCart()">
             Add to Cart — ₹{{ dessert.price|int }}
         </button>
         {% if user %}
-        <a href="/app/customizer/{{ dessert.id }}" class="btn btn-secondary btn-block btn-lg">
-            ✨ Customize with AI
+        <a href="/app/customizer/{{ dessert.id }}" class="btn btn-secondary" style="padding: 0 18px; font-weight: 700; font-size: 0.92rem; white-space: nowrap;">
+            ✨ AI Studio
         </a>
         {% else %}
-        <a href="/app/login" class="btn btn-outline btn-block">Sign in to customize</a>
+        <a href="/app/login" class="btn btn-outline" style="padding: 0 16px; font-size: 0.85rem;">Sign in</a>
         {% endif %}
     </div>
 </div>
 {% endblock %}
 
-{% block nav %}
-<nav class="bottom-nav">
-    <a href="/app/"><span class="nav-icon">🏠</span><span>Home</span></a>
-    <a href="/app/orders"><span class="nav-icon">📦</span><span>Orders</span></a>
-    <a href="/app/cart" style="position: relative;"><span class="nav-icon">🛒</span><span>Cart</span>
-        <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none;">0</span>
-    </a>
-    <a href="/app/rewards"><span class="nav-icon">🏆</span><span>Rewards</span></a>
-    <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
-</nav>
-{% endblock %}
+{% block nav %}{% endblock %}
 
 {% block extra_js %}
 <script>
@@ -173,7 +187,8 @@ function addToCart() {
         calories: {{ dessert.calories }},
         quantity: 1,
     });
-    showToast('Added to cart! 🛒');
+    showToast('✨ Added <strong>{{ dessert.name }}</strong> to your cart! <a href="/app/cart" style="color: var(--honey-light); font-weight: 700; text-decoration: underline; margin-left: 8px;">View Cart 🛒 →</a>');
 }
 </script>
 {% endblock %}
+

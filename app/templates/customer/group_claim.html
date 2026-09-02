@@ -1,40 +1,40 @@
 {% extends "base.html" %}
-{% block title %}Claim Group Portion{% endblock %}
+{% block title %}Claim Group Portion — Cravin{% endblock %}
 
 {% block content %}
-<div class="page-content">
+<div class="page-content" style="padding-bottom: 80px;">
     <div class="top-bar flex items-center justify-between mb-4">
         <a href="/app/" class="btn btn-ghost btn-sm" style="padding-left: 0;">← Home</a>
-        <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.75rem;">👥 Group Calorie Claim</span>
+        <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.75rem; font-weight: 700;">👥 Group Calorie Claim</span>
     </div>
 
     <!-- Group Order Info Card -->
-    <div class="card mb-4" style="border: 1px solid var(--border-default); background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), var(--bg-surface)); border-radius: var(--radius-lg);">
-        <div class="card-body" style="padding: var(--space-4);">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary);">Shared Group Order</div>
-            <h2 style="font-size: 1.25rem; margin: 4px 0 6px 0; color: white;">#{{ order.order_number }}</h2>
-            <p class="text-muted" style="font-size: 0.82rem; margin-bottom: 0;">
+    <div class="card mb-5 animate-fade-in-up" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+        <div class="card-body" style="padding: var(--space-5);">
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--honey-light); font-weight: 700;">Shared Party Order</div>
+            <h2 style="font-size: 1.35rem; margin: 4px 0 6px 0; color: #FFFFFF; font-weight: 800;">#{{ order.order_number }}</h2>
+            <p class="text-muted" style="font-size: 0.84rem; margin-bottom: 0;">
                 Log only what you personally ate from this group order directly into your Cravin daily nutrition tracker!
             </p>
         </div>
     </div>
 
     <!-- Items to Claim -->
-    <div class="mb-4">
-        <h3 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--text-secondary);">Select Your Portions:</h3>
+    <div class="mb-5">
+        <h3 style="font-size: 1.05rem; margin-bottom: 12px; color: #FFFFFF; font-weight: 700;">Select What You Ate:</h3>
 
         {% for item in order.items %}
-        <div class="card mb-3 animate-fade-in-up" style="border: 1px solid var(--border-default); background: var(--bg-surface); border-radius: var(--radius-md);">
-            <div class="card-body" style="padding: var(--space-4);">
+        <div class="card mb-4 animate-fade-in-up" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+            <div class="card-body" style="padding: var(--space-5);">
                 <div class="flex items-start justify-between gap-3 mb-2">
                     <div>
-                        <h4 style="font-size: 1rem; margin-bottom: 2px;">{{ item.dessert.name if item.dessert else 'Dessert' }}</h4>
+                        <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; color: #FFFFFF;">{{ item.dessert.name if item.dessert else 'Dessert' }}</h4>
                         <div class="flex items-center gap-2 text-xs text-muted">
-                            <span style="color: var(--honey); font-weight: 700;">{{ item.calories_per_unit|int }} cal/piece</span>
+                            <span style="color: var(--honey-light); font-weight: 700;">{{ item.calories_per_unit|int }} cal/pc</span>
                             {% if item.dessert and item.dessert.protein_g %}
                             <span>• {{ item.dessert.protein_g|round(1) }}g protein</span>
                             {% endif %}
-                            <span class="tag tag-sugar-free" style="font-size: 0.6rem; padding: 1px 5px;">0g Sugar</span>
+                            <span class="soft-tag" style="background: rgba(16, 185, 129, 0.12); color: var(--pista-light); font-size: 0.65rem; padding: 2px 6px;">0g Sugar</span>
                         </div>
                     </div>
                     <span class="text-muted" style="font-size: 0.75rem;">Total ordered: {{ item.quantity }}</span>
@@ -42,19 +42,19 @@
 
                 <div class="flex items-center justify-between pt-3 mt-2" style="border-top: 1px dashed var(--border-subtle);">
                     <div>
-                        <div style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600;">How many did you eat?</div>
-                        <div id="item-cal-{{ item.id }}" style="font-size: 0.75rem; color: var(--pista); font-weight: 700;">
+                        <div style="font-size: 0.8rem; color: #CBD5E1; font-weight: 600;">Portion eaten:</div>
+                        <div id="item-cal-{{ item.id }}" style="font-size: 0.8rem; color: var(--pista-light); font-weight: 800;">
                             {{ item.calories_per_unit|int }} cal
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" class="btn btn-ghost btn-sm" onclick="changeClaimQty('{{ item.id }}', {{ item.calories_per_unit }}, -1, {{ item.quantity }})" style="min-height: 28px; padding: 2px 8px; font-size: 0.85rem;">−</button>
-                        <span id="claim-qty-{{ item.id }}" style="font-weight: 700; min-width: 24px; text-align: center; color: var(--pista); font-size: 1rem;">1</span>
-                        <button type="button" class="btn btn-ghost btn-sm" onclick="changeClaimQty('{{ item.id }}', {{ item.calories_per_unit }}, 1, {{ item.quantity }})" style="min-height: 28px; padding: 2px 8px; font-size: 0.85rem;">+</button>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="changeClaimQty('{{ item.id }}', {{ item.calories_per_unit }}, -1, {{ item.quantity }})" style="min-height: 32px; width: 32px; padding: 0; border-radius: 50%; background: rgba(255,255,255,0.06);">−</button>
+                        <span id="claim-qty-{{ item.id }}" style="font-weight: 800; min-width: 24px; text-align: center; color: var(--pista-light); font-size: 1.05rem;">1</span>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="changeClaimQty('{{ item.id }}', {{ item.calories_per_unit }}, 1, {{ item.quantity }})" style="min-height: 32px; width: 32px; padding: 0; border-radius: 50%; background: rgba(255,255,255,0.06);">+</button>
                     </div>
                 </div>
 
-                <button type="button" id="claim-btn-{{ item.id }}" class="btn btn-primary btn-block btn-sm mt-3" onclick="claimPortion('{{ item.id }}')" style="font-weight: 700; font-size: 0.82rem; border-radius: var(--radius-sm);">
+                <button type="button" id="claim-btn-{{ item.id }}" class="btn btn-primary btn-block btn-md mt-4" onclick="claimPortion('{{ item.id }}')" style="font-weight: 700; font-size: 0.9rem;">
                     🥗 Log to My Daily Nutrition
                 </button>
             </div>
@@ -64,7 +64,7 @@
 
     <!-- Quick Navigation -->
     <div class="text-center mt-6">
-        <a href="/app/" class="btn btn-ghost btn-sm text-muted">Browse Cravin Healthy Menu →</a>
+        <a href="/app/" class="btn btn-ghost btn-sm text-muted">Browse Full Cravin Menu →</a>
     </div>
 </div>
 {% endblock %}
@@ -86,7 +86,7 @@ async function claimPortion(itemId) {
     const btn = document.getElementById(`claim-btn-${itemId}`);
     const qty = claimState[itemId] || 1;
     
-    btn.textContent = 'Logging...';
+    btn.textContent = 'Logging intake...';
     btn.disabled = true;
 
     try {
@@ -104,8 +104,8 @@ async function claimPortion(itemId) {
         if (res.ok) {
             btn.textContent = '✅ Logged to Your Daily Tracker!';
             btn.style.background = 'rgba(16, 185, 129, 0.2)';
-            btn.style.borderColor = 'var(--pista)';
-            btn.style.color = 'var(--pista)';
+            btn.style.borderColor = 'var(--pista-light)';
+            btn.style.color = 'var(--pista-light)';
             showToast(data.message || 'Calories added to your daily log! 🥗', 'success');
         } else {
             if (res.status === 401) {
@@ -125,3 +125,4 @@ async function claimPortion(itemId) {
 }
 </script>
 {% endblock %}
+

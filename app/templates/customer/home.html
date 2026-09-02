@@ -1,80 +1,259 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ── High-End Search Overlay Styling ── */
+    #search-overlay {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: #080C14 !important;
+        z-index: 999999 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+    #search-overlay.hidden {
+        display: none !important;
+    }
+    .search-overlay-inner {
+        width: 100% !important;
+        max-width: 420px !important;
+        height: 100% !important;
+        margin: 0 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background: #080C14 !important;
+        position: relative !important;
+    }
+    .search-overlay-header {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 14px 16px !important;
+        background: rgba(15, 21, 35, 0.98) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        flex-shrink: 0 !important;
+    }
+    .search-back-btn {
+        width: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #FFFFFF !important;
+        font-size: 1.2rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+        transition: all 0.2s ease !important;
+    }
+    .search-back-btn:hover {
+        background: rgba(255, 255, 255, 0.14) !important;
+        color: var(--honey-light) !important;
+    }
+    .search-input-wrap {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1.5px solid rgba(139, 92, 246, 0.3) !important;
+        border-radius: 9999px !important;
+        padding: 8px 16px !important;
+        transition: all 0.2s ease !important;
+    }
+    .search-input-wrap:focus-within {
+        border-color: var(--jamun) !important;
+        background: rgba(139, 92, 246, 0.08) !important;
+        box-shadow: 0 0 16px rgba(139, 92, 246, 0.3) !important;
+    }
+    #overlay-search-input {
+        flex: 1 !important;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: #FFFFFF !important;
+        font-size: 0.92rem !important;
+        font-family: inherit !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+    }
+    #overlay-search-input::placeholder {
+        color: #94A3B8 !important;
+        font-size: 0.86rem !important;
+    }
+    .search-overlay-body {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding: 16px !important;
+        padding-bottom: 96px !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .search-trend-chip {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 8px 16px !important;
+        border-radius: 9999px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #E2E8F0 !important;
+        font-size: 0.84rem !important;
+        font-weight: 600 !important;
+        font-family: inherit !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        box-shadow: none !important;
+        outline: none !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+    }
+    .search-trend-chip:hover, .search-trend-chip:active {
+        background: rgba(139, 92, 246, 0.2) !important;
+        border-color: var(--jamun) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px) !important;
+    }
+    .suggestion-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 12px 14px !important;
+        border-radius: 16px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        margin-bottom: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        color: inherit !important;
+        text-decoration: none !important;
+    }
+    .suggestion-item:hover, .suggestion-item:active {
+        background: rgba(139, 92, 246, 0.12) !important;
+        border-color: rgba(139, 92, 246, 0.35) !important;
+        transform: translateX(2px) !important;
+    }
+    .search-result-card {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 12px !important;
+        border-radius: 18px !important;
+        background: rgba(17, 23, 34, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        margin-bottom: 12px !important;
+        text-decoration: none !important;
+        color: inherit !important;
+        transition: all 0.15s ease !important;
+    }
+    .search-result-card:hover {
+        border-color: rgba(139, 92, 246, 0.35) !important;
+        background: rgba(17, 23, 34, 0.95) !important;
+        transform: translateY(-1px) !important;
+    }
+    .search-result-img {
+        width: 72px !important;
+        height: 72px !important;
+        border-radius: 14px !important;
+        object-fit: cover !important;
+        flex-shrink: 0 !important;
+        background: #161E30 !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-content">
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="logo">Crav<span style="color: var(--honey);">in</span></div>
         <div class="flex items-center gap-2">
-            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px;">
-                <span>🛒 View Cart</span>
+            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 9999px;">
+                <span>🛒 Cart</span>
                 <span class="cart-badge badge badge-jamun" style="display: none; font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 99px;">0</span>
             </a>
             {% if user %}
-            <a href="/app/profile" class="btn btn-ghost btn-icon" title="Profile">👤</a>
+            <a href="/app/profile" class="btn btn-ghost btn-icon" title="Profile" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">👤</a>
             {% else %}
-            <a href="/app/login" class="btn btn-outline btn-sm">Sign In</a>
+            <a href="/app/login" class="btn btn-outline btn-sm" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 9999px;">Sign In</a>
             {% endif %}
         </div>
     </div>
 
-    <!-- Hero Section (Frosted Glassmorphism Banner) -->
-    <div class="hero-glass mb-6 animate-fade-in-up">
+    <!-- Food Search Trigger Bar (Opens Dedicated Search View) -->
+    <div class="search-container mb-4 animate-fade-in-up" onclick="openSearchOverlay()" style="cursor: pointer;">
+        <div class="search-box" style="pointer-events: none; border-radius: 9999px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.08); padding: 10px 16px;">
+            <span class="search-icon" style="font-size: 1rem; color: var(--text-tertiary);">🔍</span>
+            <span style="color: #94A3B8; font-size: 0.86rem; flex: 1;">Search chocolate, gulab jamun, keto cake...</span>
+            <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px;">Search</span>
+        </div>
+    </div>
+
+    <!-- Hero Section (Clean Minimalist Banner) -->
+    <div class="hero-glass mb-4 animate-fade-in-up" style="padding: var(--space-4) var(--space-5); border-radius: var(--radius-2xl);">
         <div style="position: relative; z-index: 1;">
-            <p class="text-label mb-2" style="color: var(--honey-light); font-weight: 700; letter-spacing: 0.1em;">ZERO SUGAR · ZERO MAIDA</p>
-            <h1 class="text-display mb-2" style="font-size: 1.85rem; font-weight: 800; color: #FFFFFF;">Desserts that love you back 🍰</h1>
-            <p class="text-subtitle mb-4" style="color: var(--text-secondary); max-width: 90%;">AI-customized, nutrition-tracked, fresh from verified home bakers near you.</p>
+            <span class="badge mb-2" id="hero-greeting-tag" style="background: rgba(245, 158, 11, 0.12); color: var(--honey-light); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;">ZERO SUGAR · ZERO MAIDA</span>
+            <h1 class="text-display mb-1" id="hero-heading" style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; line-height: 1.2;">Desserts that love you back 🍰</h1>
+            <p class="text-muted mb-3" id="hero-subtext" style="font-size: 0.82rem; line-height: 1.4;">Freshly baked in Goa with 100% Monk Fruit & certified home kitchens.</p>
+            
             {% if not user %}
-            <a href="/app/register" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700;">Start Your Flavor Journey</a>
+            <a href="/app/register" class="btn btn-primary btn-sm" style="padding: 8px 18px; font-weight: 700; font-size: 0.82rem; border-radius: 9999px;">Start Flavor Journey →</a>
             {% elif not user.onboarding_complete %}
-            <a href="/app/onboarding" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700;">Take the Flavor DNA Quiz 🧬</a>
+            <a href="/app/onboarding" class="btn btn-primary btn-sm" style="padding: 8px 18px; font-weight: 700; font-size: 0.82rem; border-radius: 9999px;">Take Flavor DNA Quiz 🧬</a>
             {% endif %}
         </div>
-        <div style="position: absolute; right: -15px; bottom: -15px; font-size: 5.5rem; opacity: 0.12; pointer-events: none;">🍩</div>
     </div>
 
-    <!-- Tag Filters (Frosted Glass Pills) -->
+    <!-- Tag Filters (Sticky Frosted Glass Pills with Live Counts) -->
     <style>
+        .filter-sticky-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(8, 12, 20, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 8px 0;
+            margin-bottom: 1rem;
+        }
         .filter-container {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            gap: 0.4rem;
             overflow-x: auto;
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
         .filter-btn {
-            padding: 0.45rem 1.15rem;
+            padding: 0.4rem 0.95rem;
             border-radius: 9999px;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
             outline: none !important;
-            -webkit-tap-highlight-color: transparent;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.3rem;
             white-space: nowrap;
-            user-select: none;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: #CBD5E1;
-            border: 1px solid rgba(255, 255, 255, 0.10);
-            border-top: 1px solid rgba(255, 255, 255, 0.16);
-        }
-        .filter-btn:focus, .filter-btn:active, .filter-btn:visited {
-            outline: none !important;
-            box-shadow: none;
+            background: rgba(255, 255, 255, 0.04);
+            color: #94A3B8;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .filter-btn:hover {
-            background: rgba(255, 255, 255, 0.10);
-            border-color: rgba(255, 255, 255, 0.20);
+            background: rgba(255, 255, 255, 0.08);
             color: #FFFFFF;
-            transform: translateY(-1px);
         }
 
         /* Active Filter Pill States */
@@ -82,96 +261,117 @@
             background: #8B5CF6 !important;
             color: #FFFFFF !important;
             border-color: #8B5CF6 !important;
-            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.45);
         }
         .filter-btn[data-tag="light"].active {
             background: #10B981 !important;
             color: #FFFFFF !important;
             border-color: #10B981 !important;
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
         }
         .filter-btn[data-tag="balanced"].active {
             background: #F59E0B !important;
             color: #020617 !important;
             font-weight: 700;
             border-color: #F59E0B !important;
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45);
         }
         .filter-btn[data-tag="heavy"].active {
             background: #A855F7 !important;
             color: #FFFFFF !important;
             border-color: #A855F7 !important;
-            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.45);
         }
     </style>
 
-    <div class="filter-container">
-        <button type="button" class="filter-btn active" data-tag="all" onclick="filterDesserts('all', this)">All</button>
-        <button type="button" class="filter-btn" data-tag="light" onclick="filterDesserts('light', this)">🌿 Light</button>
-        <button type="button" class="filter-btn" data-tag="balanced" onclick="filterDesserts('balanced', this)">⚖️ Balanced</button>
-        <button type="button" class="filter-btn" data-tag="heavy" onclick="filterDesserts('heavy', this)">🍫 Heavy</button>
+    <div class="filter-sticky-wrapper">
+        <div class="filter-container">
+            <button type="button" class="filter-btn active" data-tag="all" onclick="filterDesserts('all', this)">
+                All <span class="filter-count" id="count-all">({{ desserts|length }})</span>
+            </button>
+            <button type="button" class="filter-btn" data-tag="light" onclick="filterDesserts('light', this)">
+                🌿 Light <span class="filter-count" id="count-light"></span>
+            </button>
+            <button type="button" class="filter-btn" data-tag="balanced" onclick="filterDesserts('balanced', this)">
+                ⚖️ Balanced <span class="filter-count" id="count-balanced"></span>
+            </button>
+            <button type="button" class="filter-btn" data-tag="heavy" onclick="filterDesserts('heavy', this)">
+                🍫 Heavy <span class="filter-count" id="count-heavy"></span>
+            </button>
+        </div>
     </div>
 
     {% if recommended %}
     <!-- AI Recommendations Section -->
-    <div class="mb-6">
+    <div class="mb-5">
         <div class="flex items-center justify-between mb-3">
-            <h3 style="font-size: 1.1rem; font-weight: 700;">✨ Recommended For You</h3>
-            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--honey-dark); font-size: 0.7rem; border: 1px solid rgba(245, 158, 11, 0.3);">AI Powered</span>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #FFFFFF;">✨ Recommended For You</h3>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: var(--honey-light); font-size: 0.68rem;">AI Match</span>
         </div>
-        <div style="display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-2); scroll-snap-type: x mandatory;">
+        <div class="no-scrollbar horizontal-carousel" style="display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;">
             {% for dessert in recommended %}
-            <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card" style="min-width: 200px; max-width: 200px; flex-shrink: 0; scroll-snap-align: start;">
-                <div class="card-img-container" style="height: 110px; width: 100%; position: relative; background: #18202F;">
+            <div class="card dessert-card" style="min-width: 190px; max-width: 190px; flex-shrink: 0; scroll-snap-align: start; border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-subtle);">
+                <div class="card-img-container" style="height: 110px; width: 100%; position: relative; background: #161E30;">
                     {% if dessert.image_url %}
                     <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
                     {% else %}
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">🍰</div>
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">🍰</div>
                     {% endif %}
                     <div class="img-scrim"></div>
-                    <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 8px; left: 8px; font-size: 0.65rem; padding: 2px 6px; z-index: 2; backdrop-filter: blur(8px);">
+                    <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 6px; left: 6px; font-size: 0.62rem; padding: 2px 6px; z-index: 2;">
                         {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
                     </span>
+                    <!-- Quick Add Button -->
+                    <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
+                            onclick="event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
+                        +
+                    </button>
                 </div>
-                <div style="padding: var(--space-3);">
-                    <h5 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
-                    <div class="flex items-center justify-between" style="font-size: 0.8rem;">
-                        <span class="price" style="font-weight: 700; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
-                        <span class="calories" style="color: var(--text-secondary);">{{ dessert.calories|int }} cal</span>
+                <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit; padding: var(--space-3); display: block;">
+                    <h5 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
+                    <div class="flex items-center justify-between" style="font-size: 0.78rem;">
+                        <span style="font-weight: 700; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+                        <span class="text-muted">{{ dessert.calories|int }} cal</span>
                     </div>
-                </div>
-            </a>
+                </a>
+            </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
 
-    <h2 class="mb-4" style="color: #FFFFFF; font-size: 1.35rem; font-weight: 800;">Our Signature Menu</h2>
-    <div class="grid-2 stagger" id="dessert-grid">
+    <h2 class="mb-4" style="color: #FFFFFF; font-size: 1.25rem; font-weight: 800;">Our Signature Menu</h2>
+    <div class="grid-2 stagger mb-6" id="dessert-grid" style="gap: var(--space-4);">
         {% for dessert in desserts %}
-        <a href="/app/dessert/{{ dessert.id }}" class="card dessert-card" data-tag="{{ dessert.tag }}">
-            <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #18202F;">
+        <div class="card dessert-card" data-tag="{{ dessert.tag }}" style="border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
+            <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #161E30;">
                 {% if dessert.image_url %}
                 <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
                 {% else %}
-                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem;">🍰</div>
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🍰</div>
                 {% endif %}
                 
                 <div class="img-scrim"></div>
 
-                <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 10px; left: 10px; z-index: 2; backdrop-filter: blur(8px); font-size: 0.7rem;">
+                <span class="tag tag-{{ dessert.tag }}" style="position: absolute; top: 8px; left: 8px; z-index: 2; font-size: 0.65rem; padding: 2px 6px;">
                     {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
                 </span>
+
+                <!-- Quick Add Button -->
+                <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
+                        onclick="event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
+                    +
+                </button>
             </div>
-            <div class="card-body" style="padding: var(--space-4);">
-                <h4 style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; margin-bottom: var(--space-1);">{{ dessert.name }}</h4>
-                <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: var(--space-3); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ dessert.short_description }}</p>
-                <div class="flex items-center justify-between">
-                    <span class="price" style="font-size: 1.05rem; font-weight: 800; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
-                    <span class="calories" style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">{{ dessert.calories|int }} cal</span>
+            <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit; padding: var(--space-3); display: block;">
+                <h4 style="font-size: 0.9rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">{{ dessert.name }}</h4>
+                <div class="flex items-center gap-2 text-xs text-muted mb-2">
+                    <span style="color: var(--pista-light); font-weight: 600;">{{ dessert.protein_g|round(1) }}g protein</span>
+                    <span>·</span>
+                    <span>0g sugar</span>
                 </div>
-            </div>
-        </a>
+                <div class="flex items-center justify-between">
+                    <span style="font-size: 0.98rem; font-weight: 800; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
+                    <span style="font-size: 0.76rem; font-weight: 600; color: var(--text-tertiary);">{{ dessert.calories|int }} cal</span>
+                </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
 
@@ -182,6 +382,127 @@
         <p class="text-muted">Run <code>python seed.py</code> to load our signature desserts.</p>
     </div>
     {% endif %}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DEDICATED FULL-SCREEN SEARCH VIEW (Swiggy / UberEats Style)    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="search-overlay" class="search-overlay hidden">
+    <div class="search-overlay-inner">
+        <!-- Search Header -->
+        <div class="search-overlay-header">
+            <button type="button" onclick="closeSearchOverlay()" class="search-back-btn" aria-label="Go Back">
+                ←
+            </button>
+            <div class="search-input-wrap">
+                <span style="font-size: 1rem; color: var(--text-tertiary); user-select: none;">🔍</span>
+                <input type="text" id="overlay-search-input" 
+                       placeholder="Search treats, ingredients, keto..." 
+                       oninput="onSearchInput(this.value)" 
+                       onkeydown="if(event.key === 'Enter') submitSearch(this.value)"
+                       autocomplete="off"
+                       aria-label="Search treats">
+                <button type="button" id="overlay-clear-btn" onclick="clearOverlaySearch()" class="clear-search-btn" style="display: none;">✕</button>
+            </div>
+        </div>
+
+    <!-- Search Body -->
+    <div class="search-overlay-body">
+        <!-- 1. Discovery & Trending State (When search is empty) -->
+        <div id="search-discovery-state">
+            <!-- Recent Searches -->
+            <div id="recent-searches-container" class="mb-5 hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size: 0.76rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em;">Recent Searches</span>
+                    <button type="button" onclick="clearRecentSearches()" style="background: none; border: none; color: var(--jamun-light); font-size: 0.74rem; font-weight: 600; cursor: pointer;">Clear All</button>
+                </div>
+                <div class="flex flex-wrap gap-2" id="recent-chips-list"></div>
+            </div>
+
+            <!-- Popular Cravings -->
+            <div class="mb-5">
+                <span style="display: block; font-size: 0.76rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px;">🔥 Popular Clean Cravings</span>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="search-trend-chip" onclick="submitSearch('Gulab Jamun')">🍯 Gulab Jamun</button>
+                    <button type="button" class="search-trend-chip" onclick="submitSearch('Chocolate Lava')">🍫 Chocolate Lava</button>
+                    <button type="button" class="search-trend-chip" onclick="submitSearch('Cheesecake')">🥭 Mango Cheesecake</button>
+                    <button type="button" class="search-trend-chip" onclick="submitSearch('Millet Kheer')">🥥 Millet Kheer</button>
+                    <button type="button" class="search-trend-chip" onclick="submitSearch('Protein')">💪 High Protein</button>
+                    <button type="button" class="search-trend-chip" onclick="submitSearch('Keto')">🌿 Keto & Low Carb</button>
+                </div>
+            </div>
+
+            <!-- Quick Macro Categories -->
+            <div>
+                <span style="display: block; font-size: 0.76rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px;">⚡ Quick Filter Categories</span>
+                <div class="flex flex-col gap-2">
+                    <div class="suggestion-item" onclick="submitSearch('light')">
+                        <div class="flex items-center gap-3">
+                            <span style="font-size: 1.3rem;">🌿</span>
+                            <div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #FFFFFF;">Light Treats</div>
+                                <div style="font-size: 0.74rem; color: var(--text-secondary);">Under 200 kcal · Refreshing & guilt-free</div>
+                            </div>
+                        </div>
+                        <span style="color: var(--text-tertiary); font-size: 0.9rem;">›</span>
+                    </div>
+
+                    <div class="suggestion-item" onclick="submitSearch('balanced')">
+                        <div class="flex items-center gap-3">
+                            <span style="font-size: 1.3rem;">⚖️</span>
+                            <div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #FFFFFF;">Balanced Macro Sweets</div>
+                                <div style="font-size: 0.74rem; color: var(--text-secondary);">Optimal protein & energy balance</div>
+                            </div>
+                        </div>
+                        <span style="color: var(--text-tertiary); font-size: 0.9rem;">›</span>
+                    </div>
+
+                    <div class="suggestion-item" onclick="submitSearch('heavy')">
+                        <div class="flex items-center gap-3">
+                            <span style="font-size: 1.3rem;">🍫</span>
+                            <div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #FFFFFF;">Rich & Decadent</div>
+                                <div style="font-size: 0.74rem; color: var(--text-secondary);">Dense chocolate fudge, nutty richness</div>
+                            </div>
+                        </div>
+                        <span style="color: var(--text-tertiary); font-size: 0.9rem;">›</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Live Typeahead Suggestions (While typing) -->
+        <div id="search-suggestions-state" class="hidden">
+            <div style="font-size: 0.76rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px;">Matching Suggestions</div>
+            <div id="suggestions-list"></div>
+        </div>
+
+        <!-- 3. Dedicated Results UI (When search is submitted or suggestion clicked) -->
+        <div id="search-results-state" class="hidden">
+            <div class="flex items-center justify-between mb-4 pb-2" style="border-bottom: 1px solid var(--border-subtle);">
+                <div>
+                    <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em;">Results for</span>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: #FFFFFF; margin: 0;" id="results-query-title">"gulab jamun"</h3>
+                </div>
+                <span class="badge" id="results-count-badge" style="background: rgba(139, 92, 246, 0.15); color: var(--jamun-light); font-size: 0.72rem; font-weight: 700;">1 found</span>
+            </div>
+
+            <!-- Results Cards Container -->
+            <div id="results-list"></div>
+
+            <!-- AI Studio Fallback Prompt -->
+            <div id="results-ai-prompt" class="card text-center p-5 mt-4" style="background: rgba(139, 92, 246, 0.08); border: 1.5px dashed rgba(139, 92, 246, 0.3); border-radius: var(--radius-xl);">
+                <div style="font-size: 2.2rem; margin-bottom: 6px;">✨</div>
+                <h4 style="font-size: 0.98rem; font-weight: 800; color: #FFFFFF; margin-bottom: 2px;">Crave something unique?</h4>
+                <p class="text-muted mb-3" style="font-size: 0.78rem;" id="results-ai-prompt-text">Have our AI Chef custom-craft this recipe to your exact macros.</p>
+                <button type="button" class="btn btn-primary btn-sm" onclick="openAIWithQuery()" style="border-radius: 9999px; font-size: 0.82rem; font-weight: 700; padding: 8px 18px;">
+                    ✨ Create in AI Culinary Studio →
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 {% endblock %}
 
@@ -213,17 +534,76 @@
 
 {% block extra_js %}
 <script>
-    function filterDesserts(tag, btn) {
-        // 1. Single-select: toggle active class across all filter buttons
-        document.querySelectorAll('.filter-btn').forEach(b => {
-            b.classList.remove('active');
-        });
-        if (btn) {
-            btn.classList.add('active');
+    // 1. Dessert Dataset for Instant Client-Side Search
+    const ALL_DESSERTS = [
+        {% for d in desserts %}
+        {
+            id: "{{ d.id }}",
+            name: "{{ d.name|replace('\"', '\\\"') }}",
+            price: {{ d.price|int }},
+            calories: {{ d.calories|int }},
+            protein: {{ d.protein_g|round(1) }},
+            tag: "{{ d.tag }}",
+            imageUrl: "{{ d.image_url or '' }}",
+            description: "{{ (d.short_description or '')|replace('\"', '\\\"') }}",
+            ingredients: "{{ (d.base_ingredients or '')|replace('\"', '\\\"') }}"
+        },
+        {% endfor %}
+    ];
+
+    let currentOverlayQuery = '';
+
+    // 2. Dynamic Time-of-Day Greeting
+    document.addEventListener('DOMContentLoaded', () => {
+        const hour = new Date().getHours();
+        const heading = document.getElementById('hero-heading');
+        const subtext = document.getElementById('hero-subtext');
+        const tag = document.getElementById('hero-greeting-tag');
+
+        if (heading && subtext) {
+            if (hour >= 5 && hour < 12) {
+                tag.textContent = '☀️ GOOD MORNING · CLEAN SWEET START';
+                heading.textContent = 'Guilt-Free Morning Fuel 🥞';
+                subtext.textContent = 'High protein, zero maida, natural sweetness to power your morning.';
+            } else if (hour >= 12 && hour < 17) {
+                tag.textContent = '🥗 MIDDAY INDULGENCE · ZERO SUGAR CRASH';
+                heading.textContent = 'Afternoon Treats Without the Slump 🍰';
+                subtext.textContent = 'Clean-crafted desserts by verified Goa home bakers. 100% Monk Fruit sweetness.';
+            } else if (hour >= 17 && hour < 22) {
+                tag.textContent = '🌆 EVENING REWARD · ZERO ADDED SUGAR';
+                heading.textContent = 'Desserts that love you back 🍰';
+                subtext.textContent = 'AI-customized, nutrition-tracked, fresh from verified home kitchens in Goa.';
+            } else {
+                tag.textContent = '🌙 LATE NIGHT CRAVING · GUILT-FREE';
+                heading.textContent = 'Midnight Sweet Tooth Satisfied 🍫';
+                subtext.textContent = 'Pure rich flavor, keto-friendly carbs, zero sugar rush before bedtime.';
+            }
         }
 
-        // 2. Filter dessert cards
-        document.querySelectorAll('.dessert-card').forEach(card => {
+        // Count items per tag
+        const cards = document.querySelectorAll('#dessert-grid .dessert-card');
+        let light = 0, balanced = 0, heavy = 0;
+        cards.forEach(c => {
+            const t = c.dataset.tag;
+            if (t === 'light') light++;
+            else if (t === 'balanced') balanced++;
+            else if (t === 'heavy') heavy++;
+        });
+
+        const lightEl = document.getElementById('count-light');
+        const balEl = document.getElementById('count-balanced');
+        const heavyEl = document.getElementById('count-heavy');
+        if (lightEl) lightEl.textContent = `(${light})`;
+        if (balEl) balEl.textContent = `(${balanced})`;
+        if (heavyEl) heavyEl.textContent = `(${heavy})`;
+    });
+
+    // 3. Category Filter on Home Screen
+    function filterDesserts(tag, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        document.querySelectorAll('#dessert-grid .dessert-card').forEach(card => {
             if (tag === 'all' || card.dataset.tag === tag) {
                 card.style.display = '';
                 card.style.animation = 'fadeInUp 0.3s ease';
@@ -231,6 +611,269 @@
                 card.style.display = 'none';
             }
         });
+    }
+
+    // 4. Dedicated Search Overlay Logic
+    function openSearchOverlay() {
+        const overlay = document.getElementById('search-overlay');
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        const input = document.getElementById('overlay-search-input');
+        input.value = '';
+        currentOverlayQuery = '';
+        renderRecentSearches();
+        showDiscoveryState();
+        setTimeout(() => input.focus(), 50);
+    }
+
+    function closeSearchOverlay() {
+        const overlay = document.getElementById('search-overlay');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function clearOverlaySearch() {
+        const input = document.getElementById('overlay-search-input');
+        input.value = '';
+        currentOverlayQuery = '';
+        document.getElementById('overlay-clear-btn').style.display = 'none';
+        showDiscoveryState();
+        input.focus();
+    }
+
+    function showDiscoveryState() {
+        document.getElementById('search-discovery-state').classList.remove('hidden');
+        document.getElementById('search-suggestions-state').classList.add('hidden');
+        document.getElementById('search-results-state').classList.add('hidden');
+    }
+
+    function onSearchInput(val) {
+        const query = (val || '').trim().toLowerCase();
+        currentOverlayQuery = query;
+        const clearBtn = document.getElementById('overlay-clear-btn');
+        clearBtn.style.display = query ? 'flex' : 'none';
+
+        if (!query) {
+            showDiscoveryState();
+            return;
+        }
+
+        // Switch to Suggestions State
+        document.getElementById('search-discovery-state').classList.add('hidden');
+        document.getElementById('search-suggestions-state').classList.remove('hidden');
+        document.getElementById('search-results-state').classList.add('hidden');
+
+        renderSuggestions(query);
+    }
+
+    function renderSuggestions(query) {
+        const list = document.getElementById('suggestions-list');
+        const matches = ALL_DESSERTS.filter(d => 
+            d.name.toLowerCase().includes(query) ||
+            d.description.toLowerCase().includes(query) ||
+            d.ingredients.toLowerCase().includes(query) ||
+            d.tag.toLowerCase().includes(query)
+        );
+
+        if (matches.length === 0) {
+            list.innerHTML = `
+                <div class="suggestion-item" onclick="submitSearch('${escapeHtml(query)}')">
+                    <div class="flex items-center gap-3">
+                        <span style="font-size: 1.1rem;">🔍</span>
+                        <div>
+                            <div style="font-size: 0.88rem; font-weight: 700; color: #FFFFFF;">Search for "${escapeHtml(query)}"</div>
+                            <div style="font-size: 0.74rem; color: var(--text-secondary);">Custom bake or find similar healthy items</div>
+                        </div>
+                    </div>
+                    <span style="color: var(--jamun-light); font-size: 0.8rem; font-weight: 700;">Explore ›</span>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="suggestion-item" onclick="submitSearch('${escapeHtml(query)}')" style="background: rgba(139, 92, 246, 0.08); border-color: rgba(139, 92, 246, 0.25);">
+                <div class="flex items-center gap-3">
+                    <span style="font-size: 1.1rem;">🔍</span>
+                    <div>
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #FFFFFF;">See all results for "${escapeHtml(query)}"</div>
+                        <div style="font-size: 0.74rem; color: var(--jamun-light); font-weight: 600;">${matches.length} healthy treats matching</div>
+                    </div>
+                </div>
+                <span style="color: var(--jamun-light); font-size: 0.8rem; font-weight: 700;">View All ›</span>
+            </div>
+        `;
+
+        matches.slice(0, 5).forEach(item => {
+            const tagEmoji = item.tag === 'light' ? '🌿 Light' : (item.tag === 'heavy' ? '🍫 Heavy' : '⚖️ Balanced');
+            html += `
+                <div class="suggestion-item" onclick="submitSearch('${escapeHtml(item.name)}')">
+                    <div class="flex items-center gap-3" style="min-width: 0; flex: 1;">
+                        <span style="font-size: 1.2rem; flex-shrink: 0;">🍰</span>
+                        <div style="min-width: 0; flex: 1;">
+                            <div style="font-size: 0.88rem; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${highlightMatch(item.name, query)}</div>
+                            <div style="font-size: 0.74rem; color: var(--text-secondary);">₹${item.price} · ${item.calories} cal · <span style="color: var(--pista-light);">${tagEmoji}</span></div>
+                        </div>
+                    </div>
+                    <span style="color: var(--text-tertiary); font-size: 0.9rem; flex-shrink: 0; margin-left: 8px;">›</span>
+                </div>
+            `;
+        });
+
+        list.innerHTML = html;
+    }
+
+    // 5. Submit Search & Display Results UI
+    function submitSearch(query) {
+        if (!query) return;
+        query = query.trim();
+        const input = document.getElementById('overlay-search-input');
+        input.value = query;
+        currentOverlayQuery = query.toLowerCase();
+        document.getElementById('overlay-clear-btn').style.display = 'flex';
+
+        saveRecentSearch(query);
+
+        // Switch to Results State
+        document.getElementById('search-discovery-state').classList.add('hidden');
+        document.getElementById('search-suggestions-state').classList.add('hidden');
+        document.getElementById('search-results-state').classList.remove('hidden');
+
+        document.getElementById('results-query-title').textContent = `"${query}"`;
+
+        const q = query.toLowerCase();
+        const results = ALL_DESSERTS.filter(d => 
+            d.name.toLowerCase().includes(q) ||
+            d.description.toLowerCase().includes(q) ||
+            d.ingredients.toLowerCase().includes(q) ||
+            d.tag.toLowerCase() === q ||
+            (q.includes('protein') && d.protein >= 8) ||
+            (q.includes('keto') && d.calories <= 300)
+        );
+
+        const countBadge = document.getElementById('results-count-badge');
+        countBadge.textContent = `${results.length} found`;
+
+        const resultsList = document.getElementById('results-list');
+        const aiPrompt = document.getElementById('results-ai-prompt');
+        const aiPromptText = document.getElementById('results-ai-prompt-text');
+
+        if (results.length === 0) {
+            resultsList.innerHTML = `
+                <div class="card text-center p-6 mb-4" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl);">
+                    <div style="font-size: 2.8rem; margin-bottom: 8px;">🧁</div>
+                    <h4 style="font-size: 1.05rem; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">No standard recipe found</h4>
+                    <p class="text-muted" style="font-size: 0.8rem; margin: 0;">We don't have "${escapeHtml(query)}" in our instant menu, but our AI Chef can bake it!</p>
+                </div>
+            `;
+            aiPrompt.classList.remove('hidden');
+            aiPromptText.textContent = `Ask our AI Chef to formulate a zero-sugar "${query}" recipe with exact macros.`;
+        } else {
+            let html = '';
+            results.forEach(d => {
+                const tagColor = d.tag === 'light' ? 'var(--pista-light)' : (d.tag === 'heavy' ? 'var(--jamun-light)' : 'var(--honey-light)');
+                const imgHtml = d.imageUrl 
+                    ? `<img src="${d.imageUrl}" alt="${d.name}" class="search-result-img">`
+                    : `<div class="search-result-img" style="display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">🍰</div>`;
+
+                html += `
+                    <div class="search-result-card">
+                        <a href="/app/dessert/${d.id}" style="display: contents;">
+                            ${imgHtml}
+                            <div style="flex: 1; min-width: 0;">
+                                <h4 style="font-size: 0.92rem; font-weight: 700; color: #FFFFFF; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${d.name}</h4>
+                                <div class="flex items-center gap-2 text-xs mb-2">
+                                    <span style="color: ${tagColor}; font-weight: 600;">${d.calories} cal</span>
+                                    <span style="color: var(--text-tertiary);">·</span>
+                                    <span style="color: var(--pista-light); font-weight: 600;">${d.protein}g protein</span>
+                                </div>
+                                <div style="font-size: 0.95rem; font-weight: 800; color: var(--honey-light);">₹${d.price}</div>
+                            </div>
+                        </a>
+                        <button type="button" class="btn btn-primary" style="padding: 6px 14px; min-height: 36px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;"
+                                onclick="quickAddToCart('${d.id}', '${d.name.replace(/'/g, "\\'")}', ${d.price}, ${d.calories})">
+                            + Add
+                        </button>
+                    </div>
+                `;
+            });
+            resultsList.innerHTML = html;
+            aiPrompt.classList.remove('hidden');
+            aiPromptText.textContent = `Want to tweak "${query}" with more protein, less calories, or vegan milk?`;
+        }
+    }
+
+    // 6. Recent Searches LocalStorage
+    function getRecentSearches() {
+        try {
+            return JSON.parse(localStorage.getItem('cravin_recent_searches') || '[]');
+        } catch {
+            return [];
+        }
+    }
+
+    function saveRecentSearch(query) {
+        let list = getRecentSearches();
+        list = list.filter(item => item.toLowerCase() !== query.toLowerCase());
+        list.unshift(query);
+        if (list.length > 6) list = list.slice(0, 6);
+        localStorage.setItem('cravin_recent_searches', JSON.stringify(list));
+    }
+
+    function clearRecentSearches() {
+        localStorage.removeItem('cravin_recent_searches');
+        renderRecentSearches();
+    }
+
+    function renderRecentSearches() {
+        const container = document.getElementById('recent-searches-container');
+        const list = document.getElementById('recent-chips-list');
+        const items = getRecentSearches();
+
+        if (items.length === 0) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        container.classList.remove('hidden');
+        list.innerHTML = items.map(q => `
+            <button type="button" class="search-trend-chip" onclick="submitSearch('${escapeHtml(q)}')">
+                <span style="color: var(--text-tertiary); font-size: 0.72rem;">🕒</span> ${escapeHtml(q)}
+            </button>
+        `).join('');
+    }
+
+    function openAIWithQuery() {
+        const q = currentOverlayQuery || 'healthy zero-sugar treat';
+        window.location.href = `/app/customizer?prompt=${encodeURIComponent('I want a clean zero-sugar ' + q)}`;
+    }
+
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        const idx = text.toLowerCase().indexOf(query.toLowerCase());
+        if (idx === -1) return escapeHtml(text);
+        const before = escapeHtml(text.slice(0, idx));
+        const match = escapeHtml(text.slice(idx, idx + query.length));
+        const after = escapeHtml(text.slice(idx + query.length));
+        return `${before}<span style="color: var(--honey-light); text-decoration: underline;">${match}</span>${after}`;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // 7. Quick Add to Cart with Tactile Toast
+    function quickAddToCart(dessertId, name, price, calories) {
+        Cart.add({
+            dessert_id: dessertId,
+            name: name,
+            price: price,
+            calories: calories,
+            quantity: 1,
+        });
+        showToast(`✨ Added <strong>${name}</strong> to your cart! 🛒`);
     }
 </script>
 {% endblock %}

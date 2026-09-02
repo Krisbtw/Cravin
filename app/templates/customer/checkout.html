@@ -2,53 +2,65 @@
 {% block title %}Checkout{% endblock %}
 
 {% block content %}
-<div class="page-content">
+<div class="page-content" style="padding-bottom: 80px;">
     <div class="top-bar">
-        <a href="/app/cart" class="btn btn-ghost btn-sm">← Cart</a>
-        <h2 style="font-size: 1.3rem;">Checkout</h2>
+        <a href="/app/cart" class="btn btn-ghost btn-sm" style="padding: 4px 8px;">← Cart</a>
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF;">Checkout</h2>
         <div></div>
+    </div>
+
+    <!-- Step Progress Header -->
+    <div class="checkout-stepper mb-5">
+        <div class="checkout-step-pill active" id="step-pill-1">
+            <span>📍</span> <span>1. Location</span>
+        </div>
+        <div class="checkout-step-pill active" id="step-pill-2">
+            <span>🧑‍🍳</span> <span>2. Baker</span>
+        </div>
+        <div class="checkout-step-pill" id="step-pill-3">
+            <span>💳</span> <span>3. Payment</span>
+        </div>
     </div>
 
     <form id="checkout-form" onsubmit="placeOrder(event)">
         <!-- 1. Delivery Location & Coordinates -->
-        <div id="delivery-fields">
-            <div class="form-group">
-                <div class="flex items-center justify-between mb-1">
-                    <label class="form-label mb-0">📍 Delivery Area / Address</label>
-                    <button type="button" class="btn btn-ghost btn-sm" onclick="detectGPSLocation()" style="font-size: 0.75rem; color: var(--jamun); padding: 2px 6px;">
+        <div id="delivery-fields" class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+            <div class="card-body" style="padding: var(--space-5);">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="form-label mb-0" style="font-size: 0.92rem; font-weight: 700; color: #FFFFFF; text-transform: none; letter-spacing: 0;">📍 Delivery Destination</span>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="detectGPSLocation()" style="font-size: 0.75rem; color: var(--jamun-light); padding: 3px 8px; border-radius: 9999px; background: rgba(139, 92, 246, 0.1);">
                         🎯 Detect GPS
                     </button>
                 </div>
                 <!-- Area quick selector for testing & convenience -->
-                <select class="form-input mb-2" id="area-preset" onchange="onAreaChange(this.value)">
-                    <option value="panjim" selected>Panjim (Panaji), North Goa (Default)</option>
+                <select class="form-input mb-3" id="area-preset" onchange="onAreaChange(this.value)">
+                    <option value="panjim" selected>Panjim (Panaji), North Goa</option>
                     <option value="margao">Margao (Madgaon), South Goa</option>
                     <option value="ponda">Ponda, Central Goa</option>
-                    <option value="custom">Custom Address Coordinates</option>
+                    <option value="custom">Custom GPS Coordinates</option>
                 </select>
-                <textarea class="form-input" id="address" rows="2" placeholder="Street, Flat / House No., Landmark">{{ user.get('address', '') if user and user.get('address') else 'MG Road, Panjim, Goa' }}</textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">📝 Delivery Notes (optional)</label>
-                <input type="text" class="form-input" id="notes" placeholder="e.g., Ring bell twice, leave with security">
+                <textarea class="form-input mb-3" id="address" rows="2" placeholder="Street, Flat / House No., Landmark">{{ user.get('address', '') if user and user.get('address') else 'MG Road, Panjim, Goa' }}</textarea>
+                
+                <input type="text" class="form-input" id="notes" placeholder="📝 Delivery instructions (e.g. Ring bell, leave at door)">
             </div>
         </div>
 
         <!-- 2. Choose Your Baker Section -->
-        <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
-            <div class="card-body">
+        <div class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+            <div class="card-body" style="padding: var(--space-5);">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">🧑‍🍳 Choose Your Baker</h3>
-                        <p class="text-muted" style="font-size: 0.8rem;" id="baker-section-subtitle">Matching top certified home bakers near your address in Goa</p>
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">🧑‍🍳 Match Your Home Baker</h3>
+                        <p class="text-muted" style="font-size: 0.78rem; margin: 0;" id="baker-section-subtitle">Matching certified home bakers near your address in Goa</p>
                     </div>
-                    <span class="badge badge-jamun" id="baker-match-count" style="font-size: 0.75rem;">Loading...</span>
+                    <span class="badge badge-jamun" id="baker-match-count" style="font-size: 0.72rem; padding: 2px 8px;">Matching...</span>
                 </div>
 
                 <!-- Baker Cards Container -->
                 <div id="baker-selection-list" class="flex flex-col gap-3">
                     <div class="text-center p-4 text-muted" style="font-size: 0.85rem;">
-                        Finding nearby certified bakers...
+                        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 0 auto 8px auto;"></div>
+                        Matching nearby certified bakers...
                     </div>
                 </div>
 
@@ -60,36 +72,38 @@
         </div>
 
         <!-- 3. Payment Method -->
-        <div class="form-group mb-6">
-            <label class="form-label" style="font-weight: 600; font-size: 0.88rem; color: #FFFFFF; margin-bottom: 6px; display: block;">💳 Payment Method</label>
-            <select class="form-input" id="payment-method">
-                <option value="upi">UPI (PhonePe / Google Pay / Paytm)</option>
-                <option value="card">Credit / Debit Card</option>
-                <option value="cod">Cash on Delivery</option>
-            </select>
+        <div class="card mb-5" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+            <div class="card-body" style="padding: var(--space-5);">
+                <label class="form-label" style="font-weight: 700; font-size: 0.95rem; color: #FFFFFF; text-transform: none; margin-bottom: 10px; display: block;">💳 Payment Option</label>
+                <select class="form-input" id="payment-method">
+                    <option value="upi">⚡ UPI Instant (GPay / PhonePe / Paytm)</option>
+                    <option value="card">💳 Credit / Debit Card</option>
+                    <option value="cod">💵 Cash on Delivery</option>
+                </select>
+            </div>
         </div>
 
         <!-- 4. Order Summary -->
-        <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass);">
-            <div class="card-body">
-                <h3 class="mb-3" style="font-size: 1rem; color: #FFFFFF;">Order Summary</h3>
+        <div class="card mb-6" style="border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); border-radius: var(--radius-xl);">
+            <div class="card-body" style="padding: var(--space-5);">
+                <h3 class="mb-3" style="font-size: 1rem; color: #FFFFFF; font-weight: 700;">Order Summary</h3>
                 <div id="checkout-items"></div>
                 <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: var(--space-3) 0;">
                 <div class="nutrition-row"><span class="label">Subtotal</span><span class="value" id="co-subtotal">₹0</span></div>
                 <div class="nutrition-row"><span class="label">Delivery Fee</span><span class="value" id="co-delivery">₹30</span></div>
                 <div class="nutrition-row" style="border-bottom: none; padding-top: 6px;">
-                    <span class="label" style="font-weight: 700; color: #FFFFFF;">Total</span>
-                    <span class="value" style="font-size: 1.25rem; font-weight: 800; color: var(--honey-light);" id="co-total">₹0</span>
+                    <span class="label" style="font-weight: 700; color: #FFFFFF; font-size: 1rem;">Total Due</span>
+                    <span class="value" style="font-size: 1.35rem; font-weight: 800; color: var(--honey-light);" id="co-total">₹0</span>
                 </div>
             </div>
         </div>
 
-        <div class="disclaimer mb-4">
+        <div class="disclaimer mb-5">
             <span>🔒</span>
-            <span>Mock payment for Phase 1. Zero real charges will be made.</span>
+            <span>Zero payment processing risk. Testing mode enabled.</span>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block btn-lg" id="place-order-btn" style="font-weight: 700; font-size: 1rem;">
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="place-order-btn" style="font-weight: 700; font-size: 1.05rem; box-shadow: 0 8px 26px rgba(245, 158, 11, 0.4);">
             Place Order 🎉
         </button>
     </form>
@@ -125,14 +139,14 @@ function detectGPSLocation() {
         showToast('Geolocation is not supported by your browser', 'warning');
         return;
     }
-    showToast('Detecting location...');
+    showToast('Detecting your GPS location...');
     navigator.geolocation.getCurrentPosition(
         (pos) => {
             document.getElementById('delivery-lat').value = pos.coords.latitude;
             document.getElementById('delivery-lng').value = pos.coords.longitude;
             document.getElementById('area-preset').value = 'custom';
             document.getElementById('address').value = `GPS: (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;
-            showToast('Location updated! 📍');
+            showToast('Location detected! 📍');
             fetchMatchingBakers();
         },
         (err) => {
@@ -170,12 +184,12 @@ async function fetchMatchingBakers() {
 
         if (matchingBakers.length === 0) {
             listContainer.innerHTML = `
-                <div class="card p-4 text-center" style="border: 1px dashed var(--danger); background: var(--malai-deep);">
+                <div class="card p-4 text-center" style="border: 1px dashed var(--danger); background: rgba(239, 68, 68, 0.05); border-radius: 16px;">
                     <div style="font-size: 1.8rem; margin-bottom: 6px;">📍</div>
-                    <h4 style="font-size: 0.95rem; margin-bottom: 4px;">No bakers within delivery range</h4>
-                    <p class="text-muted" style="font-size: 0.8rem; margin-bottom: 12px;">No home baker currently covers this exact location in Goa.</p>
+                    <h4 style="font-size: 0.95rem; margin-bottom: 4px; color: #FFFFFF;">No bakers within direct delivery range</h4>
+                    <p class="text-muted" style="font-size: 0.8rem; margin-bottom: 12px;">Switch to Panjim to auto-assign the top certified kitchen.</p>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="onAreaChange('panjim')">
-                        Switch to Panjim / Auto-Assign Nearest
+                        Switch to Panjim Kitchen
                     </button>
                 </div>
             `;
@@ -204,20 +218,21 @@ async function fetchMatchingBakers() {
                 <div class="card baker-choice-card" 
                      id="baker-card-${baker.baker_id}"
                      onclick="selectBaker('${baker.baker_id}')"
-                     style="cursor: pointer; border: 1px solid ${isSelected ? 'var(--jamun)' : 'rgba(255, 255, 255, 0.08)'}; 
-                            background: ${isSelected ? 'rgba(139, 92, 246, 0.12)' : 'rgba(255, 255, 255, 0.02)'}; 
+                     style="position: relative; cursor: pointer; border: 1.5px solid ${isSelected ? 'var(--jamun)' : 'rgba(255, 255, 255, 0.08)'}; 
+                            background: ${isSelected ? 'rgba(139, 92, 246, 0.12)' : 'rgba(255, 255, 255, 0.03)'}; 
                             border-radius: 16px;
+                            box-shadow: ${isSelected ? '0 0 20px rgba(139, 92, 246, 0.25)' : 'none'};
                             transition: all 0.2s ease;">
+                    ${idx === 0 ? '<div class="baker-recommend-ribbon">⭐ Top Recommendation</div>' : ''}
                     <div class="card-body" style="padding: var(--space-4);">
-                        <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center justify-between mb-1" style="${idx === 0 ? 'margin-top: 4px;' : ''}">
                             <div class="flex items-center gap-2">
-                                <span style="font-size: 1.1rem;">👩‍🍳</span>
-                                <span style="font-weight: 700; font-size: 0.95rem; color: #FFFFFF;">${baker.business_name}</span>
-                                ${idx === 0 ? '<span class="soft-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--pista-light); border-color: rgba(16, 185, 129, 0.3); font-size: 0.65rem; font-weight: 700;">TOP MATCH</span>' : ''}
+                                <span style="font-size: 1.2rem;">🧑‍🍳</span>
+                                <span style="font-weight: 700; font-size: 0.98rem; color: #FFFFFF;">${baker.business_name}</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span style="color: var(--honey-light); font-weight: 700; font-size: 0.85rem;">⭐ ${baker.avg_rating}</span>
-                                <div class="baker-radio-indicator" style="width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid ${isSelected ? 'var(--jamun)' : 'rgba(255, 255, 255, 0.2)'}; display: flex; align-items: center; justify-content: center; background: ${isSelected ? 'var(--jamun)' : 'transparent'}; color: white; font-size: 10px;">
+                                <div class="baker-radio-indicator" style="width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid ${isSelected ? 'var(--jamun)' : 'rgba(255, 255, 255, 0.2)'}; display: flex; align-items: center; justify-content: center; background: ${isSelected ? 'var(--jamun)' : 'transparent'}; color: white; font-size: 11px; font-weight: 700;">
                                     ${isSelected ? '✓' : ''}
                                 </div>
                             </div>
@@ -226,7 +241,7 @@ async function fetchMatchingBakers() {
                         <div class="flex items-center gap-3 text-muted mb-2" style="font-size: 0.8rem;">
                             <span>${distanceDisplay}</span>
                             <span>·</span>
-                            <span>⏱️ ~${baker.avg_prep_time_mins} mins prep</span>
+                            <span>⏱️ ~${baker.avg_prep_time_mins} mins bake time</span>
                             ${baker.area ? `<span>·</span><span>${baker.area}</span>` : ''}
                         </div>
 
@@ -248,8 +263,9 @@ async function fetchMatchingBakers() {
 function selectBaker(bakerId) {
     document.getElementById('selected-baker-id').value = bakerId;
     document.querySelectorAll('.baker-choice-card').forEach(el => {
-        el.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-        el.style.background = 'rgba(255, 255, 255, 0.02)';
+        el.style.border = '1.5px solid rgba(255, 255, 255, 0.08)';
+        el.style.background = 'rgba(255, 255, 255, 0.03)';
+        el.style.boxShadow = 'none';
         const radio = el.querySelector('.baker-radio-indicator');
         if (radio) {
             radio.style.border = '1.5px solid rgba(255, 255, 255, 0.2)';
@@ -260,8 +276,9 @@ function selectBaker(bakerId) {
 
     const active = document.getElementById(`baker-card-${bakerId}`);
     if (active) {
-        active.style.border = '1px solid var(--jamun)';
+        active.style.border = '1.5px solid var(--jamun)';
         active.style.background = 'rgba(139, 92, 246, 0.12)';
+        active.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.25)';
         const radio = active.querySelector('.baker-radio-indicator');
         if (radio) {
             radio.style.border = '1.5px solid var(--jamun)';
@@ -335,7 +352,7 @@ async function placeOrder(e) {
         return;
     }
 
-    btn.textContent = 'Placing order...';
+    btn.textContent = 'Securing order with Baker...';
     btn.disabled = true;
 
     const fulfillment = localStorage.getItem('cravin_fulfillment') || 'delivery';
@@ -360,8 +377,6 @@ async function placeOrder(e) {
         payment_method: document.getElementById('payment-method')?.value || 'upi',
     };
 
-    console.log('[Checkout] Submitting order payload:', payload);
-
     try {
         const token = document.cookie.match(/access_token=([^;]+)/)?.[1];
         const headers = {
@@ -382,19 +397,17 @@ async function placeOrder(e) {
             data = await res.json();
         } else {
             const rawText = await res.text();
-            console.error('[Checkout] Non-JSON API Response:', res.status, rawText);
             data = { detail: `Server error (${res.status})` };
         }
 
         if (res.ok) {
             Cart.clear();
             localStorage.removeItem('cravin_is_group_order');
-            showToast('Order placed successfully! 🎉', 'success');
+            showToast('Order confirmed! 🎉 Dispatching recipe to home baker...', 'success');
             setTimeout(() => {
                 window.location.href = `/app/order/${data.order_id}`;
             }, 600);
         } else {
-            console.error('[Checkout] Order placement failed:', res.status, data);
             if (res.status === 401) {
                 showToast('Please log in to complete your order', 'warning');
                 setTimeout(() => window.location.href = '/app/login', 1500);
@@ -405,7 +418,6 @@ async function placeOrder(e) {
             btn.disabled = false;
         }
     } catch (err) {
-        console.error('[Checkout] Exception during placeOrder:', err);
         showToast('Connection error: ' + (err.message || 'Unable to reach checkout service'), 'danger');
         btn.textContent = 'Place Order 🎉';
         btn.disabled = false;
@@ -415,4 +427,5 @@ async function placeOrder(e) {
 document.addEventListener('DOMContentLoaded', renderCheckout);
 </script>
 {% endblock %}
+
 

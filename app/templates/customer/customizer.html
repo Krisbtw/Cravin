@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}AI Customizer — {{ dessert.name }}{% endblock %}
+{% block title %}AI Culinary Studio — {{ dessert.name }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -7,25 +7,66 @@
         display: flex;
         flex-direction: column;
         height: 100vh;
-        max-width: 600px;
+        max-width: 620px;
         margin: 0 auto;
         background: var(--bg-base);
+        position: relative;
     }
     .customizer-header {
-        padding: var(--space-4) var(--space-5);
-        background: var(--bg-surface);
+        padding: var(--space-3) var(--space-4);
+        background: rgba(17, 23, 34, 0.90);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-bottom: 1px solid var(--border-subtle);
         display: flex;
         align-items: center;
         justify-content: space-between;
+        z-index: 20;
     }
     .customizer-header h2 {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         color: var(--text-primary);
+        margin: 0;
     }
+
+    /* Persistent Top Live-Macro HUD */
+    .nutrition-hud {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 8px 12px;
+        background: linear-gradient(180deg, rgba(24, 32, 47, 0.95), rgba(17, 23, 34, 0.95));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 15;
+    }
+    .hud-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .hud-val {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 0.92rem;
+        color: #FFFFFF;
+        transition: all 0.3s ease;
+    }
+    .hud-label {
+        font-size: 0.62rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-tertiary);
+    }
+    .hud-stat.calories .hud-val { color: var(--honey-light); }
+    .hud-stat.protein .hud-val  { color: var(--pista-light); }
+    .hud-stat.sugar .hud-val    { color: var(--jamun-light); }
+
     .quick-chips {
-        padding: var(--space-3) var(--space-4);
-        background: var(--bg-elevated);
+        padding: 8px 12px;
+        background: rgba(11, 15, 23, 0.7);
         border-bottom: 1px solid var(--border-subtle);
         display: flex;
         gap: var(--space-2);
@@ -33,12 +74,12 @@
         scrollbar-width: none;
     }
     .chip {
-        padding: var(--space-2) var(--space-3);
+        padding: 6px 12px;
         border-radius: var(--radius-full);
-        background: var(--bg-overlay);
+        background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-default);
         color: var(--jamun-light);
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         font-weight: 600;
         cursor: pointer;
         white-space: nowrap;
@@ -50,8 +91,10 @@
     .chip:hover {
         background: var(--jamun-bg);
         border-color: var(--jamun);
-        color: var(--text-primary);
+        color: #FFFFFF;
+        transform: translateY(-1px);
     }
+
     .chat-area {
         flex: 1;
         overflow-y: auto;
@@ -66,28 +109,36 @@
         border-radius: var(--radius-lg);
         font-size: 0.92rem;
         line-height: 1.55;
+        animation: bubbleIn 0.3s var(--ease-spring);
     }
     .chat-bubble.ai {
-        background: var(--bg-surface);
-        border: 1px solid var(--border-default);
+        background: rgba(24, 32, 47, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-top: 1px solid rgba(255, 255, 255, 0.18);
         color: var(--text-primary);
         align-self: flex-start;
         border-bottom-left-radius: var(--radius-sm);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
     .chat-bubble.user {
         background: linear-gradient(135deg, var(--jamun-dark), var(--jamun));
         color: #FFFFFF;
         align-self: flex-end;
         border-bottom-right-radius: var(--radius-sm);
-        box-shadow: var(--glow-jamun);
+        box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35);
     }
     .chat-input-bar {
         padding: var(--space-3) var(--space-4);
-        background: var(--bg-surface);
+        background: rgba(17, 23, 34, 0.92);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-top: 1px solid var(--border-subtle);
         display: flex;
         align-items: center;
         gap: var(--space-2);
+        z-index: 20;
     }
     .chat-input-bar input {
         flex: 1;
@@ -96,10 +147,8 @@
         border: 1.5px solid var(--border-default);
         border-radius: var(--radius-full);
         color: var(--text-primary);
-        font-size: 0.95rem;
-    }
-    .chat-input-bar input::placeholder {
-        color: var(--text-tertiary);
+        font-size: 0.92rem;
+        transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
     }
     .chat-input-bar input:focus {
         outline: none;
@@ -110,7 +159,7 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: var(--bg-overlay);
+        background: rgba(255, 255, 255, 0.06);
         border: 1px solid var(--border-default);
         color: var(--honey);
         display: flex;
@@ -123,6 +172,12 @@
     .voice-btn:hover {
         background: var(--honey-bg);
         border-color: var(--honey);
+        transform: scale(1.05);
+    }
+    .voice-btn.listening {
+        background: rgba(245, 158, 11, 0.25);
+        border-color: var(--honey);
+        animation: pulse 1.5s infinite;
     }
     .typing-indicator {
         font-size: 0.82rem;
@@ -139,44 +194,65 @@
 <div class="customizer-page">
     <!-- Header -->
     <div class="customizer-header">
-        <a href="/app/dessert/{{ dessert.id }}" class="btn btn-ghost btn-sm" style="color: var(--text-secondary);">← Back</a>
+        <a href="/app/dessert/{{ dessert.id }}" class="btn btn-ghost btn-sm" style="color: var(--text-secondary); padding: 4px 8px;">← Back</a>
         <div class="text-center">
-            <h2>✨ AI Chef Customizer</h2>
-            <p class="text-muted" style="font-size: 0.75rem; color: var(--text-tertiary);">Talk with AI to modify {{ dessert.name }}</p>
+            <h2>✨ AI Culinary Studio</h2>
+            <p class="text-muted" style="font-size: 0.72rem; color: var(--text-tertiary); margin: 0;">Reformulating {{ dessert.name }}</p>
         </div>
-        <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px;">
-            <span>🛒 Cart</span>
+        <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;">
+            <span>🛒</span>
             <span class="cart-badge badge badge-jamun" style="display: none; font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 99px;">0</span>
         </a>
     </div>
 
+    <!-- Persistent Real-Time Nutrition HUD -->
+    <div class="nutrition-hud">
+        <div class="hud-stat calories">
+            <span class="hud-val" id="hud-cal">{{ dessert.calories|int }} kcal</span>
+            <span class="hud-label">Calories</span>
+        </div>
+        <div class="hud-stat protein">
+            <span class="hud-val" id="hud-protein">{{ dessert.protein_g|round(1) }}g</span>
+            <span class="hud-label">Protein</span>
+        </div>
+        <div class="hud-stat carbs">
+            <span class="hud-val" id="hud-carbs">{{ dessert.carbs_g|round(1) }}g</span>
+            <span class="hud-label">Net Carbs</span>
+        </div>
+        <div class="hud-stat sugar">
+            <span class="hud-val" id="hud-sugar">0g Sugar</span>
+            <span class="hud-label">Sweetener</span>
+        </div>
+    </div>
+
     <!-- Quick Preset Chips -->
     <div class="quick-chips">
-        <button class="chip" onclick="sendQuickPrompt('Make it extra high protein (+25g whey)')">💪 +25g Whey Protein</button>
+        <button class="chip" onclick="sendQuickPrompt('Make it extra high protein (+25g whey)')">💪 +25g Whey</button>
         <button class="chip" onclick="sendQuickPrompt('Reduce sweetness by 50% for subtle taste')">🍯 50% Sweetness</button>
         <button class="chip" onclick="sendQuickPrompt('Make it nut-free and eggless')">🥜 Nut & Egg Free</button>
         <button class="chip" onclick="sendQuickPrompt('Increase fiber and reduce total calories')">🌾 Fiber Boost</button>
-        <button class="chip" onclick="sendQuickPrompt('Make it indulgence level sweet with monk fruit')">🍈 Rich Monk Fruit</button>
+        <button class="chip" onclick="sendQuickPrompt('Make it indulgence level sweet with monk fruit')">🍈 Monk Fruit</button>
+        <button class="chip" onclick="sendQuickPrompt('Swap to 100% plant-based pea protein')">🌱 Plant-Based</button>
     </div>
 
     <!-- Chat Messages Area -->
     <div class="chat-area" id="chat-messages">
         <div class="chat-bubble ai">
             Hello! 👋 I'm your <strong>Cravin AI Chef</strong>.<br><br>
-            Tell me in plain English how you'd like to customize <strong>{{ dessert.name }}</strong>! You can ask for higher protein, less sweetness, specific allergen swaps, or ingredient tweaks.
+            Tell me in plain English how you'd like to customize <strong>{{ dessert.name }}</strong>. Ask for higher protein, keto swaps, less sweetness, or allergen removals!
         </div>
     </div>
 
     <!-- Typing Indicator -->
     <div id="typing-indicator" class="typing-indicator hidden">
         <div class="loading-spinner" style="width: 16px; height: 16px;"></div>
-        <span>AI Chef is reformulating recipe & nutrition...</span>
+        <span>AI Chef is reformulating recipe & macros in real time...</span>
     </div>
 
     <!-- Real-Time Chat Input Bar -->
     <div class="chat-input-bar">
-        <input type="text" id="user-input" placeholder="Talk to AI... (e.g. 'Make it extra protein and less sweet')" onkeypress="handleKeyPress(event)">
-        <button type="button" class="voice-btn" onclick="toggleVoiceInput()" title="Voice input">🎤</button>
+        <input type="text" id="user-input" placeholder="e.g. 'Make it extra whey protein and low sweetness'" onkeypress="handleKeyPress(event)">
+        <button type="button" class="voice-btn" id="voice-btn" onclick="toggleVoiceInput()" title="Voice input">🎤</button>
         <button type="button" class="btn btn-primary btn-sm" id="send-btn" onclick="sendMessage()">Send 💬</button>
     </div>
 </div>
@@ -202,13 +278,9 @@ async function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
 
-    // Clear input
     input.value = '';
-
-    // Add user bubble
     addChatBubble(text, 'user');
 
-    // Show typing
     const indicator = document.getElementById('typing-indicator');
     indicator.classList.remove('hidden');
 
@@ -216,14 +288,13 @@ async function sendMessage() {
     sendBtn.disabled = true;
 
     try {
-        // Parse basic hints from text for structured fallback
         let sweetness = 'medium';
         if (text.toLowerCase().includes('less sweet') || text.toLowerCase().includes('low sweet') || text.toLowerCase().includes('50%')) sweetness = 'low';
         if (text.toLowerCase().includes('extra sweet') || text.toLowerCase().includes('high sweet') || text.toLowerCase().includes('indulgen')) sweetness = 'high';
 
         let protein = null;
         if (text.toLowerCase().includes('protein') || text.toLowerCase().includes('whey')) protein = 'whey';
-        if (text.toLowerCase().includes('pea')) protein = 'pea';
+        if (text.toLowerCase().includes('pea') || text.toLowerCase().includes('plant')) protein = 'pea';
 
         const exclude = [];
         if (text.toLowerCase().includes('nut') || text.toLowerCase().includes('almond')) exclude.push('nuts');
@@ -250,26 +321,35 @@ async function sendMessage() {
         if (res.ok) {
             lastCustomization = data;
 
-            // AI text response
-            let aiText = data.ai_message || `I've updated the recipe for **{{ dessert.name }}** according to your request!`;
+            // 1. Update Live HUD
+            if (data.nutrition && data.nutrition.per_serving) {
+                const n = data.nutrition.per_serving;
+                updateHudStat('hud-cal', `${Math.round(n.calories)} kcal`);
+                updateHudStat('hud-protein', `${n.protein_g}g`);
+                updateHudStat('hud-carbs', `${n.carbs_g}g`);
+                updateHudStat('hud-sugar', '0g Added');
+            }
+
+            // 2. AI message
+            let aiText = data.ai_message || `I've reformatted the recipe for **{{ dessert.name }}** based on your goals!`;
             addChatBubble(aiText, 'ai');
 
-            // Nutrition & Add-to-cart panel
+            // 3. Nutrition & Add-to-cart panel
             if (data.nutrition) {
                 const n = data.nutrition.per_serving;
                 const panelHtml = `
-                    <div class="nutrition-panel" style="margin-top: var(--space-2); background: var(--bg-elevated); border: 1px solid var(--border-emphasis);">
-                        <div class="panel-title" style="color: var(--honey);">📊 Real-Time Nutrition</div>
-                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Calories</span><span class="value" style="color: var(--honey); font-size: 1rem;">${Math.round(n.calories)} kcal</span></div>
-                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Protein</span><span class="value" style="color: var(--pista);">${n.protein_g}g</span></div>
+                    <div class="nutrition-panel" style="margin-top: var(--space-2); background: rgba(24, 32, 47, 0.95); border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+                        <div class="panel-title" style="color: var(--honey-light); font-weight: 800;">✨ Reformulated Recipe Specs</div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Calories</span><span class="value" style="color: var(--honey-light); font-size: 1rem;">${Math.round(n.calories)} kcal</span></div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Protein</span><span class="value" style="color: var(--pista-light);">${n.protein_g}g</span></div>
                         <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Carbs</span><span class="value" style="color: var(--text-primary);">${n.carbs_g}g</span></div>
                         <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Fat</span><span class="value" style="color: var(--text-primary);">${n.fat_g}g</span></div>
-                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Sugar Equiv.</span><span class="value" style="color: var(--pista);">0g Added Sugar</span></div>
+                        <div class="nutrition-row"><span class="label" style="color: var(--text-secondary);">Added Sugar</span><span class="value" style="color: var(--pista-light);">0g (Monk Fruit Sweetened)</span></div>
                         
-                        <div class="flex items-center justify-between mt-3">
-                            <span class="tag tag-${data.nutrition.tag}">${data.nutrition.tag}</span>
-                            <button class="btn btn-primary btn-sm" onclick="addCustomToCart()">
-                                🛒 Add Custom Recipe to Cart (₹{{ dessert.price|int }})
+                        <div class="flex items-center justify-between mt-3 pt-2" style="border-top: 1px solid var(--border-subtle);">
+                            <span class="tag tag-${data.nutrition.tag}">🏷️ ${data.nutrition.tag}</span>
+                            <button class="btn btn-primary btn-sm" onclick="addCustomToCart()" style="font-weight: 700;">
+                                🛒 Add AI Recipe to Cart (₹{{ dessert.price|int }})
                             </button>
                         </div>
                     </div>
@@ -277,13 +357,24 @@ async function sendMessage() {
                 addChatBubble(panelHtml, 'ai', true);
             }
         } else {
-            addChatBubble('Sorry, I could not complete that request. ' + (data.detail || 'Please try rephrasing.'), 'ai');
+            addChatBubble('Sorry, I could not complete that customization. ' + (data.detail || 'Please try rephrasing.'), 'ai');
         }
     } catch (err) {
         indicator.classList.add('hidden');
         sendBtn.disabled = false;
         addChatBubble('Connection error. Please try sending your message again.', 'ai');
     }
+}
+
+function updateHudStat(id, newVal) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.transform = 'scale(1.2)';
+    el.style.color = 'var(--honey)';
+    setTimeout(() => {
+        el.textContent = newVal;
+        el.style.transform = 'scale(1)';
+    }, 150);
 }
 
 function addChatBubble(content, type, isHtml = false) {
@@ -310,7 +401,7 @@ function addCustomToCart() {
         quantity: 1,
         customization: lastCustomization.customization_summary || 'Custom AI Recipe',
     });
-    showToast('Custom dessert added! <a href="/app/cart" style="color: var(--honey-light); font-weight: 700; text-decoration: underline; margin-left: 8px;">View Cart 🛒 →</a>');
+    showToast('✨ Custom recipe added! <a href="/app/cart" style="color: var(--honey-light); font-weight: 700; text-decoration: underline; margin-left: 8px;">View Cart 🛒 →</a>');
 }
 
 function toggleVoiceInput() {
@@ -321,19 +412,37 @@ function toggleVoiceInput() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
+    
+    const voiceBtn = document.getElementById('voice-btn');
+    voiceBtn.classList.add('listening');
+
+    showToast(`
+        <div class="flex items-center gap-2">
+            <div class="voice-wave-container">
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            </div>
+            <span>Listening... Speak your recipe tweaks!</span>
+        </div>
+    `, 'info', 4000);
+
     recognition.start();
 
-    showToast('🎤 Listening... speak your custom recipe request!', 'info');
-
     recognition.onresult = (event) => {
+        voiceBtn.classList.remove('listening');
         const transcript = event.results[0][0].transcript;
         document.getElementById('user-input').value = transcript;
         sendMessage();
     };
 
     recognition.onerror = () => {
+        voiceBtn.classList.remove('listening');
         showToast('Could not capture voice input. Please type your message.', 'warning');
+    };
+
+    recognition.onend = () => {
+        voiceBtn.classList.remove('listening');
     };
 }
 </script>
 {% endblock %}
+

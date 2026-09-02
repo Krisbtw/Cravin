@@ -2,91 +2,119 @@
 {% block title %}Sweet Streak — Rewards{% endblock %}
 
 {% block content %}
-<div class="page-content">
-    <div class="top-bar">
-        <h1 style="font-size: 1.5rem;">🏆 Sweet Streak</h1>
+<div class="page-content" style="padding-bottom: 100px;">
+    <!-- Clean Header -->
+    <div class="top-bar mb-5">
+        <div>
+            <h1 style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                <span>🏆</span> Sweet Streak
+            </h1>
+            <p class="text-muted" style="font-size: 0.82rem; margin: 0;">Earn points & perks with every clean dessert</p>
+        </div>
     </div>
 
     {% if loyalty %}
-    <!-- Tier & Points -->
-    <div class="card mb-6 animate-fade-in-up" style="background: linear-gradient(135deg, var(--jamun-bg), var(--honey-bg)); border: none;">
-        <div class="card-body text-center">
-            <span class="tier-badge tier-{{ loyalty.tier }} mb-4">
-                {% if loyalty.tier == 'bronze' %}🥉 Bronze{% elif loyalty.tier == 'silver' %}🥈 Silver{% elif loyalty.tier == 'gold' %}🥇 Gold{% else %}💎 Platinum{% endif %}
+    <!-- Unified Hero Loyalty Card (Consolidated & Spacious) -->
+    <div class="card mb-6 animate-fade-in-up" style="background: linear-gradient(145deg, rgba(24, 32, 48, 0.7), rgba(12, 17, 27, 0.9)); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); padding: 28px 24px; box-shadow: var(--shadow-md);">
+        <!-- Top Status Row -->
+        <div class="flex items-center justify-between mb-4">
+            <span class="tier-badge tier-{{ loyalty.tier }}" style="font-weight: 700; padding: 5px 14px; border-radius: 9999px; font-size: 0.78rem;">
+                {% if loyalty.tier == 'bronze' %}🥉 Bronze Tier{% elif loyalty.tier == 'silver' %}🥈 Silver Tier{% elif loyalty.tier == 'gold' %}🥇 Gold Tier{% else %}💎 Platinum Tier{% endif %}
             </span>
-            <div style="font-family: var(--font-display); font-weight: 800; font-size: 2.5rem; color: var(--jamun); margin: var(--space-4) 0;">
+            <div class="flex items-center gap-1" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); padding: 4px 12px; border-radius: 9999px;">
+                <span style="font-size: 0.85rem;">🔥</span>
+                <span style="font-size: 0.78rem; font-weight: 700; color: var(--honey-light);">{{ loyalty.current_streak }}-Wk Streak</span>
+            </div>
+        </div>
+
+        <!-- Center Balance with Breathing Room -->
+        <div class="text-center" style="margin: 28px 0 24px 0;">
+            <div style="font-family: var(--font-display); font-weight: 900; font-size: 3.2rem; color: #FFFFFF; line-height: 1; letter-spacing: -0.02em;">
                 {{ loyalty.points_balance }}
             </div>
-            <p class="text-muted">points available</p>
-        </div>
-    </div>
-
-    <!-- Streak -->
-    <div class="streak-display mb-6 animate-fade-in-up" style="animation-delay: 100ms;">
-        <span class="streak-fire">🔥</span>
-        <div>
-            <div class="streak-count">{{ loyalty.current_streak }}-week streak!</div>
-            <div class="streak-label">Longest: {{ loyalty.longest_streak }} weeks</div>
-        </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="grid-2 mb-6">
-        <div class="card animate-fade-in-up" style="animation-delay: 150ms; border: 1px solid var(--cream-border);">
-            <div class="card-body text-center">
-                <div style="font-size: 1.5rem; margin-bottom: 4px;">{{ loyalty.lifetime_points }}</div>
-                <div class="text-label">Lifetime Points</div>
+            <div style="font-size: 0.72rem; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 8px;">
+                Reward Points Available
             </div>
         </div>
-        <div class="card animate-fade-in-up" style="animation-delay: 200ms; border: 1px solid var(--cream-border);">
-            <div class="card-body text-center">
-                <div style="font-size: 1.5rem; margin-bottom: 4px;">{{ loyalty.referral_count }}</div>
-                <div class="text-label">Referrals</div>
+
+        <!-- Tier Progress Bar -->
+        <div class="mt-4 pt-4" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
+            <div class="flex items-center justify-between text-xs mb-2">
+                <span style="color: var(--text-secondary);">Goal: <strong style="color: #FFFFFF;">Gold Tier (500 pts)</strong></span>
+                <span style="color: var(--honey-light); font-weight: 700;">{{ (loyalty.points_balance / 500 * 100)|round|int }}%</span>
+            </div>
+            <div class="delivery-progress-track" style="height: 5px;">
+                <div class="delivery-progress-fill" style="width: {{ [loyalty.points_balance / 500 * 100, 100]|min }}%;"></div>
+            </div>
+        </div>
+
+        <!-- Integrated Clean Stats Strip -->
+        <div class="flex items-center justify-between mt-4 pt-4" style="border-top: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.82rem;">
+            <div class="text-left">
+                <span class="text-muted">Lifetime: </span>
+                <strong style="color: #FFFFFF;">{{ loyalty.lifetime_points }} pts</strong>
+            </div>
+            <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.1);"></div>
+            <div class="text-right">
+                <span class="text-muted">Referrals: </span>
+                <strong style="color: var(--pista-light);">{{ loyalty.referral_count }} friends</strong>
             </div>
         </div>
     </div>
 
-    <!-- Referral Code -->
-    <div class="card mb-6 animate-fade-in-up" style="animation-delay: 250ms; background: var(--honey-bg); border: 1px dashed var(--honey);">
-        <div class="card-body text-center">
-            <p class="text-label mb-2">Your Referral Code</p>
-            <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--jamun); letter-spacing: 0.05em;">
-                {{ loyalty.referral_code }}
+    <!-- Sleek Minimalist Referral Row (Spacious & Clean) -->
+    <div class="card mb-6 animate-fade-in-up" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); padding: 20px 24px; box-shadow: var(--shadow-md);">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); font-weight: 700;">Your Referral Code</div>
+                <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--honey-light); letter-spacing: 0.05em; margin-top: 2px;">
+                    {{ loyalty.referral_code }}
+                </div>
             </div>
-            <p class="text-muted mt-2" style="font-size: 0.8rem;">Share this code — you both earn 50 bonus points!</p>
-            <button class="btn btn-primary btn-sm mt-3" onclick="navigator.clipboard.writeText('{{ loyalty.referral_code }}'); showToast('Code copied! 📋');">
-                Copy Code
-            </button>
+            <div class="flex gap-2">
+                <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('{{ loyalty.referral_code }}'); showToast('Code copied! 📋', 'success');" style="padding: 8px 14px; font-size: 0.8rem; font-weight: 700; border: 1px solid var(--border-default); border-radius: 9999px;">
+                    📋 Copy
+                </button>
+                <button class="btn btn-sm" onclick="shareReferralWhatsApp('{{ loyalty.referral_code }}')" style="background: #25D366; color: white; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 9999px; border: none;">
+                    💬 Share
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Badges -->
-    <h3 class="mb-4">🏅 Badges</h3>
-    <div class="badge-grid mb-6">
+    <!-- Badges Grid (Spacious & Clean) -->
+    <div class="flex items-center justify-between mb-4">
+        <h3 style="font-size: 1rem; color: #FFFFFF; font-weight: 700; margin: 0;">Milestone Badges</h3>
+        <span class="text-muted" style="font-size: 0.75rem;">Tap badge for details</span>
+    </div>
+    <div class="badge-grid mb-6" style="gap: var(--space-4);">
         {% set all_badges = [
-            ("first_order", "🎉", "First Order"),
-            ("5_streak", "🔥", "5-Week Streak"),
-            ("10_streak", "⚡", "10-Week Streak"),
-            ("tried_5_bakers", "🧑‍🍳", "5 Bakers"),
-            ("customizer_pro", "🤖", "Customizer Pro"),
-            ("ragi_lover", "🌾", "Ragi Lover"),
-            ("health_hero", "💪", "Health Hero"),
-            ("referral_star", "⭐", "Referral Star"),
+            ("first_order", "🎉", "First Order", "Placed your 1st healthy dessert order"),
+            ("5_streak", "🔥", "5-Wk Streak", "5 weeks of mindful sweetness"),
+            ("10_streak", "⚡", "10-Wk Streak", "10 straight weeks of zero-sugar"),
+            ("tried_5_bakers", "🧑‍🍳", "5 Kitchens", "Supported 5 local home kitchens"),
+            ("customizer_pro", "🤖", "AI Studio", "Crafted custom AI recipes"),
+            ("ragi_lover", "🌾", "Ragi Lover", "Zero maida supergrain explorer"),
+            ("health_hero", "💪", "Health Hero", "Kept under daily calorie target"),
+            ("referral_star", "⭐", "Referral Star", "Invited 3 friends to clean desserts"),
         ] %}
-        {% for badge_id, icon, name in all_badges %}
-        <div class="badge-item {{ 'earned' if badge_id in (loyalty.badges or []) else 'locked' }}">
-            <span class="badge-icon">{{ icon }}</span>
-            <span class="badge-name">{{ name }}</span>
+        {% for badge_id, icon, name, desc in all_badges %}
+        {% set is_earned = badge_id in (loyalty.badges or []) %}
+        <div class="badge-item {{ 'earned' if is_earned else 'locked' }}" 
+             onclick="showBadgeDetails('{{ name }}', '{{ desc }}', {{ 'true' if is_earned else 'false' }})"
+             style="cursor: pointer; padding: var(--space-4); border-radius: var(--radius-xl); background: {{ 'rgba(139, 92, 246, 0.08)' if is_earned else 'rgba(255, 255, 255, 0.02)' }}; border: 1px solid {{ 'rgba(139, 92, 246, 0.2)' if is_earned else 'rgba(255, 255, 255, 0.04)' }};">
+            <span class="badge-icon" style="font-size: 1.6rem; margin-bottom: 4px;">{{ icon }}</span>
+            <span class="badge-name" style="font-size: 0.75rem; font-weight: 600;">{{ name }}</span>
         </div>
         {% endfor %}
     </div>
 
     {% else %}
-    <div class="text-center p-6">
-        <div style="font-size: 4rem; margin-bottom: var(--space-4);">🏆</div>
-        <h3>Start your Sweet Streak!</h3>
-        <p class="text-muted mb-4">Place your first order to unlock rewards.</p>
-        <a href="/app/" class="btn btn-primary">Browse Desserts</a>
+    <div class="text-center p-6 card" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl);">
+        <div style="font-size: 3.5rem; margin-bottom: var(--space-3);">🏆</div>
+        <h3 style="color: #FFFFFF; font-weight: 800; font-size: 1.2rem;">Start your Sweet Streak!</h3>
+        <p class="text-muted mb-4" style="font-size: 0.85rem;">Place your first order to unlock loyalty points, tiers, and exclusive badges.</p>
+        <a href="/app/" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700;">Explore Desserts →</a>
     </div>
     {% endif %}
 </div>
@@ -103,3 +131,23 @@
     <a href="/app/profile"><span class="nav-icon">👤</span><span>Profile</span></a>
 </nav>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+function shareReferralWhatsApp(code) {
+    const text = `Hey! I get fresh, zero-sugar desserts baked locally from Cravin. Use my code *${code}* when ordering to get 50 bonus reward points! 🍰 Check it out here: ${window.location.origin}/app/`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+}
+
+function showBadgeDetails(name, desc, isEarned) {
+    if (isEarned) {
+        showToast(`🏅 ${name}: ${desc} (Unlocked!)`, 'success', 3500);
+    } else {
+        showToast(`🔒 ${name}: ${desc}`, 'normal', 3500);
+    }
+}
+</script>
+{% endblock %}
+
+
