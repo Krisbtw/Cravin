@@ -2,7 +2,7 @@
 {% block title %}Baker Login{% endblock %}
 
 {% block content %}
-<div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 90vh;">
+<div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 90vh; padding-top: var(--space-4); padding-bottom: 96px;">
     <div class="text-center mb-8">
         <div style="font-size: 3rem; margin-bottom: var(--space-4);">🧑‍🍳</div>
         <h1 style="font-size: 2rem;">Baker Portal</h1>
@@ -22,7 +22,13 @@
     </form>
 
     <div class="text-center mt-6">
-        <p class="text-muted">Want to join as a baker? <a href="/baker/apply" style="font-weight: 600;">Apply here</a></p>
+        <p class="text-muted" style="font-size: 0.85rem; margin: 0;">Want to join as a baker? <a href="/baker/apply" style="font-weight: 700; color: var(--jamun-light);">Apply here</a></p>
+    </div>
+
+    <div class="text-center mt-5 pt-3" style="border-top: 1px dashed var(--border-subtle);">
+        <p class="text-muted" style="font-size: 0.82rem; margin: 0;">
+            🍩 <a href="/app/" style="color: var(--honey-light); font-weight: 600;">Guest Portal</a> &nbsp;·&nbsp; 🛠️ <a href="/admin/login" style="color: var(--text-tertiary); font-weight: 600;">Admin Hub</a>
+        </p>
     </div>
 
 </div>

@@ -408,8 +408,8 @@ function addCustomToCart() {
     Cart.add({
         dessert_id: '{{ dessert.id }}',
         name: '{{ dessert.name }} (AI Custom)',
-        price: {{ dessert.price }},
-        calories: lastCustomization.nutrition?.per_serving?.calories || {{ dessert.calories }},
+        price: Number('{{ dessert.price }}'),
+        calories: lastCustomization.nutrition?.per_serving?.calories || Number('{{ dessert.calories }}'),
         quantity: 1,
         customization: lastCustomization.customization_summary || 'Custom AI Recipe',
     });

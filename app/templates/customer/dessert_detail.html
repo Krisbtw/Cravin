@@ -183,8 +183,8 @@ function addToCart() {
     Cart.add({
         dessert_id: '{{ dessert.id }}',
         name: '{{ dessert.name }}',
-        price: {{ dessert.price }},
-        calories: {{ dessert.calories }},
+        price: Number('{{ dessert.price }}'),
+        calories: Number('{{ dessert.calories }}'),
         quantity: 1,
     });
     showToast('✨ Added <strong>{{ dessert.name }}</strong> to your cart! <a href="/app/cart" style="color: var(--honey-light); font-weight: 700; text-decoration: underline; margin-left: 8px;">View Cart 🛒 →</a>');
