@@ -23,6 +23,7 @@ from app.models.nutrition_log import NutritionLog
 
 # API routers
 from app.api.auth import router as auth_router
+from app.api.user import router as user_router
 from app.api.customer import router as customer_router
 from app.api.baker import router as baker_router
 from app.api.admin import router as admin_router
@@ -68,6 +69,7 @@ templates = Jinja2Templates(directory=templates_dir)
 
 # Register API routers
 app.include_router(auth_router)
+app.include_router(user_router)
 app.include_router(customer_router)
 app.include_router(baker_router)
 app.include_router(admin_router)
@@ -90,9 +92,11 @@ async def get_template_user(request: Request, db: AsyncSession) -> dict | None:
             result = await db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
             if user:
+                dietary_prefs = user.dietary_prefs or {}
                 return {
                     "id": user.id, "email": user.email, "full_name": user.full_name,
-                    "role": user.role, "calorie_goal": user.calorie_goal,
+                    "role": user.role, "calorie_goal": user.calorie_goal or 1800.0,
+                    "protein_goal": dietary_prefs.get("protein_goal", 50.0),
                     "allergies": user.allergies, "onboarding_complete": user.onboarding_complete,
                     "city": user.city, "address": user.address,
                 }
@@ -160,11 +164,133 @@ async def customer_home(request: Request, db: AsyncSession = Depends(get_db)):
         limit=4,
     )
 
+    recommended_ids = {r.id for r in recommended} if recommended else set()
+    signature_desserts = [d for d in desserts if d.id not in recommended_ids]
+
     return TR(request, "customer/home.html", {
         "user": user,
         "desserts": desserts,
+        "signature_desserts": signature_desserts,
         "recommended": recommended,
         "featured": desserts[:3] if desserts else [],
+    })
+
+
+@app.get("/curations")
+async def curations_redirect():
+    return RedirectResponse(url="/app/curations")
+
+
+@app.get("/app/curations", response_class=HTMLResponse)
+async def customer_curations(request: Request, db: AsyncSession = Depends(get_db)):
+    """Interactive 3D Stacked-Card Curations discovery page."""
+    user = await get_template_user(request, db)
+    initial_collection = request.query_params.get("collection", "afternoon-treats")
+
+    result = await db.execute(
+        select(Dessert).where(Dessert.is_active == True, Dessert.approval_status == "approved")
+        .order_by(Dessert.order_count.desc())
+    )
+    desserts = result.scalars().all()
+
+    # Curated collections with photography, macros, theme colors & storytelling
+    curations = [
+        {
+            "id": "afternoon-treats",
+            "title": "AFTERNOON ENERGY · ZERO SLUMP",
+            "subtitle": "Warm molten cacao with zero sugar crash",
+            "dish_name": "Artisan Ragi Chocolate Lava Cake",
+            "tagline": "Molten 85% Dark Cacao · Medjool Date Sweetness",
+            "image_url": "/static/images/ragi-lava-cake.jpg",
+            "calories": 285,
+            "protein": "8.5g",
+            "carbs": "22g net carbs",
+            "price": 349,
+            "theme_color": "#F59E0B",
+            "glow_color": "rgba(245, 158, 11, 0.45)",
+            "dessert_id": next((d.id for d in desserts if "lava" in d.name.lower()), desserts[0].id if desserts else ""),
+            "baker": "Goa Home Artisan",
+            "badge": "⚡ ZERO REFINED SUGAR",
+            "description": "Rich finger-millet sponge enveloping a decadent river of molten single-origin cacao. Baked fresh without maida."
+        },
+        {
+            "id": "royal-heritage",
+            "title": "ROYAL HERITAGE · ZERO SUGAR",
+            "subtitle": "Kashmiri saffron & cardamom infused dumplings",
+            "dish_name": "Almond Flour Royal Gulab Jamun",
+            "tagline": "Almond Flour Khoya · Pure Date Syrup Infusion",
+            "image_url": "/static/images/almond-gulab-jamun.jpg",
+            "calories": 210,
+            "protein": "6.2g",
+            "carbs": "16g net carbs",
+            "price": 299,
+            "theme_color": "#8B5CF6",
+            "glow_color": "rgba(139, 92, 246, 0.45)",
+            "dessert_id": next((d.id for d in desserts if "jamun" in d.name.lower()), desserts[1].id if len(desserts) > 1 else ""),
+            "baker": "Heritage Confectionery",
+            "badge": "👑 CHEF'S SIGNATURE",
+            "description": "Slow-simmered almond flour dough pearls soaked in warm date syrup fragrant with cardamom and wild rose water."
+        },
+        {
+            "id": "guilt-free-chill",
+            "title": "GUILT-FREE INDULGENCE · HIGH PROTEIN",
+            "subtitle": "Alphonso mango cream with Greek yogurt base",
+            "dish_name": "Goan Mango Greek Yogurt Cheesecake",
+            "tagline": "100% Monk Fruit · Probiotic Greek Yogurt",
+            "image_url": "/static/images/mango-cheesecake.jpg",
+            "calories": 220,
+            "protein": "11.0g",
+            "carbs": "14g net carbs",
+            "price": 379,
+            "theme_color": "#10B981",
+            "glow_color": "rgba(16, 185, 129, 0.45)",
+            "dessert_id": next((d.id for d in desserts if "cheesecake" in d.name.lower()), desserts[2].id if len(desserts) > 2 else ""),
+            "baker": "The Clean Patisserie",
+            "badge": "🥭 FRESH HARVEST",
+            "description": "A velvety cloud of strained probiotic yogurt blended with sun-ripened Goan mangoes atop an almond oat crust."
+        },
+        {
+            "id": "royal-rasmalai",
+            "title": "SUGAR-FREE ELEGANCE · KETO CLEAN",
+            "subtitle": "Allulose-steeped saffron chenna pillows",
+            "dish_name": "Allulose Saffron Malai Rasmalai",
+            "tagline": "Zero Glycemic Impact · Saffron Infused Milk",
+            "image_url": "/static/images/allulose-rasmalai.jpg",
+            "calories": 185,
+            "protein": "9.8g",
+            "carbs": "8g net carbs",
+            "price": 329,
+            "theme_color": "#FCD34D",
+            "glow_color": "rgba(252, 211, 77, 0.45)",
+            "dessert_id": next((d.id for d in desserts if "rasmalai" in d.name.lower()), desserts[0].id if desserts else ""),
+            "baker": "Vedic Sweets Goa",
+            "badge": "✨ PURE ALLULOSE",
+            "description": "Delicate handmade chenna discs steeped in thick saffron milk, zero artificial sweeteners, zero spike."
+        },
+        {
+            "id": "protein-power",
+            "title": "POWER BAKE · ZERO MAIDA",
+            "subtitle": "Dense walnut fudge with roasted ragi flour",
+            "dish_name": "Date & Walnut Superfood Brownie",
+            "tagline": "Medjool Dates · California Walnuts · 100% Cocoa",
+            "image_url": "/static/images/date-walnut-brownie.jpg",
+            "calories": 240,
+            "protein": "12.0g",
+            "carbs": "18g net carbs",
+            "price": 279,
+            "theme_color": "#EA580C",
+            "glow_color": "rgba(234, 88, 12, 0.45)",
+            "dessert_id": next((d.id for d in desserts if "brownie" in d.name.lower()), desserts[0].id if desserts else ""),
+            "baker": "Goa Fitness Kitchen",
+            "badge": "💪 12G PROTEIN",
+            "description": "Chewy, fudgy, and packed with brain-boosting omega-3 walnuts and high fiber dates. The ultimate clean sweet fuel."
+        }
+    ]
+
+    return TR(request, "customer/curations.html", {
+        "user": user,
+        "curations": curations,
+        "initial_collection": initial_collection,
     })
 
 

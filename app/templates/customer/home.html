@@ -171,52 +171,56 @@
         background: #161E30 !important;
     }
 
-    /* ── High-Contrast Photo Tag Badges ── */
+    /* ── Subtle Translucent Glass Badges (No Heavy Borders) ── */
     .food-img-tag {
         position: absolute !important;
         top: 8px !important;
         left: 8px !important;
         z-index: 5 !important;
-        font-size: 0.72rem !important;
-        font-weight: 800 !important;
-        padding: 4px 10px !important;
-        border-radius: 9999px !important;
-        letter-spacing: 0.03em !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 4px !important;
+        background: rgba(0, 0, 0, 0.50) !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.10) !important;
+        color: #D4D4D4 !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        padding: 0.25rem 0.625rem !important;
+        border-radius: 9999px !important;
+        letter-spacing: 0.02em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        line-height: 1.2 !important;
+        text-shadow: none !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
     }
-    .food-img-tag.tag-light {
-        background: rgba(4, 47, 31, 0.95) !important;
-        color: #6EE7B7 !important;
-        border: 1.5px solid #10B981 !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
-    }
-    .food-img-tag.tag-balanced {
-        background: rgba(69, 26, 3, 0.95) !important;
-        color: #FDE68A !important;
-        border: 1.5px solid #F59E0B !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
-    }
+    .food-img-tag.tag-light,
+    .food-img-tag.tag-balanced,
     .food-img-tag.tag-heavy {
-        background: rgba(59, 7, 100, 0.95) !important;
-        color: #E9D5FF !important;
-        border: 1.5px solid #A855F7 !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+        background: rgba(0, 0, 0, 0.50) !important;
+        border: 1px solid rgba(255, 255, 255, 0.10) !important;
+        color: #D4D4D4 !important;
+        text-shadow: none !important;
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Top Dynamic Mascot / Animation Container (Hidden above screen, revealed on pull-down) -->
+<div id="top-mascot-container" class="top-mascot-container fixed top-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none" style="transform: translateX(-50%) translateY(-180px); opacity: 0; transition: opacity 0.2s ease;">
+    <div class="top-mascot-bubble" id="mascot-speech-bubble" style="opacity: 0; transform: scale(0.85);">
+        <span>🍰</span> <span id="mascot-speech-text">Pull down for sweet surprises!</span>
+    </div>
+    <div class="top-mascot-img-wrap" id="mascot-graphic-wrap">
+        <img src="/static/images/mascot.svg" alt="Cravin Mascot" class="top-mascot-img" id="mascot-graphic">
+    </div>
+</div>
+
 <div class="page-content">
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="logo">Crav<span style="color: var(--honey);">in</span></div>
         <div class="flex items-center gap-2">
-            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 9999px;">
+            <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 9999px;">
                 <span>🛒 Cart</span>
                 <span class="cart-badge badge badge-jamun" style="display: none; font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 99px;">0</span>
             </a>
@@ -237,118 +241,196 @@
         </div>
     </div>
 
-    <!-- Hero Section (Clean Minimalist Banner) -->
-    <div class="hero-glass mb-4 animate-fade-in-up" style="padding: var(--space-4) var(--space-5); border-radius: var(--radius-2xl);">
-        <div style="position: relative; z-index: 1;">
-            <span class="badge mb-2" id="hero-greeting-tag" style="background: rgba(245, 158, 11, 0.12); color: var(--honey-light); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;">ZERO SUGAR · ZERO MAIDA</span>
-            <h1 class="text-display mb-1" id="hero-heading" style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; line-height: 1.2;">Desserts that love you back 🍰</h1>
-            <p class="text-muted mb-3" id="hero-subtext" style="font-size: 0.82rem; line-height: 1.4;">Freshly baked in Goa with 100% Monk Fruit & certified home kitchens.</p>
+    <!-- Hero Section (Interactive Portal Gateway to 3D Stacked-Card Curations Deck) -->
+    <a href="/app/curations?collection=afternoon-treats" 
+       id="hero-curations-portal"
+       class="hero-glass hero-portal-trigger mb-4 animate-fade-in-up cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-amber-400/40 active:scale-[0.99]"
+       onclick="onHeroPortalClick(event, this.href)"
+       style="padding: var(--space-4) var(--space-5); border-radius: var(--radius-2xl); display: block; text-decoration: none; position: relative;">
+        <div style="position: relative; z-index: 2;">
+            <div class="flex items-center justify-between mb-2">
+                <span class="badge" id="hero-greeting-tag" style="background: rgba(245, 158, 11, 0.16); color: var(--honey-light); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; border: 1px solid rgba(245, 158, 11, 0.3);">⚡ ZERO SUGAR · ZERO SLUMP</span>
+                <span style="font-size: 0.72rem; color: #FDE68A; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                    <span>✨ Curated Deck</span>
+                </span>
+            </div>
+
+            <h1 class="text-display mb-1" id="hero-heading" style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; line-height: 1.2;">
+                Afternoon Treats Without the Slump 🍰
+            </h1>
+            <p class="text-muted mb-3" id="hero-subtext" style="font-size: 0.82rem; line-height: 1.4; color: #94A3B8;">
+                AI-curated 3D sensory deck: 100% Monk Fruit sweetness & zero blood sugar spike.
+            </p>
             
-            {% if not user %}
-            <a href="/app/register" class="btn btn-primary btn-sm" style="padding: 8px 18px; font-weight: 700; font-size: 0.82rem; border-radius: 9999px;">Start Flavor Journey →</a>
-            {% elif not user.onboarding_complete %}
-            <a href="/app/onboarding" class="btn btn-primary btn-sm" style="padding: 8px 18px; font-weight: 700; font-size: 0.82rem; border-radius: 9999px;">Take Flavor DNA Quiz 🧬</a>
-            {% endif %}
+            <div class="flex items-center justify-between mt-2 pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="flex items-center gap-2">
+                    <span style="font-size: 0.75rem; color: #CBD5E1; font-weight: 600;">Swipe & explore 5 collections</span>
+                </div>
+                <!-- Frosted glass pill in the lower corner -->
+                <div class="hero-curations-pill backdrop-blur-md bg-white/10 text-neutral-200 text-xs px-3.5 py-1.5 rounded-full border border-white/15 flex items-center gap-1.5">
+                    <span>Explore Curations Deck</span>
+                    <span style="color: var(--honey-light); font-weight: 800; font-size: 0.85rem;">→</span>
+                </div>
+            </div>
         </div>
-    </div>
+    </a>
 
     <!-- Tag Filters (Sticky Frosted Glass Pills with Live Counts) -->
     <style>
+        /* ── D2C Pill Add Button + Inline Stepper ── */
+        .card-action-slot {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        /* Default ADD pill */
+        .card-btn-add {
+            all: unset;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 30px;
+            padding: 0 11px;
+            border-radius: 8px;
+            background: rgba(245, 158, 11, 0.10);
+            border: 1px solid rgba(245, 158, 11, 0.28);
+            color: #FCD34D;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .card-btn-add:hover {
+            background: rgba(245, 158, 11, 0.20);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.20);
+        }
+        .card-btn-add:active {
+            transform: scale(0.93);
+        }
+        .card-btn-add svg {
+            flex-shrink: 0;
+        }
+        /* Inline stepper [-] [n] [+] */
+        .card-btn-stepper {
+            display: inline-flex;
+            align-items: center;
+            height: 30px;
+            border-radius: 8px;
+            background: #1C1C28;
+            border: 1px solid rgba(255,255,255,0.10);
+            overflow: hidden;
+            gap: 0;
+        }
+        .card-stepper-btn {
+            all: unset;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 30px;
+            color: #FCD34D;
+            cursor: pointer;
+            transition: background 0.12s ease, transform 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }
+        .card-stepper-btn:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        .card-stepper-btn:active {
+            transform: scale(0.85);
+        }
+        .card-stepper-count {
+            min-width: 22px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: #FFFFFF;
+            padding: 0 2px;
+            transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .card-stepper-count.bump {
+            transform: scale(1.35);
+        }
+
         .filter-sticky-wrapper {
+            position: relative;
+            z-index: 10;
             background: transparent !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            padding: 4px 0;
-            margin-bottom: 1.25rem;
+            padding: 4px 0 10px 0;
+            margin-bottom: 0.75rem;
         }
         .filter-container {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.45rem;
             overflow-x: auto;
-            padding: 4px 2px;
+            padding-bottom: 0.25rem;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
+        .filter-container::-webkit-scrollbar {
+            display: none;
+        }
         .filter-btn {
-            padding: 7px 15px;
+            padding: 0.42rem 1rem;
             border-radius: 9999px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            font-family: inherit;
             cursor: pointer;
-            outline: none !important;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+            color: #94A3B8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            white-space: nowrap;
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            white-space: nowrap;
-            background: rgba(255, 255, 255, 0.05);
-            color: #CBD5E1;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            appearance: none;
-            -webkit-appearance: none;
+            gap: 6px;
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        /* Dynamic Hover Pop-out Effect */
         .filter-btn:hover {
-            transform: translateY(-3px) scale(1.06);
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
             color: #FFFFFF;
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-        }
-        .filter-btn:active {
-            transform: translateY(0) scale(0.96);
         }
 
-        /* Active Filter Pill States with Vibrant Pop and Glow */
+        /* Active Filter Pill States */
         .filter-btn[data-tag="all"].active {
-            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+            background: #8B5CF6 !important;
             color: #FFFFFF !important;
-            border-color: #A78BFA !important;
-            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.45) !important;
-        }
-        .filter-btn[data-tag="all"].active:hover {
-            transform: translateY(-3px) scale(1.06);
-            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.65) !important;
+            border-color: #8B5CF6 !important;
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.45);
         }
         .filter-btn[data-tag="light"].active {
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+            background: #10B981 !important;
             color: #FFFFFF !important;
-            border-color: #34D399 !important;
-            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45) !important;
-        }
-        .filter-btn[data-tag="light"].active:hover {
-            transform: translateY(-3px) scale(1.06);
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.65) !important;
+            border-color: #10B981 !important;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
         }
         .filter-btn[data-tag="balanced"].active {
-            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+            background: #F59E0B !important;
             color: #020617 !important;
             font-weight: 700;
-            border-color: #FCD34D !important;
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45) !important;
-        }
-        .filter-btn[data-tag="balanced"].active:hover {
-            transform: translateY(-3px) scale(1.06);
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.65) !important;
+            border-color: #F59E0B !important;
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
         }
         .filter-btn[data-tag="heavy"].active {
-            background: linear-gradient(135deg, #C084FC 0%, #9333EA 100%) !important;
+            background: #A855F7 !important;
             color: #FFFFFF !important;
-            border-color: #E9D5FF !important;
-            box-shadow: 0 4px 18px rgba(168, 85, 247, 0.45) !important;
-        }
-        .filter-btn[data-tag="heavy"].active:hover {
-            transform: translateY(-3px) scale(1.06);
-            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.65) !important;
+            border-color: #A855F7 !important;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
         }
     </style>
 
     <div class="filter-sticky-wrapper">
         <div class="filter-container">
             <button type="button" class="filter-btn active" data-tag="all" onclick="filterDesserts('all', this)">
-                All <span class="filter-count" id="count-all">({{ desserts|length }})</span>
+                All <span class="filter-count" id="count-all">({{ signature_desserts|length if signature_desserts is defined else desserts|length }})</span>
             </button>
             <button type="button" class="filter-btn" data-tag="light" onclick="filterDesserts('light', this)">
                 🌿 Light <span class="filter-count" id="count-light"></span>
@@ -362,12 +444,39 @@
         </div>
     </div>
 
+    <!-- Discount / Featured Promo Banner (Slim, High-Contrast Dark Card) -->
+    <div class="promo-banner-card bg-neutral-950 text-white rounded-2xl p-4 flex items-center justify-between border border-neutral-800" id="promo-banner">
+        <!-- Left side: Featured product imagery -->
+        <div class="promo-left">
+            <div class="promo-img-wrap">
+                <img src="/static/images/allulose-rasmalai.jpg" alt="Featured Dessert" class="promo-img">
+            </div>
+            <div>
+                <span class="promo-badge-tag">⭐ CHEF'S SIGNATURE</span>
+                <h4 class="promo-title">Allulose Saffron Rasmalai</h4>
+                <p style="font-size: 0.72rem; color: #94A3B8; margin: 2px 0 0 0;">Zero sugar · 100% monk fruit sweetness</p>
+            </div>
+        </div>
+        <!-- Right side: Discount badge + Learn more link -->
+        <div class="promo-right">
+            <div style="background: linear-gradient(135deg, #10B981, #059669); color: #FFFFFF; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 9999px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3); text-align: center; white-space: nowrap;">
+                Get 20% Off
+            </div>
+            <div style="font-size: 0.68rem; color: #CBD5E1; font-weight: 600; text-align: right; margin-top: 2px;">
+                Your First Health Log
+            </div>
+            <a href="javascript:void(0)" onclick="claimPromoOffer()" class="promo-cta-link" style="margin-top: 4px;">
+                Learn more →
+            </a>
+        </div>
+    </div>
+
     {% if recommended %}
     <!-- AI Recommendations Section -->
     <div class="mb-5">
         <div class="flex items-center justify-between mb-3">
-            <h3 style="font-size: 1rem; font-weight: 700; color: #FFFFFF;">✨ Recommended For You</h3>
-            <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: var(--honey-light); font-size: 0.68rem;">AI Match</span>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em;">Recommended For You</h3>
+            <span class="badge" style="background: rgba(255, 255, 255, 0.06); color: var(--text-secondary); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.68rem; font-weight: 600; padding: 2px 8px; border-radius: 9999px;">Curated</span>
         </div>
         <div class="no-scrollbar horizontal-carousel" style="display: flex; gap: var(--space-3); overflow-x: auto; padding: 8px 4px 12px 4px; margin-top: -6px; margin-bottom: -6px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;">
             {% for dessert in recommended %}
@@ -380,20 +489,26 @@
                         <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">🍰</div>
                         {% endif %}
                         <div class="img-scrim"></div>
-                        <span class="food-img-tag tag-{{ dessert.tag }}">
-                            {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+                        <span class="food-img-tag bg-black/50 backdrop-blur-md border border-white/10 text-neutral-300 text-[11px] font-medium px-2.5 py-1 rounded-full">
+                            {% if dessert.tag == 'light' %}Light{% elif dessert.tag == 'heavy' %}Heavy{% else %}Balanced{% endif %}
                         </span>
-                        <!-- Quick Add Button -->
-                        <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
-                                onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
-                            +
-                        </button>
                     </div>
                     <div style="padding: var(--space-3);">
-                        <h5 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
+                        <h5 style="font-size: 0.85rem; font-weight: 700; color: #FFFFFF; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ dessert.name }}</h5>
                         <div class="flex items-center justify-between" style="font-size: 0.78rem;">
                             <span style="font-weight: 700; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
-                            <span class="text-muted">{{ dessert.calories|int }} cal</span>
+                            <div class="card-action-slot"
+                                 data-dessert-id="{{ dessert.id }}"
+                                 data-name="{{ dessert.name|replace('\'', '\\\'') }}"
+                                 data-price="{{ dessert.price }}"
+                                 data-calories="{{ dessert.calories }}"
+                                 onclick="event.preventDefault(); event.stopPropagation();">
+                                <button type="button" class="card-btn-add"
+                                        onclick="event.preventDefault(); event.stopPropagation(); handleCardAdd(event, '{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    ADD
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </a>
@@ -403,48 +518,86 @@
     </div>
     {% endif %}
 
-    <h2 class="mb-4" style="color: #FFFFFF; font-size: 1.25rem; font-weight: 800;">Our Signature Menu</h2>
+    <!-- 2-Column Menu Card Architecture (Crisp 1:1 Aspect Ratio + Favorite Overlay + Star Rating Footer) -->
+    <div class="flex items-center justify-between mb-4">
+        <h2 style="color: #FFFFFF; font-size: 1.25rem; font-weight: 800; margin: 0;">Our Signature Menu</h2>
+        <span class="badge" style="background: rgba(255, 255, 255, 0.06); color: var(--text-secondary); font-size: 0.72rem; font-weight: 700;">
+            Zero Added Sugar
+        </span>
+    </div>
+
     <div class="grid-2 stagger mb-6" id="dessert-grid" style="gap: var(--space-4);">
-        {% for dessert in desserts %}
-        <div class="card dessert-card" data-tag="{{ dessert.tag }}" style="border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); cursor: pointer;">
-            <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit; display: block;">
-                <div class="card-img-container" style="width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #161E30;">
+        {% for dessert in (signature_desserts if signature_desserts is defined else desserts) %}
+        {% set rating = [4.9, 4.8, 5.0, 4.7, 4.9, 4.8, 4.9, 4.8, 4.7, 5.0][loop.index0 % 10] %}
+        {% set is_cake = 'cake' in dessert.name|lower or 'bread' in dessert.name|lower or 'brownie' in dessert.name|lower or 'cheesecake' in dessert.name|lower %}
+        {% set is_dessert = 'jamun' in dessert.name|lower or 'kheer' in dessert.name|lower or 'payasam' in dessert.name|lower or 'rasmalai' in dessert.name|lower or 'barfi' in dessert.name|lower or 'ladoo' in dessert.name|lower %}
+        <div class="menu-card-2col rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800" 
+             data-tag="{{ dessert.tag }}"
+             data-is-cake="{{ 'true' if is_cake else 'false' }}"
+             data-is-dessert="{{ 'true' if is_dessert else 'false' }}"
+             data-protein="{{ dessert.protein_g|round(1) }}"
+             data-calories="{{ dessert.calories|int }}"
+             style="cursor: pointer;">
+            
+            <!-- 1:1 Square Image Container with Overlay Actions -->
+            <div class="menu-card-img-square" style="position: relative;">
+                <a href="/app/dessert/{{ dessert.id }}" style="display: block; width: 100%; height: 100%;">
                     {% if dessert.image_url %}
-                    <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy" class="food-img" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="{{ dessert.image_url }}" alt="{{ dessert.name }}" loading="lazy">
                     {% else %}
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🍰</div>
                     {% endif %}
-                    
-                    <div class="img-scrim"></div>
+                </a>
+                
+                <div class="img-scrim"></div>
 
-                    <span class="food-img-tag tag-{{ dessert.tag }}">
-                        {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+                <!-- Top Left Nutrition Tag -->
+                <span class="food-img-tag bg-black/50 backdrop-blur-md border border-white/10 text-neutral-300 text-[11px] font-medium px-2.5 py-1 rounded-full">
+                    {% if dessert.tag == 'light' %}Light{% elif dessert.tag == 'heavy' %}Heavy{% else %}Balanced{% endif %}
+                </span>
+
+                <!-- Top-Right Interactive Favorite/Heart Icon Button -->
+                <button type="button" class="btn-card-favorite p-2 rounded-full backdrop-blur-md bg-black/20 hover:scale-110 transition" 
+                        data-id="{{ dessert.id }}" 
+                        data-name="{{ dessert.name|replace('\'', '\\\'') }}"
+                        onclick="event.preventDefault(); event.stopPropagation(); Favorites.toggle('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}');"
+                        title="Save to favorites">
+                    🤍
+                </button>
+            </div>
+
+            <!-- Card Body & Footer with D2C Pill/Stepper -->
+            <div class="menu-card-body">
+                <a href="/app/dessert/{{ dessert.id }}" style="text-decoration: none; color: inherit;">
+                    <h4 class="menu-card-title" title="{{ dessert.name }}">{{ dessert.name }}</h4>
+                </a>
+                <div class="flex items-center gap-2 mb-2" style="font-size: 0.72rem;">
+                    <span class="star-rating-badge">
+                        <span class="star-icon">★</span> {{ rating }}
                     </span>
-
-                    <!-- Quick Add Button -->
-                    <button type="button" class="btn-quick-add" title="Quick Add to Cart" 
-                            onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart('{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
-                        +
-                    </button>
+                    <span class="text-muted" style="font-size: 0.72rem;">{{ dessert.calories|int }} cal</span>
                 </div>
-                <div style="padding: var(--space-3);">
-                    <h4 style="font-size: 0.9rem; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">{{ dessert.name }}</h4>
-                    <div class="flex items-center gap-2 text-xs text-muted mb-2">
-                        <span style="color: var(--pista-light); font-weight: 600;">{{ dessert.protein_g|round(1) }}g protein</span>
-                        <span>·</span>
-                        <span>0g sugar</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span style="font-size: 0.98rem; font-weight: 800; color: var(--honey-light);">₹{{ dessert.price|int }}</span>
-                        <span style="font-size: 0.76rem; font-weight: 600; color: var(--text-tertiary);">{{ dessert.calories|int }} cal</span>
+                <div class="menu-card-footer flex items-center justify-between">
+                    <span class="menu-card-price">₹{{ dessert.price|int }}</span>
+                    <div class="card-action-slot"
+                         data-dessert-id="{{ dessert.id }}"
+                         data-name="{{ dessert.name|replace('\'', '\\\'') }}"
+                         data-price="{{ dessert.price }}"
+                         data-calories="{{ dessert.calories }}"
+                         onclick="event.preventDefault(); event.stopPropagation();">
+                        <button type="button" class="card-btn-add"
+                                onclick="event.preventDefault(); event.stopPropagation(); handleCardAdd(event, '{{ dessert.id }}', '{{ dessert.name|replace('\'', '\\\'') }}', {{ dessert.price }}, {{ dessert.calories }});">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            ADD
+                        </button>
                     </div>
                 </div>
-            </a>
+            </div>
         </div>
         {% endfor %}
     </div>
 
-    {% if not desserts %}
+    {% if not signature_desserts and not desserts %}
     <div class="text-center p-6">
         <p style="font-size: 3rem; margin-bottom: var(--space-4);">🍰</p>
         <h3>Menu coming soon!</h3>
@@ -631,49 +784,122 @@
 
         if (heading && subtext) {
             if (hour >= 5 && hour < 12) {
-                tag.textContent = '☀️ GOOD MORNING · CLEAN SWEET START';
+                tag.textContent = '☀️ MORNING FUEL · ZERO SUGAR';
                 heading.textContent = 'Guilt-Free Morning Fuel 🥞';
                 subtext.textContent = 'High protein, zero maida, natural sweetness to power your morning.';
             } else if (hour >= 12 && hour < 17) {
-                tag.textContent = '🥗 MIDDAY INDULGENCE · ZERO SUGAR CRASH';
+                tag.textContent = '⚡ ZERO SUGAR · ZERO SLUMP';
                 heading.textContent = 'Afternoon Treats Without the Slump 🍰';
                 subtext.textContent = 'Clean-crafted desserts by verified Goa home bakers. 100% Monk Fruit sweetness.';
             } else if (hour >= 17 && hour < 22) {
-                tag.textContent = '🌆 EVENING REWARD · ZERO ADDED SUGAR';
+                tag.textContent = '🌆 EVENING TREAT · ZERO SPIKE';
                 heading.textContent = 'Desserts that love you back 🍰';
                 subtext.textContent = 'AI-customized, nutrition-tracked, fresh from verified home kitchens in Goa.';
             } else {
-                tag.textContent = '🌙 LATE NIGHT CRAVING · GUILT-FREE';
+                tag.textContent = '🌙 LATE CRAVING · GUILT-FREE';
                 heading.textContent = 'Midnight Sweet Tooth Satisfied 🍫';
                 subtext.textContent = 'Pure rich flavor, keto-friendly carbs, zero sugar rush before bedtime.';
             }
         }
 
-        // Count items per tag
-        const cards = document.querySelectorAll('#dessert-grid .dessert-card');
-        let light = 0, balanced = 0, heavy = 0;
-        cards.forEach(c => {
-            const t = c.dataset.tag;
-            if (t === 'light') light++;
-            else if (t === 'balanced') balanced++;
-            else if (t === 'heavy') heavy++;
+        // Calculate dynamic filter counts for Light, Balanced, Heavy
+        let lightCount = 0, balancedCount = 0, heavyCount = 0;
+        document.querySelectorAll('.menu-card-2col').forEach(card => {
+            const t = (card.dataset.tag || '').toLowerCase();
+            if (t === 'light') lightCount++;
+            else if (t === 'balanced') balancedCount++;
+            else if (t === 'heavy') heavyCount++;
         });
-
         const lightEl = document.getElementById('count-light');
         const balEl = document.getElementById('count-balanced');
         const heavyEl = document.getElementById('count-heavy');
-        if (lightEl) lightEl.textContent = `(${light})`;
-        if (balEl) balEl.textContent = `(${balanced})`;
-        if (heavyEl) heavyEl.textContent = `(${heavy})`;
+        if (lightEl) lightEl.textContent = `(${lightCount})`;
+        if (balEl) balEl.textContent = `(${balancedCount})`;
+        if (heavyEl) heavyEl.textContent = `(${heavyCount})`;
+
+        // Initialize Favorites, Mascot Spring Controller, and Card Steppers
+        Favorites.updateButtons();
+        mascotController = new MascotSpringController();
+        updateCardSteppers();
     });
 
-    // 3. Category Filter on Home Screen
+    // 2b. Hero Portal Transition & Hand-Off
+    function onHeroPortalClick(e, url) {
+        e.preventDefault();
+        const el = document.getElementById('hero-curations-portal');
+        if (el) {
+            el.style.transform = 'scale(0.97) translateY(-3px)';
+            el.style.boxShadow = '0 0 45px rgba(245, 158, 11, 0.45)';
+            el.style.borderColor = 'var(--honey)';
+        }
+        document.body.style.transition = 'opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1), transform 0.26s cubic-bezier(0.16, 1, 0.3, 1)';
+        document.body.style.opacity = '0';
+        document.body.style.transform = 'scale(0.985)';
+        setTimeout(() => {
+            window.location.href = url;
+        }, 220);
+    }
+
+    // 3. Favorites Manager (Persisted in localStorage)
+    const Favorites = {
+        KEY: 'cravin_favorites',
+        get() {
+            try {
+                return JSON.parse(localStorage.getItem(this.KEY) || '[]');
+            } catch {
+                return [];
+            }
+        },
+        toggle(id, name) {
+            let list = this.get();
+            const idx = list.indexOf(id);
+            let added = false;
+            if (idx > -1) {
+                list.splice(idx, 1);
+                added = false;
+            } else {
+                list.push(id);
+                added = true;
+            }
+            localStorage.setItem(this.KEY, JSON.stringify(list));
+            this.updateButtons();
+            if (typeof showToast === 'function') {
+                if (added) {
+                    showToast(`❤️ Added <strong>${name}</strong> to your favorites!`);
+                } else {
+                    showToast(`Removed <strong>${name}</strong> from favorites`);
+                }
+            }
+            return added;
+        },
+        has(id) {
+            return this.get().includes(id);
+        },
+        updateButtons() {
+            const list = this.get();
+            document.querySelectorAll('.btn-card-favorite').forEach(btn => {
+                const id = btn.dataset.id;
+                const icon = btn.querySelector('.favorite-heart-icon');
+                if (list.includes(id)) {
+                    btn.classList.add('is-favorite');
+                    if (icon) icon.textContent = '❤️';
+                } else {
+                    btn.classList.remove('is-favorite');
+                    if (icon) icon.textContent = '🤍';
+                }
+            });
+        }
+    };
+
+    // 4. Tag Filtering (All, Light, Balanced, Heavy)
     function filterDesserts(tag, btn) {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
 
-        document.querySelectorAll('#dessert-grid .dessert-card').forEach(card => {
-            if (tag === 'all' || card.dataset.tag === tag) {
+        const cards = document.querySelectorAll('.menu-card-2col');
+        cards.forEach(card => {
+            const cardTag = (card.dataset.tag || '').toLowerCase();
+            if (tag === 'all' || cardTag === tag) {
                 card.style.display = '';
                 card.style.animation = 'fadeInUp 0.3s ease';
             } else {
@@ -681,6 +907,236 @@
             }
         });
     }
+    const selectCategory = filterDesserts;
+
+    // 5. Promo Banner Claim Action
+    function claimPromoOffer() {
+        showToast("🎉 Promo code CRAVIN20 activated! 20% off your healthy treat cart 🍰", "success", 3500);
+    }
+
+    // 6. Top Dynamic Mascot Drag-Down & Spring Bounce Controller
+    let mascotController = null;
+
+    class MascotSpringController {
+        constructor() {
+            this.container = document.getElementById('top-mascot-container');
+            this.bubble = document.getElementById('mascot-speech-bubble');
+            this.speechText = document.getElementById('mascot-speech-text');
+
+            // Fully off-screen rest position
+            this.restY = -180;
+            this.currentY = -180;
+            this.targetY = -180;
+            this.velocity = 0;
+
+            // Physical spring specifications: damping 15, stiffness 200, mass 1
+            this.stiffness = 200;
+            this.damping = 15;
+            this.mass = 1;
+
+            // Interaction state
+            this.isDragging = false;
+            this.startY = 0;
+            this.currentPull = 0;
+            this.maxPull = 120;
+            this.rafId = null;
+            this.lastFrameTime = null;
+            this.autoHideTimer = null;
+
+            if (this.container) {
+                this.initListeners();
+            }
+        }
+
+        initListeners() {
+            // Touch pull-down (mobile)
+            window.addEventListener('touchstart', (e) => {
+                if (window.scrollY <= 2 && e.touches.length === 1) {
+                    this.startY = e.touches[0].clientY;
+                    this.isDragging = true;
+                    this.cancelSpring();
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!this.isDragging) return;
+                const clientY = e.touches[0].clientY;
+                const diff = clientY - this.startY;
+                if (diff > 0 && window.scrollY <= 2) {
+                    const pull = Math.min(diff * 0.55, this.maxPull);
+                    this.applyPull(pull);
+                    if (e.cancelable && diff > 15) e.preventDefault();
+                }
+            }, { passive: false });
+
+            window.addEventListener('touchend', () => {
+                if (this.isDragging) {
+                    this.isDragging = false;
+                    this.releaseSpring();
+                }
+            });
+
+            // Desktop Mouse drag-down: clicking in the top 260px area and dragging downward
+            document.addEventListener('mousedown', (e) => {
+                if (e.target.closest('button, a, input, [onclick], .menu-card-2col, .category-pill')) return;
+                if (window.scrollY <= 2 && e.clientY < 260) {
+                    this.startY = e.clientY;
+                    this.isDragging = true;
+                    this.cancelSpring();
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!this.isDragging) return;
+                const diff = e.clientY - this.startY;
+                if (diff > 0 && window.scrollY <= 2) {
+                    const pull = Math.min(diff * 0.55, this.maxPull);
+                    this.applyPull(pull);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (this.isDragging) {
+                    this.isDragging = false;
+                    this.releaseSpring();
+                }
+            });
+
+            // Wheel / Trackpad overscroll at the very top
+            window.addEventListener('wheel', (e) => {
+                if (window.scrollY <= 0 && e.deltaY < -2 && !this.isDragging) {
+                    const pull = Math.min(Math.abs(e.deltaY) * 0.6, 95);
+                    this.applyPull(pull);
+                    clearTimeout(this.wheelTimeout);
+                    this.wheelTimeout = setTimeout(() => {
+                        this.releaseSpring();
+                    }, 180);
+                }
+            }, { passive: true });
+        }
+
+        applyPull(pullProgress) {
+            clearTimeout(this.autoHideTimer);
+            this.currentPull = Math.max(0, Math.min(pullProgress, this.maxPull));
+
+            if (this.currentPull > 4) {
+                this.container.style.opacity = '1';
+            }
+
+            // Translates smoothly from restY (-180px) down to +15px
+            const translateY = this.restY + (this.currentPull * 1.95);
+            this.currentY = translateY;
+
+            const scale = 0.85 + (this.currentPull / 100) * 0.25;
+            const rotate = Math.sin(this.currentPull * 0.08) * 6;
+
+            this.container.style.transform = `translateX(-50%) translateY(${translateY}px) scale(${scale}) rotate(${rotate}deg)`;
+
+            // Speech bubble feedback
+            if (this.bubble && this.speechText) {
+                if (this.currentPull > 25) {
+                    this.bubble.style.opacity = Math.min(1, (this.currentPull - 25) / 35);
+                    this.bubble.style.transform = 'scale(1)';
+
+                    if (this.currentPull < 55) {
+                        this.speechText.textContent = "Keep pulling for treats! 🍰";
+                    } else if (this.currentPull < 85) {
+                        this.speechText.textContent = "Almost there! ✨";
+                    } else {
+                        this.speechText.textContent = "Release to bounce! 🎉";
+                    }
+                } else {
+                    this.bubble.style.opacity = '0';
+                    this.bubble.style.transform = 'scale(0.85)';
+                }
+            }
+        }
+
+        cancelSpring() {
+            if (this.rafId) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+            this.velocity = 0;
+            clearTimeout(this.autoHideTimer);
+        }
+
+        releaseSpring() {
+            this.cancelSpring();
+            const pulled = this.currentPull;
+
+            if (pulled < 30) {
+                // Tucked away quickly
+                this.container.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease';
+                this.container.style.transform = `translateX(-50%) translateY(${this.restY}px) scale(0.85)`;
+                this.container.style.opacity = '0';
+                if (this.bubble) this.bubble.style.opacity = '0';
+                setTimeout(() => {
+                    this.container.style.transition = '';
+                    this.currentY = this.restY;
+                }, 300);
+                return;
+            }
+
+            // Trigger spring bounce at revealed position (+15px)
+            this.targetY = 15;
+            this.lastFrameTime = performance.now();
+
+            if (this.speechText) {
+                this.speechText.textContent = "🎉 Fresh healthy treats ready! 🍰";
+            }
+            if (this.bubble) {
+                this.bubble.style.opacity = '1';
+                this.bubble.style.transform = 'scale(1.05)';
+            }
+
+            // Spring bounce loop: damping: 15, stiffness: 200, mass: 1
+            const step = (now) => {
+                const dt = Math.min((now - this.lastFrameTime) / 1000, 0.032);
+                this.lastFrameTime = now;
+
+                const displacement = this.currentY - this.targetY;
+                const springForce = -this.stiffness * displacement;
+                const dampingForce = -this.damping * this.velocity;
+                const acceleration = (springForce + dampingForce) / this.mass;
+
+                this.velocity += acceleration * dt;
+                this.currentY += this.velocity * dt;
+
+                const scale = Math.max(0.85, 1.05 - Math.abs(displacement) * 0.001);
+                this.container.style.transform = `translateX(-50%) translateY(${this.currentY}px) scale(${scale})`;
+
+                // Settle condition
+                if (Math.abs(displacement) < 0.35 && Math.abs(this.velocity) < 0.35) {
+                    this.currentY = this.targetY;
+                    this.container.style.transform = `translateX(-50%) translateY(${this.targetY}px) scale(1)`;
+                    this.velocity = 0;
+                    this.rafId = null;
+
+                    // After staying visible for 1.2s to delight the user, tuck smoothly back up
+                    this.autoHideTimer = setTimeout(() => {
+                        this.container.style.transition = 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease';
+                        this.container.style.transform = `translateX(-50%) translateY(${this.restY}px) scale(0.85)`;
+                        this.container.style.opacity = '0';
+                        if (this.bubble) this.bubble.style.opacity = '0';
+
+                        setTimeout(() => {
+                            this.container.style.transition = '';
+                            this.currentY = this.restY;
+                        }, 480);
+                    }, 1200);
+
+                    return;
+                }
+
+                this.rafId = requestAnimationFrame(step);
+            };
+
+            this.rafId = requestAnimationFrame(step);
+        }
+    }
+
+    // 7. Dedicated Search Overlay Logic
 
     // 4. Dedicated Search Overlay Logic
     function openSearchOverlay() {
@@ -775,7 +1231,7 @@
         `;
 
         matches.slice(0, 5).forEach(item => {
-            const tagEmoji = item.tag === 'light' ? '🌿 Light' : (item.tag === 'heavy' ? '🍫 Heavy' : '⚖️ Balanced');
+            const tagEmoji = item.tag === 'light' ? 'Light' : (item.tag === 'heavy' ? 'Heavy' : 'Balanced');
             html += `
                 <div class="suggestion-item" onclick="submitSearch('${escapeHtml(item.name)}')">
                     <div class="flex items-center gap-3" style="min-width: 0; flex: 1;">
@@ -860,14 +1316,23 @@
                                 <div style="font-size: 0.95rem; font-weight: 800; color: var(--honey-light);">₹${d.price}</div>
                             </div>
                         </a>
-                        <button type="button" class="btn btn-primary" style="padding: 6px 14px; min-height: 36px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;"
-                                onclick="quickAddToCart('${d.id}', '${d.name.replace(/'/g, "\\'")}', ${d.price}, ${d.calories})">
-                            + Add
-                        </button>
+                        <div class="card-action-slot"
+                             data-dessert-id="${d.id}"
+                             data-name="${d.name.replace(/'/g, "\\'")}"
+                             data-price="${d.price}"
+                             data-calories="${d.calories}"
+                             onclick="event.preventDefault();event.stopPropagation();">
+                            <button type="button" class="card-btn-add"
+                                    onclick="event.preventDefault();event.stopPropagation();handleCardAdd(event,'${d.id}','${d.name.replace(/'/g,"\\'")}',${d.price},${d.calories})">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                ADD
+                            </button>
+                        </div>
                     </div>
                 `;
             });
             resultsList.innerHTML = html;
+            updateCardSteppers();
             aiPrompt.classList.remove('hidden');
             aiPromptText.textContent = `Want to tweak "${query}" with more protein, less calories, or vegan milk?`;
         }
@@ -934,8 +1399,8 @@
         const idx = text.toLowerCase().indexOf(query.toLowerCase());
         if (idx === -1) return escapeHtml(text);
         const before = escapeHtml(text.slice(0, idx));
-        const match = escapeHtml(text.slice(idx, idx + query.length));
-        const after = escapeHtml(text.slice(idx + query.length));
+        const match  = escapeHtml(text.slice(idx, idx + query.length));
+        const after  = escapeHtml(text.slice(idx + query.length));
         return `${before}<span style="color: var(--honey-light); text-decoration: underline;">${match}</span>${after}`;
     }
 
@@ -944,16 +1409,105 @@
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    // 7. Quick Add to Cart with Tactile Toast
-    function quickAddToCart(dessertId, name, price, calories) {
-        Cart.add({
-            dessert_id: dessertId,
-            name: name,
-            price: price,
-            calories: calories,
-            quantity: 1,
-        });
-        showToast(`✨ Added <strong>${name}</strong> to your cart! 🛒`);
+    // ── 7. D2C Card Stepper Controller ──
+
+    // Use data-action attributes + event delegation instead of inline onclick.
+    // This survives bfcache restores and innerHTML re-injection perfectly.
+    function renderCardSlot(slot, id, name, price, calories) {
+        const qty = Cart.getQuantity(id);
+        if (qty > 0) {
+            slot.innerHTML = `
+                <div class="card-btn-stepper">
+                    <button type="button" class="card-stepper-btn"
+                            data-action="decrement" data-id="${id}" data-name="${name.replace(/"/g,'&quot;')}"
+                            aria-label="Remove one">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+                    <span class="card-stepper-count" id="sc-${id}">${qty}</span>
+                    <button type="button" class="card-stepper-btn"
+                            data-action="increment" data-id="${id}" data-name="${name.replace(/"/g,'&quot;')}" data-price="${price}" data-calories="${calories}"
+                            aria-label="Add one more">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+                </div>`;
+        } else {
+            slot.innerHTML = `
+                <button type="button" class="card-btn-add"
+                        data-action="add" data-id="${id}" data-name="${name.replace(/"/g,'&quot;')}" data-price="${price}" data-calories="${calories}">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    ADD
+                </button>`;
+        }
     }
+
+    function updateCardSteppers() {
+        document.querySelectorAll('.card-action-slot').forEach(slot => {
+            const id = String(slot.dataset.dessertId || '');
+            renderCardSlot(slot, id, slot.dataset.name || '', Number(slot.dataset.price||0), Number(slot.dataset.calories||0));
+        });
+    }
+
+    // Single delegated listener — survives any innerHTML re-injection
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        if (!['add','increment','decrement'].includes(action)) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const id       = btn.dataset.id;
+        const name     = btn.dataset.name;
+        const price    = Number(btn.dataset.price || 0);
+        const calories = Number(btn.dataset.calories || 0);
+
+        if (action === 'add' || action === 'increment') {
+            Cart.add({ dessert_id: id, name, price, calories, quantity: 1 });
+            if (action === 'add') showToast(`Added <strong>${name}</strong> to your cart! 🛒`);
+            const slot = document.querySelector(`.card-action-slot[data-dessert-id="${id}"]`);
+            if (slot) { renderCardSlot(slot, id, name, price, calories); bumpCount(id); }
+        } else if (action === 'decrement') {
+            // Get the cart array ONCE, mutate it in-place, save the SAME reference
+            const cart = Cart.get();
+            const idx  = cart.findIndex(i => String(i.dessert_id) === String(id) && !i.customization);
+            if (idx === -1) return;
+            const item = cart[idx];
+            const itemPrice    = item.price;
+            const itemCalories = item.calories;
+            if (item.quantity > 1) {
+                item.quantity -= 1;
+            } else {
+                cart.splice(idx, 1);
+                showToast(`Removed <strong>${item.name}</strong> from cart`);
+            }
+            localStorage.setItem(Cart.KEY, JSON.stringify(cart)); // save the SAME mutated array
+            Cart.updateBadge();
+            const slot = document.querySelector(`.card-action-slot[data-dessert-id="${id}"]`);
+            if (slot) { renderCardSlot(slot, id, item.name || name, itemPrice, itemCalories); bumpCount(id); }
+        }
+    }, true); // capture phase so it fires even inside <a> tags
+
+    function bumpCount(id) {
+        const el = document.getElementById(`sc-${id}`);
+        if (!el) return;
+        el.classList.remove('bump');
+        void el.offsetWidth;
+        el.classList.add('bump');
+        setTimeout(() => el.classList.remove('bump'), 250);
+    }
+
+    // Compatibility alias
+    function quickAddToCart(dessertId, name, price, calories) {
+        Cart.add({ dessert_id: dessertId, name, price, calories, quantity: 1 });
+        showToast(`Added <strong>${name}</strong> to your cart! 🛒`);
+        const slot = document.querySelector(`.card-action-slot[data-dessert-id="${dessertId}"]`);
+        if (slot) renderCardSlot(slot, dessertId, name, price, calories);
+    }
+
+    // Sync steppers on load AND on back-navigation (bfcache restore)
+    window.addEventListener('pageshow', () => updateCardSteppers());
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') updateCardSteppers();
+    });
 </script>
 {% endblock %}

@@ -1,6 +1,148 @@
 {% extends "base.html" %}
 {% block title %}Profile & Nutrition{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Edit Profile Trigger Button */
+.btn-edit-trigger {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    color: #A3A3A3 !important;
+    border-radius: 0.5rem !important;
+    padding: 0.375rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease !important;
+}
+
+.btn-edit-trigger:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #FFFFFF !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+.btn-edit-trigger:active {
+    transform: scale(0.90) !important;
+}
+
+/* Modal Overlay Backdrop */
+.profile-modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, 0.72) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1.25rem !important;
+    box-sizing: border-box !important;
+    opacity: 0 !important;
+    transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.profile-modal-backdrop.open {
+    display: flex !important;
+    opacity: 1 !important;
+}
+
+/* Frosted Modal Card */
+.profile-modal-card {
+    background: rgba(10, 10, 10, 0.88) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 1.5rem !important;
+    padding: 1.75rem !important;
+    max-width: 28rem !important;
+    width: 100% !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+    transform: scale(0.94) translateY(12px) !important;
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
+}
+
+.profile-modal-backdrop.open .profile-modal-card {
+    transform: scale(1) translateY(0) !important;
+}
+
+/* Modal Form Inputs */
+.profile-input-field {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: rgba(23, 23, 23, 0.88) !important;
+    border: 1px solid #2B2B2B !important;
+    border-radius: 0.75rem !important;
+    padding: 0.625rem 0.875rem !important;
+    color: #FFFFFF !important;
+    font-size: 0.875rem !important;
+    outline: none !important;
+    transition: border-color 150ms ease, box-shadow 150ms ease !important;
+}
+
+.profile-input-field:focus {
+    border-color: rgba(16, 185, 129, 0.60) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Modal Action Buttons */
+.btn-save-profile {
+    background: linear-gradient(to right, #10B981, #14B8A6) !important;
+    color: #0A0A0A !important;
+    font-weight: 700 !important;
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+    cursor: pointer !important;
+    border: none !important;
+    outline: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    font-size: 0.875rem !important;
+    transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease !important;
+}
+
+.btn-save-profile:hover {
+    filter: brightness(1.06) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
+}
+
+.btn-save-profile:active {
+    transform: scale(0.95) !important;
+}
+
+.btn-cancel-profile {
+    appearance: none !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.75rem !important;
+    color: #A3A3A3 !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    cursor: pointer !important;
+    transition: color 150ms ease !important;
+}
+
+.btn-cancel-profile:hover {
+    color: #FFFFFF !important;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-content" style="padding-bottom: 100px;">
     <!-- Top Bar -->
@@ -20,12 +162,28 @@
         <!-- User Identity Row -->
         <div class="flex items-center justify-between pb-5" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
             <div class="flex items-center gap-3">
-                <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--jamun), var(--honey)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: #080C14; box-shadow: 0 4px 16px var(--jamun-glow);">
-                    {{ user.full_name[0] if user.full_name else '?' }}
+                <div style="position: relative;">
+                    <div id="profile-avatar" style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--jamun), var(--honey)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: #080C14; box-shadow: 0 4px 16px var(--jamun-glow);">
+                        {{ user.full_name[0] if user.full_name else '?' }}
+                    </div>
                 </div>
                 <div>
-                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #FFFFFF; margin-bottom: 2px;">{{ user.full_name }}</h3>
-                    <p class="text-muted" style="font-size: 0.8rem; margin: 0;">{{ user.email }}</p>
+                    <div class="flex items-center gap-2">
+                        <h3 id="profile-display-name" style="font-size: 1.15rem; font-weight: 800; color: #FFFFFF; margin: 0;">{{ user.full_name }}</h3>
+                        <!-- Subtle Edit Trigger Button beside Name -->
+                        <button type="button" 
+                                id="btn-edit-profile"
+                                onclick="openEditProfileModal()" 
+                                class="btn-edit-trigger p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white border border-white/10 transition active:scale-90 transition-transform cursor-pointer" 
+                                title="Edit Profile & Goals"
+                                aria-label="Edit Profile">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil pointer-events-none">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                                <path d="m15 5 4 4"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-muted" id="profile-display-email" style="font-size: 0.8rem; margin: 3px 0 0 0;">{{ user.email }}</p>
                 </div>
             </div>
             <span class="badge badge-jamun" style="font-size: 0.72rem; font-weight: 700; padding: 5px 12px; border-radius: 9999px;">⭐ Member</span>
@@ -33,7 +191,7 @@
 
         <!-- SVG Two-Tone Calorie Ring (Yellow Consumed + Green Remaining) -->
         <div class="text-center" style="margin: 28px 0 20px 0;">
-            {% set goal = (nutrition.calorie_goal if nutrition and nutrition.calorie_goal else 2000)|float %}
+            {% set goal = (nutrition.calorie_goal if nutrition and nutrition.calorie_goal else 1800)|float %}
             {% set consumed = (nutrition.consumed.calories if nutrition and nutrition.consumed else 0)|float %}
             {% set remaining = (nutrition.calories_remaining if nutrition else (goal - consumed))|float %}
             {% set consumed_ratio = (consumed / goal) if goal > 0 else 0 %}
@@ -65,32 +223,28 @@
                             stroke-width="12" />
 
                     <!-- Green Arc (Remaining Calories) -->
-                    {% if remaining_ratio > 0 %}
-                    <circle cx="90" cy="90" r="72" 
+                    <circle id="ring-remaining-circle" cx="90" cy="90" r="72" 
                             fill="none" 
                             stroke="url(#remainingGrad)" 
                             stroke-width="12" 
                             stroke-dasharray="452.39"
-                            stroke-dashoffset="{{ remaining_offset }}"
-                            style="transform-origin: 90px 90px; transform: rotate({{ consumed_ratio * 360 }}deg); transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));" />
-                    {% endif %}
+                            stroke-dashoffset="{{ remaining_offset if remaining_ratio > 0 else 452.39 }}"
+                            style="transform-origin: 90px 90px; transform: rotate({{ consumed_ratio * 360 }}deg); transition: stroke-dashoffset 0.6s ease, transform 0.6s ease; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));" />
 
                     <!-- Yellow Arc (Consumed Calories) -->
-                    {% if consumed_ratio > 0 %}
-                    <circle cx="90" cy="90" r="72" 
+                    <circle id="ring-consumed-circle" cx="90" cy="90" r="72" 
                             fill="none" 
                             stroke="url(#consumedGrad)" 
                             stroke-width="12" 
                             stroke-linecap="round"
                             stroke-dasharray="452.39"
-                            stroke-dashoffset="{{ consumed_offset }}"
+                            stroke-dashoffset="{{ consumed_offset if consumed_ratio > 0 else 452.39 }}"
                             style="transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));" />
-                    {% endif %}
                 </svg>
 
                 <!-- Center Metric HUD -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
-                    <div style="font-family: var(--font-display); font-weight: 900; font-size: 2rem; color: #FFFFFF; line-height: 1; letter-spacing: -0.02em;">
+                    <div id="ring-calories-left" style="font-family: var(--font-display); font-weight: 900; font-size: 2rem; color: #FFFFFF; line-height: 1; letter-spacing: -0.02em;">
                         {{ remaining|int }}
                     </div>
                     <div style="font-size: 0.72rem; color: #34D399; text-transform: uppercase; font-weight: 800; letter-spacing: 0.08em; margin-top: 5px;">
@@ -103,12 +257,12 @@
             <div class="flex items-center justify-center gap-3 mt-3" style="font-size: 0.76rem; font-weight: 700;">
                 <div class="flex items-center gap-1.5" style="color: #FCD34D;">
                     <span style="width: 8px; height: 8px; border-radius: 50%; background: #F59E0B; display: inline-block; box-shadow: 0 0 6px rgba(245, 158, 11, 0.7);"></span>
-                    <span>{{ consumed|int }} Consumed</span>
+                    <span id="label-calories-consumed">{{ consumed|int }} Consumed</span>
                 </div>
                 <div style="color: rgba(255,255,255,0.25);">•</div>
                 <div class="flex items-center gap-1.5" style="color: #6EE7B7;">
                     <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; display: inline-block; box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);"></span>
-                    <span>{{ remaining|int }} Left</span>
+                    <span id="label-calories-left">{{ remaining|int }} Left</span>
                 </div>
             </div>
         </div>
@@ -116,18 +270,18 @@
         <!-- Integrated Clean Macro Stats with Room to Breathe -->
         <div class="flex items-center justify-between pt-4" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
             <div class="text-center" style="flex: 1;">
-                <div style="font-weight: 800; color: #FFFFFF; font-size: 1.1rem; margin-bottom: 2px;">{{ nutrition.consumed.calories|int if nutrition else 0 }}</div>
+                <div style="font-weight: 800; color: #FFFFFF; font-size: 1.1rem; margin-bottom: 2px;" id="metric-consumed-calories">{{ nutrition.consumed.calories|int if nutrition else 0 }}</div>
                 <div class="text-label" style="font-size: 0.68rem;">Consumed</div>
             </div>
             <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.08);"></div>
             <div class="text-center" style="flex: 1;">
-                <div style="font-weight: 800; color: var(--honey-light); font-size: 1.1rem; margin-bottom: 2px;">{{ nutrition.calorie_goal|int if nutrition else 500 }}</div>
+                <div style="font-weight: 800; color: var(--honey-light); font-size: 1.1rem; margin-bottom: 2px;" id="metric-calorie-goal">{{ nutrition.calorie_goal|int if nutrition else 1800 }}</div>
                 <div class="text-label" style="font-size: 0.68rem;">Daily Goal</div>
             </div>
             <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.08);"></div>
             <div class="text-center" style="flex: 1;">
-                <div style="font-weight: 800; color: var(--pista-light); font-size: 1.1rem; margin-bottom: 2px;">{{ nutrition.consumed.protein_g|round(1) if nutrition else 0 }}g</div>
-                <div class="text-label" style="font-size: 0.68rem;">Protein</div>
+                <div style="font-weight: 800; color: var(--pista-light); font-size: 1.1rem; margin-bottom: 2px;" id="metric-protein-consumed">{{ nutrition.consumed.protein_g|round(1) if nutrition else 0 }}g</div>
+                <div class="text-label" style="font-size: 0.68rem;">Protein (<span id="profile-protein-goal-label">{{ user.protein_goal|int if user.protein_goal else 50 }}</span>g goal)</div>
             </div>
         </div>
     </div>
@@ -188,6 +342,110 @@
     </div>
     {% endif %}
 
+    <!-- Edit Profile Modal / Slide-Over Sheet -->
+    <div id="edit-profile-modal-backdrop" class="profile-modal-backdrop" onclick="if(event.target === this) closeEditProfileModal();" aria-hidden="true">
+        <div class="profile-modal-card bg-neutral-950/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 max-w-md w-full shadow-2xl" onclick="event.stopPropagation();">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-5 pb-3" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #FFFFFF; margin: 0 0 2px 0; display: flex; align-items: center; gap: 8px;">
+                        <span>👤</span> Edit Profile & Goals
+                    </h3>
+                    <p style="font-size: 0.76rem; color: var(--text-tertiary); margin: 0;">Update account credentials & nutrition targets</p>
+                </div>
+                <button type="button" 
+                        onclick="closeEditProfileModal()" 
+                        class="p-1.5 rounded-full text-neutral-400 hover:text-white transition" 
+                        style="background: none; border: none; font-size: 1.25rem; cursor: pointer; line-height: 1;" 
+                        aria-label="Close modal">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form id="edit-profile-form" onsubmit="saveProfileChanges(event)">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <!-- Full Name -->
+                    <div>
+                        <label for="edit-full-name" style="display: block; font-size: 0.78rem; font-weight: 600; color: #D4D4D4; margin-bottom: 6px;">
+                            Full Name
+                        </label>
+                        <input type="text" 
+                               id="edit-full-name" 
+                               name="full_name"
+                               value="{{ user.full_name }}" 
+                               placeholder="e.g. Priya Sharma"
+                               class="profile-input-field bg-neutral-900/80 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-white focus:border-emerald-500/50 outline-none transition"
+                               required>
+                    </div>
+
+                    <!-- Email Address -->
+                    <div>
+                        <label for="edit-email" style="display: block; font-size: 0.78rem; font-weight: 600; color: #D4D4D4; margin-bottom: 6px;">
+                            Email Address
+                        </label>
+                        <input type="email" 
+                               id="edit-email" 
+                               name="email"
+                               value="{{ user.email }}" 
+                               placeholder="priya@example.com"
+                               class="profile-input-field bg-neutral-900/80 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-white focus:border-emerald-500/50 outline-none transition"
+                               required>
+                    </div>
+
+                    <!-- Dual Target Fields: Daily Calorie Target & Protein Goal -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label for="edit-calorie-goal" style="display: block; font-size: 0.78rem; font-weight: 600; color: #D4D4D4; margin-bottom: 6px;">
+                                Daily Calories (kcal)
+                            </label>
+                            <input type="number" 
+                                   id="edit-calorie-goal" 
+                                   name="calorie_goal"
+                                   value="{{ user.calorie_goal|int if user.calorie_goal else 1800 }}" 
+                                   min="500" 
+                                   max="8000" 
+                                   step="50"
+                                   placeholder="1800"
+                                   class="profile-input-field bg-neutral-900/80 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-white focus:border-emerald-500/50 outline-none transition"
+                                   required>
+                        </div>
+
+                        <div>
+                            <label for="edit-protein-goal" style="display: block; font-size: 0.78rem; font-weight: 600; color: #D4D4D4; margin-bottom: 6px;">
+                                Protein Goal (g)
+                            </label>
+                            <input type="number" 
+                                   id="edit-protein-goal" 
+                                   name="protein_goal"
+                                   value="{{ user.protein_goal|int if user.protein_goal else 50 }}" 
+                                   min="10" 
+                                   max="300" 
+                                   step="1"
+                                   placeholder="50"
+                                   class="profile-input-field bg-neutral-900/80 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-white focus:border-emerald-500/50 outline-none transition"
+                                   required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end gap-3 mt-6 pt-4" style="border-top: 1px solid rgba(255, 255, 255, 0.06);">
+                    <button type="button" 
+                            onclick="closeEditProfileModal()" 
+                            class="btn-cancel-profile px-4 py-2 rounded-xl text-neutral-400 hover:text-white transition">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            id="btn-save-profile" 
+                            class="btn-save-profile bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl shadow-lg hover:brightness-105 active:scale-95 transition">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {% else %}
     <div class="text-center p-6 card" style="background: var(--bg-surface-glass); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); padding: 40px 24px;">
         <div style="font-size: 3rem; margin-bottom: 12px;">👤</div>
@@ -209,6 +467,142 @@
     <a href="/app/rewards"><span class="nav-icon">🏆</span><span>Rewards</span></a>
     <a href="/app/profile" class="active"><span class="nav-icon">👤</span><span>Profile</span></a>
 </nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // In-memory nutrition state for dynamic HUD recalculation
+    const profileState = {
+        consumedCalories: {{ (nutrition.consumed.calories if nutrition and nutrition.consumed else 0)|float }},
+        calorieGoal: {{ (nutrition.calorie_goal if nutrition and nutrition.calorie_goal else 1800)|float }},
+        proteinGoal: {{ (user.protein_goal if user and user.protein_goal else 50)|float }}
+    };
+
+    function openEditProfileModal() {
+        const backdrop = document.getElementById('edit-profile-modal-backdrop');
+        if (!backdrop) return;
+        backdrop.classList.add('open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        const nameInput = document.getElementById('edit-full-name');
+        if (nameInput) setTimeout(() => nameInput.focus(), 150);
+    }
+
+    function closeEditProfileModal() {
+        const backdrop = document.getElementById('edit-profile-modal-backdrop');
+        if (!backdrop) return;
+        backdrop.classList.remove('open');
+        backdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    // Close on Escape key press
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeEditProfileModal();
+    });
+
+    async function saveProfileChanges(e) {
+        if (e) e.preventDefault();
+        const btn = document.getElementById('btn-save-profile');
+        const originalText = btn ? btn.innerHTML : 'Save Changes';
+
+        const fullName = document.getElementById('edit-full-name').value.trim();
+        const email = document.getElementById('edit-email').value.trim();
+        const calorieGoal = parseFloat(document.getElementById('edit-calorie-goal').value);
+        const proteinGoal = parseFloat(document.getElementById('edit-protein-goal').value);
+
+        if (!fullName || !email || isNaN(calorieGoal) || isNaN(proteinGoal)) {
+            showToast('Please fill in all required fields.', 'warning');
+            return;
+        }
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span style="display:inline-block; width:13px; height:13px; border:2px solid #000; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; vertical-align:middle; margin-right:6px;"></span> Saving...';
+        }
+
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    full_name: fullName,
+                    email: email,
+                    calorie_goal: calorieGoal,
+                    protein_goal: proteinGoal
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.detail || 'Failed to update profile');
+            }
+
+            // 1. Update Header Identity (Name, Email, Avatar)
+            const displayNameEl = document.getElementById('profile-display-name');
+            if (displayNameEl) displayNameEl.textContent = fullName;
+
+            const displayEmailEl = document.getElementById('profile-display-email');
+            if (displayEmailEl) displayEmailEl.textContent = email;
+
+            const avatarEl = document.getElementById('profile-avatar');
+            if (avatarEl && fullName.length > 0) {
+                avatarEl.textContent = fullName[0].toUpperCase();
+            }
+
+            // 2. Immediate Dynamic Recalculation of Calorie Dial & Macro Goals
+            profileState.calorieGoal = calorieGoal;
+            profileState.proteinGoal = proteinGoal;
+            const consumed = profileState.consumedCalories;
+            const remaining = Math.max(0, calorieGoal - consumed);
+
+            // Update text values
+            const ringCalLeft = document.getElementById('ring-calories-left');
+            if (ringCalLeft) ringCalLeft.textContent = Math.round(remaining);
+
+            const labelCalLeft = document.getElementById('label-calories-left');
+            if (labelCalLeft) labelCalLeft.textContent = `${Math.round(remaining)} Left`;
+
+            const metricGoal = document.getElementById('metric-calorie-goal');
+            if (metricGoal) metricGoal.textContent = Math.round(calorieGoal);
+
+            const proteinGoalLabel = document.getElementById('profile-protein-goal-label');
+            if (proteinGoalLabel) proteinGoalLabel.textContent = Math.round(proteinGoal);
+
+            // 3. Update Circular Ring Dial SVG Offsets
+            const circ = 452.39;
+            const consumedRatio = calorieGoal > 0 ? Math.min(1.0, consumed / calorieGoal) : 0;
+            const remainingRatio = Math.max(0, 1.0 - consumedRatio);
+
+            const remainingCircle = document.getElementById('ring-remaining-circle');
+            if (remainingCircle) {
+                const remOffset = remainingRatio > 0 ? circ * (1.0 - remainingRatio) : circ;
+                remainingCircle.style.strokeDashoffset = remOffset;
+                remainingCircle.style.transform = `rotate(${consumedRatio * 360}deg)`;
+            }
+
+            const consumedCircle = document.getElementById('ring-consumed-circle');
+            if (consumedCircle) {
+                const consOffset = consumedRatio > 0 ? circ * (1.0 - consumedRatio) : circ;
+                consumedCircle.style.strokeDashoffset = consOffset;
+            }
+
+            // 4. Trigger Clean Global Toast
+            showToast(data.message || 'Profile updated successfully', 'success');
+
+            // 5. Dismiss Modal Smoothly
+            closeEditProfileModal();
+
+        } catch (err) {
+            showToast(err.message || 'Error updating profile', 'danger');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+    }
+</script>
 {% endblock %}
 
 

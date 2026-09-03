@@ -1836,3 +1836,1066 @@ select.form-input option {
     transition: stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   12. MODERN FOOD DISCOVERY & TOP PULL-DOWN MASCOT UI
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Tailwind-compatible helper utilities */
+.fixed { position: fixed !important; }
+.top-0 { top: 0 !important; }
+.left-1\/2, .left-half { left: 50% !important; }
+.-translate-x-1\/2, .-translate-x-half { transform: translateX(-50%) !important; }
+.z-30 { z-index: 30 !important; }
+.pointer-events-none { pointer-events: none !important; }
+.pointer-events-auto { pointer-events: auto !important; }
+.aspect-square { aspect-ratio: 1 / 1 !important; }
+.rounded-2xl { border-radius: 1rem !important; }
+.rounded-full { border-radius: 9999px !important; }
+.overflow-hidden { overflow: hidden !important; }
+.bg-neutral-950 { background-color: #0A0A0A !important; }
+.bg-neutral-900 { background-color: #121620 !important; }
+.bg-black\/20, .bg-black-20 { background-color: rgba(0, 0, 0, 0.28) !important; }
+.bg-black\/50, .bg-black-50 { background-color: rgba(0, 0, 0, 0.50) !important; }
+.border-neutral-800 { border: 1px solid #262626 !important; }
+.border-neutral-200 { border-color: #E5E5E5 !important; }
+.border-white\/5, .border-white-5 { border-color: rgba(255, 255, 255, 0.07) !important; }
+.border-white\/10, .border-white-10 { border: 1px solid rgba(255, 255, 255, 0.10) !important; }
+.text-neutral-300 { color: #D4D4D4 !important; }
+.text-\[11px\] { font-size: 11px !important; }
+.text-xs { font-size: 0.75rem !important; }
+.font-medium { font-weight: 500 !important; }
+.font-semibold { font-weight: 600 !important; }
+.px-2\.5, .px-2-5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+.py-1 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+.px-3 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+.py-1\.5, .py-1-5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+.rounded-lg { border-radius: 0.5rem !important; }
+.bg-amber-500\/10 { background-color: rgba(245, 158, 11, 0.10) !important; }
+.hover\:bg-amber-500\/20:hover { background-color: rgba(245, 158, 11, 0.20) !important; }
+.text-amber-400 { color: #FBBF24 !important; }
+.border-amber-500\/30 { border: 1px solid rgba(245, 158, 11, 0.30) !important; }
+.transition { transition-property: color, background-color, border-color, opacity, box-shadow, transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+.backdrop-blur-md {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+.p-2 { padding: 0.5rem !important; }
+.p-4 { padding: 1rem !important; }
+
+/* ── Top Dynamic Mascot Container ────────────────────────── */
+.top-mascot-container {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-180px);
+    opacity: 0;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 220px;
+    will-change: transform, opacity;
+    transition: opacity 0.2s ease;
+}
+
+.top-mascot-bubble {
+    background: rgba(15, 21, 35, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    padding: 5px 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(139, 92, 246, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.top-mascot-img-wrap {
+    position: relative;
+    width: 82px;
+    height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.55));
+}
+
+.top-mascot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ── Category Pills (Horizontal Scrolling Strip) ─────────── */
+.category-strip-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1.2rem;
+}
+
+.category-strip {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    padding: 4px 2px 8px 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.category-strip::-webkit-scrollbar {
+    display: none;
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.05);
+    color: #94A3B8;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.category-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.category-pill:active {
+    transform: scale(0.96);
+}
+
+/* Active state: Sleek dark high-contrast pill with subtle drop shadow */
+.category-pill.active {
+    background: #000000 !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.24) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    transform: translateY(-1px);
+}
+
+.category-pill-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #1E293B;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.category-pill-emoji {
+    font-size: 1rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Discount / Featured Promo Banner ─────────────────────── */
+.promo-banner-card {
+    background: #0A0A0A !important;
+    color: #FFFFFF !important;
+    border-radius: 1.25rem !important;
+    padding: 1rem 1.2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border: 1px solid #262626 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.08) inset !important;
+    margin-bottom: 1.5rem !important;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.promo-banner-card:hover {
+    border-color: rgba(139, 92, 246, 0.45) !important;
+    transform: translateY(-1px);
+}
+
+.promo-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.promo-img-wrap {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    background: #161E30;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.promo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promo-badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 88, 12, 0.2));
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #FCD34D;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    margin-bottom: 4px;
+}
+
+.promo-title {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.promo-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+.promo-cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--jamun-light);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.promo-cta-link:hover {
+    background: rgba(139, 92, 246, 0.24);
+    color: #FFFFFF;
+    transform: translateX(2px);
+}
+
+/* ── 2-Column Menu Card Architecture ─────────────────────── */
+.menu-card-2col {
+    background: #111726;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.menu-card-2col:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 16px rgba(139, 92, 246, 0.15);
+}
+
+.menu-card-2col:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* 1:1 Square Image Container */
+.menu-card-img-square {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    overflow: hidden;
+    background: #161E30;
+}
+
+.menu-card-img-square img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.menu-card-2col:hover .menu-card-img-square img {
+    transform: scale(1.05);
+}
+
+/* Interactive Favorite/Heart Icon Button */
+.btn-card-favorite {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    width: 34px;
+    height: 34px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #FFFFFF;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 0;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-card-favorite:hover {
+    transform: scale(1.18);
+    background: rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-card-favorite:active {
+    transform: scale(0.9);
+}
+
+.btn-card-favorite.is-favorite {
+    color: #F43F5E !important;
+    background: rgba(244, 63, 94, 0.2) !important;
+    border-color: rgba(244, 63, 94, 0.5) !important;
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.4) !important;
+}
+
+/* Card Body & Footer Info */
+.menu-card-body {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+}
+
+.menu-card-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.menu-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: auto;
+}
+
+.menu-card-price {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--honey-light);
+    line-height: 1;
+}
+
+/* Gold Star Rating Badge */
+.star-rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #FCD34D;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.02em;
+}
+
+.star-rating-badge .star-icon {
+    font-size: 0.76rem;
+    color: #F59E0B;
+}
+
+.btn-card-quick-add {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber-cta-start), var(--amber-cta-mid));
+    color: #020617;
+    border: none;
+    font-size: 1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    transition: transform 0.15s ease, filter 0.15s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.btn-card-quick-add:hover {
+    transform: scale(1.12);
+    filter: brightness(1.1);
+}
+
+.btn-card-quick-add:active {
+    transform: scale(0.92);
+}
+
+/* Sleek Compact Add Button */
+.btn-card-add {
+    background-color: rgba(245, 158, 11, 0.10) !important;
+    color: #FBBF24 !important;
+    border: 1px solid rgba(245, 158, 11, 0.30) !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    padding: 0.375rem 0.75rem !important;
+    border-radius: 0.5rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    cursor: pointer !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, color 0.15s ease !important;
+    text-decoration: none !important;
+    user-select: none !important;
+}
+
+.btn-card-add:hover {
+    background-color: rgba(245, 158, 11, 0.20) !important;
+    border-color: rgba(245, 158, 11, 0.50) !important;
+    color: #FDE68A !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-card-add:active {
+    transform: scale(0.95) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POLISHED COMMERCIAL D2C "+ ADD" & INLINE STEPPER COMPONENT
+   ═══════════════════════════════════════════════════════════════ */
+
+.card-action-slot {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+}
+
+/* 1. Default State: Sleek tactile brand-tinted pill button */
+.card-btn-add {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 14px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    background-color: rgba(245, 158, 11, 0.10) !important;
+    color: #FCD34D !important;
+    border: 1px solid rgba(245, 158, 11, 0.25) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20) !important;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.card-btn-add:hover {
+    background-color: rgba(245, 158, 11, 0.20) !important;
+    border-color: rgba(245, 158, 11, 0.45) !important;
+    color: #FEF08A !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.18) !important;
+}
+
+.card-btn-add:active {
+    transform: scale(0.95) !important;
+    background-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+.card-btn-add svg {
+    flex-shrink: 0 !important;
+    transition: transform 150ms ease !important;
+}
+
+.card-btn-add:hover svg {
+    transform: rotate(90deg) !important;
+}
+
+/* 2. Stepper State: Dark pill container with tactile minus/plus */
+.card-btn-stepper {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 3px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background-color: #262626 !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+    user-select: none !important;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    animation: stepperScaleIn 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes stepperScaleIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.card-stepper-btn {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    border: none !important;
+    background: transparent !important;
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #D4D4D4 !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: background-color 120ms ease, color 120ms ease, transform 120ms ease !important;
+}
+
+.card-stepper-btn:hover {
+    background-color: rgba(255, 255, 255, 0.10) !important;
+    color: #FFFFFF !important;
+}
+
+.card-stepper-btn.plus {
+    color: #FCD34D !important;
+}
+
+.card-stepper-btn.plus:hover {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    color: #FEF08A !important;
+}
+
+.card-stepper-btn:active {
+    transform: scale(0.88) !important;
+}
+
+.card-stepper-count {
+    min-width: 20px !important;
+    padding: 0 4px !important;
+    text-align: center !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    font-variant-numeric: tabular-nums !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    transition: transform 120ms ease, color 120ms ease !important;
+}
+
+.card-stepper-count.bump {
+    animation: countBump 180ms ease !important;
+}
+
+@keyframes countBump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.22); color: #FCD34D; }
+    100% { transform: scale(1); color: #FFFFFF; }
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════
+   13. 3D STACKED-CARD CURATIONS & HERO PORTAL ENTRY
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Hero Interactive Portal Entry ────────────────────────── */
+.hero-portal-trigger {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: var(--radius-2xl);
+    position: relative;
+    overflow: hidden;
+    transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+}
+
+.hero-portal-trigger:hover {
+    transform: scale(1.01);
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 28px rgba(245, 158, 11, 0.2) !important;
+}
+
+.hero-portal-trigger:active {
+    transform: scale(0.99);
+}
+
+/* Ambient shimmer glow on the portal entry */
+.hero-portal-trigger::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 65%);
+    pointer-events: none;
+    animation: portalPulseGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes portalPulseGlow {
+    0% { transform: scale(0.9) translate(-5%, -5%); opacity: 0.4; }
+    100% { transform: scale(1.1) translate(5%, 5%); opacity: 0.85; }
+}
+
+.hero-curations-pill {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    background: rgba(255, 255, 255, 0.10) !important;
+    color: #E2E8F0 !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    padding: 6px 14px !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+    transition: all 0.2s ease !important;
+}
+
+.hero-portal-trigger:hover .hero-curations-pill {
+    background: rgba(245, 158, 11, 0.22) !important;
+    border-color: rgba(245, 158, 11, 0.45) !important;
+    color: #FFFFFF !important;
+    transform: translateX(3px);
+}
+
+/* ── 3D Stacked Deck Carousel Page ────────────────────────── */
+.curations-viewport {
+    position: relative;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding-bottom: 110px;
+}
+
+/* Dynamic Ambient Blurred Radial Background Glow */
+.curation-ambient-glow {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;
+    height: 480px;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+    transition: background 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+    will-change: background;
+}
+
+/* 3D Perspective Stage */
+.deck-container-3d {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    height: 490px;
+    perspective: 1200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.curation-deck-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 1.75rem;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    background: #0D121F;
+    cursor: grab;
+    will-change: transform, opacity;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, filter 0.45s ease;
+}
+
+.curation-deck-card:active {
+    cursor: grabbing;
+}
+
+.curation-card-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    pointer-events: none;
+    transition: transform 0.6s ease;
+}
+
+.curation-card-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.94) 0%, rgba(0, 0, 0, 0.6) 42%, rgba(0, 0, 0, 0.15) 75%, transparent 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.curation-card-content {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem 1.4rem;
+    color: #FFFFFF;
+}
+
+.curation-top-header {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.curation-macro-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.curation-macro-badge {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    padding: 3px 10px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #F1F5F9;
+}
+
+.curation-cta-pill {
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    background: rgba(255, 255, 255, 0.20) !important;
+    color: #FFFFFF !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    padding: 10px 18px !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+    width: 100% !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.curation-cta-pill:hover {
+    background: rgba(255, 255, 255, 0.35) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+.curation-cta-pill:active {
+    transform: scale(0.97);
+}
+
+/* Card Stack Controls */
+.deck-controls-bar {
+    position: relative;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.deck-control-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.deck-control-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: scale(1.08);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.deck-control-btn:active {
+    transform: scale(0.92);
+}
+
+.deck-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.deck-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.25);
+    transition: all 0.3s ease;
+}
+
+.deck-dot.active {
+    width: 20px;
+    background: #FFFFFF;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   14. EDIT PROFILE TRIGGER & FROSTED MODAL COMPONENT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Edit Profile Trigger Button */
+.btn-edit-trigger {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    color: #A3A3A3 !important;
+    border-radius: 0.5rem !important;
+    padding: 0.375rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease !important;
+}
+
+.btn-edit-trigger:hover {
+    background: rgba(255, 255, 255, 0.10) !important;
+    color: #FFFFFF !important;
+    border-color: rgba(255, 255, 255, 0.20) !important;
+}
+
+.btn-edit-trigger:active {
+    transform: scale(0.90) !important;
+}
+
+/* Modal Overlay Backdrop */
+.profile-modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1000 !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.profile-modal-backdrop.open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Frosted Modal Card */
+.profile-modal-card {
+    background: rgba(10, 10, 10, 0.82) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-radius: 1.5rem !important;
+    padding: 1.5rem !important;
+    max-width: 28rem !important;
+    width: 100% !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75) !important;
+    transform: scale(0.94) translateY(12px) !important;
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
+}
+
+.profile-modal-backdrop.open .profile-modal-card {
+    transform: scale(1) translateY(0) !important;
+}
+
+/* Modal Form Inputs */
+.profile-input-field {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: rgba(23, 23, 23, 0.85) !important;
+    border: 1px solid #262626 !important;
+    border-radius: 0.75rem !important;
+    padding: 0.625rem 0.875rem !important;
+    color: #FFFFFF !important;
+    font-size: 0.875rem !important;
+    outline: none !important;
+    transition: border-color 150ms ease, box-shadow 150ms ease !important;
+}
+
+.profile-input-field:focus {
+    border-color: rgba(16, 185, 129, 0.50) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.20) !important;
+}
+
+/* Modal Action Buttons */
+.btn-save-profile {
+    background: linear-gradient(to right, #10B981, #14B8A6) !important;
+    color: #0A0A0A !important;
+    font-weight: 700 !important;
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+    cursor: pointer !important;
+    border: none !important;
+    outline: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    font-size: 0.875rem !important;
+    transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease !important;
+}
+
+.btn-save-profile:hover {
+    filter: brightness(1.06) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
+}
+
+.btn-save-profile:active {
+    transform: scale(0.95) !important;
+}
+
+.btn-cancel-profile {
+    appearance: none !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.75rem !important;
+    color: #A3A3A3 !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    cursor: pointer !important;
+    transition: color 150ms ease !important;
+}
+
+.btn-cancel-profile:hover {
+    color: #FFFFFF !important;
+}
+
+

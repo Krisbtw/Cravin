@@ -17,7 +17,7 @@
     <meta name="apple-mobile-web-app-title" content="Cravin">
 
     <title>{% block title %}Cravin{% endblock %} — Zero Sugar, Full Flavor</title>
-    <link rel="stylesheet" href="/static/css/design-system.css?v=5">
+    <link rel="stylesheet" href="/static/css/design-system.css?v=9">
     {% block extra_css %}{% endblock %}
     <style>
         /* Page transition */
@@ -209,7 +209,7 @@
             },
             add(item) {
                 const cart = this.get();
-                const existing = cart.find(i => i.dessert_id === item.dessert_id && !i.customization);
+                const existing = cart.find(i => String(i.dessert_id) === String(item.dessert_id) && !i.customization);
                 if (existing && !item.customization) {
                     existing.quantity += item.quantity || 1;
                 } else {
@@ -217,19 +217,49 @@
                 }
                 localStorage.setItem(this.KEY, JSON.stringify(cart));
                 this.updateBadge();
+                if (typeof updateCardSteppers === 'function') updateCardSteppers();
             },
             remove(index) {
                 const cart = this.get();
                 cart.splice(index, 1);
                 localStorage.setItem(this.KEY, JSON.stringify(cart));
                 this.updateBadge();
+                if (typeof updateCardSteppers === 'function') updateCardSteppers();
             },
             clear() {
                 localStorage.removeItem(this.KEY);
                 this.updateBadge();
+                if (typeof updateCardSteppers === 'function') updateCardSteppers();
             },
             count() {
                 return this.get().reduce((sum, i) => sum + i.quantity, 0);
+            },
+            getQuantity(dessertId) {
+                const cart = this.get();
+                const item = cart.find(i => String(i.dessert_id) === String(dessertId) && !i.customization);
+                return item ? item.quantity : 0;
+            },
+            setQuantity(dessertId, delta, dessertData) {
+                let cart = this.get();
+                let item = cart.find(i => String(i.dessert_id) === String(dessertId) && !i.customization);
+                if (item) {
+                    item.quantity += delta;
+                    if (item.quantity <= 0) {
+                        cart = cart.filter(i => !(String(i.dessert_id) === String(dessertId) && !i.customization));
+                    }
+                } else if (delta > 0 && dessertData) {
+                    cart.push({
+                        dessert_id: String(dessertId),
+                        name: dessertData.name,
+                        price: Number(dessertData.price),
+                        calories: Number(dessertData.calories || 0),
+                        quantity: delta
+                    });
+                }
+                localStorage.setItem(this.KEY, JSON.stringify(cart));
+                this.updateBadge();
+                if (typeof updateCardSteppers === 'function') updateCardSteppers();
+                return this.getQuantity(dessertId);
             },
             updateBadge() {
                 const badges = document.querySelectorAll('.cart-badge');

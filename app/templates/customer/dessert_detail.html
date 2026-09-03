@@ -7,8 +7,8 @@
     <div class="top-bar">
         <a href="/app/" class="btn btn-ghost btn-sm" style="padding: 4px 8px;">← Back</a>
         <div class="flex items-center gap-2">
-            <span class="tag tag-{{ dessert.tag }}">
-                {% if dessert.tag == 'light' %}🌿 Light{% elif dessert.tag == 'heavy' %}🍫 Heavy{% else %}⚖️ Balanced{% endif %}
+            <span class="food-img-tag bg-black/50 backdrop-blur-md border border-white/10 text-neutral-300 text-[11px] font-medium px-2.5 py-1 rounded-full" style="position: static !important;">
+                {% if dessert.tag == 'light' %}Light{% elif dessert.tag == 'heavy' %}Heavy{% else %}Balanced{% endif %}
             </span>
             <a href="/app/cart" class="btn btn-outline btn-sm" style="position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;">
                 <span>🛒 Cart</span>
@@ -30,8 +30,8 @@
         
         <!-- Bottom left badge -->
         <div style="position: absolute; bottom: 16px; left: 16px; z-index: 2;">
-            <span class="tag tag-{{ dessert.tag }}" style="backdrop-filter: blur(12px); font-size: 0.75rem; font-weight: 700; border-width: 1.5px;">
-                {% if dessert.tag == 'light' %}🌿 Light Category{% elif dessert.tag == 'heavy' %}🍫 Heavy Indulgence{% else %}⚖️ Balanced Energy{% endif %}
+            <span class="food-img-tag bg-black/50 backdrop-blur-md border border-white/10 text-neutral-300 text-[11px] font-medium px-2.5 py-1 rounded-full" style="position: static !important;">
+                {% if dessert.tag == 'light' %}Light Category{% elif dessert.tag == 'heavy' %}Heavy Indulgence{% else %}Balanced Energy{% endif %}
             </span>
         </div>
     </div>
@@ -187,7 +187,7 @@ function addToCart() {
         calories: Number('{{ dessert.calories }}'),
         quantity: 1,
     });
-    showToast('✨ Added <strong>{{ dessert.name }}</strong> to your cart! <a href="/app/cart" style="color: var(--honey-light); font-weight: 700; text-decoration: underline; margin-left: 8px;">View Cart 🛒 →</a>');
+    showToast('Added <strong>{{ dessert.name }}</strong> to your cart! <a href="/app/cart" style="color: var(--honey-light); font-weight: 700; text-decoration: underline; margin-left: 8px;">View Cart 🛒 →</a>');
 }
 </script>
 {% endblock %}

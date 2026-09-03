@@ -1,0 +1,779 @@
+{% extends "base.html" %}
+{% block title %}Cravin Curations — 3D Discovery Deck{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Desktop Canvas Backdrop & Ambient Lighting ── */
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #05080F !important;
+        overflow-x: hidden !important;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    /* Outer Canvas: Centers the phone-sized app view on desktop */
+    .curations-desktop-canvas {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+        background: radial-gradient(circle at 50% 25%, #0B1120 0%, #05080F 100%);
+    }
+
+    /* ── Phone Frame: Strictly Locked to Phone Dimensions (max-width: 420px) ── */
+    .curations-phone-frame {
+        width: 100% !important;
+        max-width: 420px !important;
+        min-height: 100vh !important;
+        margin: 0 auto !important;
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        padding: 14px 16px 96px 16px !important;
+        box-sizing: border-box !important;
+        background: #080C14 !important;
+        overflow: hidden !important;
+        border-left: 1px solid rgba(255, 255, 255, 0.06);
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 0 70px rgba(0, 0, 0, 0.95);
+    }
+
+    /* Dynamic Ambient Blurred Radial Glow (Halo behind phone deck) */
+    .curation-ambient-glow {
+        position: fixed !important;
+        top: 36% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 420px !important;
+        height: 420px !important;
+        border-radius: 50% !important;
+        filter: blur(80px) !important;
+        opacity: 0.55 !important;
+        pointer-events: none !important;
+        z-index: 0 !important;
+        transition: background 0.65s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        will-change: background;
+    }
+
+    /* Top Brand Header Bar */
+    .curations-header {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 4px 0 10px 0 !important;
+        position: relative !important;
+        z-index: 50 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .btn-curation-back {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #E2E8F0 !important;
+        font-size: 0.76rem !important;
+        font-weight: 700 !important;
+        padding: 6px 13px !important;
+        border-radius: 9999px !important;
+        text-decoration: none !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .btn-curation-back:hover {
+        background: rgba(255, 255, 255, 0.16) !important;
+        color: #FFFFFF !important;
+        transform: translateX(-2px) !important;
+    }
+
+    .curations-title-wrap {
+        text-align: center !important;
+    }
+
+    .curations-title-brand {
+        font-size: 0.65rem !important;
+        font-weight: 800 !important;
+        color: var(--honey-light) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.12em !important;
+    }
+
+    .curations-title-headline {
+        font-size: 1.02rem !important;
+        font-weight: 800 !important;
+        color: #FFFFFF !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
+    }
+
+    /* 3D Stack Stage Container */
+    .deck-stage-wrapper {
+        position: relative !important;
+        width: 100% !important;
+        max-width: 360px !important;
+        margin: 0 auto !important;
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 20 !important;
+        padding: 4px 0 10px 0 !important;
+    }
+
+    .curations-instructions-hint {
+        font-size: 0.70rem !important;
+        font-weight: 600 !important;
+        color: #94A3B8 !important;
+        margin-bottom: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        letter-spacing: 0.02em !important;
+    }
+
+    /* 3D Perspective Stage: Phone Sized 335px wide x 470px tall */
+    .deck-container-3d {
+        position: relative !important;
+        width: 100% !important;
+        max-width: 335px !important;
+        height: 470px !important;
+        margin: 0 auto !important;
+        perspective: 1200px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 10 !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        touch-action: none !important;
+    }
+
+    /* Individual Deck Card */
+    .curation-deck-card {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 1.75rem !important;
+        overflow: hidden !important;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12) inset !important;
+        background: #0D121F !important;
+        cursor: grab !important;
+        will-change: transform, opacity !important;
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, filter 0.45s ease !important;
+    }
+
+    .curation-deck-card:active {
+        cursor: grabbing !important;
+    }
+
+    /* Background image: strictly fills the card with object-fit: cover */
+    .curation-card-bg-img {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        z-index: 1 !important;
+        pointer-events: none !important;
+        border-radius: 1.75rem !important;
+    }
+
+    /* Vignette Scrim Gradient */
+    .curation-card-scrim {
+        position: absolute !important;
+        inset: 0 !important;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.65) 45%, rgba(0, 0, 0, 0.2) 75%, transparent 100%) !important;
+        z-index: 2 !important;
+        pointer-events: none !important;
+        border-radius: 1.75rem !important;
+    }
+
+    /* Card Content Layer */
+    .curation-card-content {
+        position: relative !important;
+        z-index: 3 !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        padding: 1.3rem 1.25rem !important;
+        box-sizing: border-box !important;
+        color: #FFFFFF !important;
+    }
+
+    .curation-top-header {
+        font-size: 0.66rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.08em !important;
+        text-transform: uppercase !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    .curation-macro-pills {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+        margin: 8px 0 !important;
+    }
+
+    .curation-macro-badge {
+        background: rgba(0, 0, 0, 0.55) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        border-radius: 9999px !important;
+        padding: 3px 9px !important;
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        color: #F1F5F9 !important;
+    }
+
+    /* Bottom Frosted CTA Button */
+    .curation-cta-pill {
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        background: rgba(255, 255, 255, 0.20) !important;
+        color: #FFFFFF !important;
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        padding: 10px 16px !important;
+        border-radius: 9999px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        text-decoration: none !important;
+        width: 100% !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+    }
+
+    .curation-cta-pill:hover {
+        background: rgba(255, 255, 255, 0.35) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .curation-cta-pill:active {
+        transform: scale(0.97) !important;
+    }
+
+    /* Deck Controls & Dots Bar */
+    .deck-controls-bar {
+        position: relative !important;
+        z-index: 15 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 16px !important;
+        margin-top: 14px !important;
+    }
+
+    .deck-control-btn {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #FFFFFF !important;
+        font-size: 1.1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .deck-control-btn:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: scale(1.08) !important;
+        border-color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .deck-control-btn:active {
+        transform: scale(0.92) !important;
+    }
+
+    .deck-dots {
+        display: flex !important;
+        gap: 6px !important;
+    }
+
+    .deck-dot {
+        width: 6px !important;
+        height: 6px !important;
+        border-radius: 9999px !important;
+        background: rgba(255, 255, 255, 0.25) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .deck-dot.active {
+        width: 18px !important;
+        background: #FFFFFF !important;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* Swipe Indicator Badges */
+    .swipe-badge-pill {
+        position: absolute !important;
+        top: 20px !important;
+        padding: 5px 14px !important;
+        border-radius: 9999px !important;
+        font-weight: 800 !important;
+        font-size: 0.74rem !important;
+        letter-spacing: 0.05em !important;
+        text-transform: uppercase !important;
+        opacity: 0 !important;
+        transition: opacity 0.15s ease !important;
+        z-index: 40 !important;
+        pointer-events: none !important;
+    }
+
+    .swipe-badge-like {
+        right: 18px !important;
+        background: rgba(16, 185, 129, 0.3) !important;
+        border: 1.5px solid #10B981 !important;
+        color: #34D399 !important;
+        transform: rotate(12deg) !important;
+    }
+
+    .swipe-badge-pass {
+        left: 18px !important;
+        background: rgba(239, 68, 68, 0.3) !important;
+        border: 1.5px solid #EF4444 !important;
+        color: #F87171 !important;
+        transform: rotate(-12deg) !important;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Outer Desktop Canvas to Center the Phone Mockup on Wide Screens -->
+<div class="curations-desktop-canvas">
+    <!-- Dynamic Ambient Blurred Background Glow (Halo behind the Phone Frame) -->
+    <div id="ambient-glow" class="curation-ambient-glow" style="background: radial-gradient(circle, {{ curations[0].glow_color }} 0%, rgba(8, 12, 20, 0) 70%);"></div>
+
+    <!-- Phone-Sized App Container (420px max width) -->
+    <div class="curations-phone-frame">
+        <!-- Top Header: Sleek brand bar displaying "Pick Your Crave" & "← Menu" -->
+        <header class="curations-header">
+            <a href="/app/" class="btn-curation-back" id="btn-back-menu">
+                <span>←</span> <span>Menu</span>
+            </a>
+
+            <div class="curations-title-wrap">
+                <div class="curations-title-brand">Cravin Studio</div>
+                <h2 class="curations-title-headline">Pick Your Crave</h2>
+            </div>
+
+            <a href="/app/" class="search-back-btn" title="Close Curations Deck" style="width: 32px; height: 32px; min-height: 32px; font-size: 0.95rem;">
+                ✕
+            </a>
+        </header>
+
+        <!-- 3D Stack Stage (Strictly Phone Sized) -->
+        <main class="deck-stage-wrapper">
+            <div class="curations-instructions-hint">
+                <span>👈</span> <span>Swipe cards to discover collections</span> <span>👉</span>
+            </div>
+
+            <!-- 3D Stacked Deck Container (335px x 470px) -->
+            <div class="deck-container-3d" id="deck-container">
+                {% for item in curations %}
+                <div class="curation-deck-card" 
+                     id="card-{{ loop.index0 }}"
+                     data-index="{{ loop.index0 }}"
+                     data-theme="{{ item.theme_color }}"
+                     data-glow="{{ item.glow_color }}"
+                     data-dessert-id="{{ item.dessert_id }}"
+                     data-name="{{ item.dish_name|replace('\'', '\\\'') }}"
+                     data-price="{{ item.price }}"
+                     data-calories="{{ item.calories }}">
+                     
+                    <!-- High-Resolution Authentic Food Photography -->
+                    <img src="{{ item.image_url }}" alt="{{ item.dish_name }}" class="curation-card-bg-img" loading="eager">
+
+                    <!-- Scrim Gradient (clean bottom-to-top vignette) -->
+                    <div class="curation-card-scrim"></div>
+
+                    <!-- Swipe feedback badges -->
+                    <div class="swipe-badge-pill swipe-badge-like">SWEET CRAVE 🍰</div>
+                    <div class="swipe-badge-pill swipe-badge-pass">NEXT TREAT ⏭️</div>
+
+                    <!-- Card Content & Architecture -->
+                    <div class="curation-card-content">
+                        <!-- Top Category Header & Badge -->
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="curation-top-header" style="color: {{ item.theme_color }};">
+                                    {{ item.title }}
+                                </span>
+                                <span class="badge" style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.2); color: #FFFFFF; font-size: 0.62rem; font-weight: 800;">
+                                    {{ item.badge }}
+                                </span>
+                            </div>
+                            <p style="font-size: 0.72rem; color: #CBD5E1; margin: 3px 0 0 0; font-weight: 500;">
+                                {{ item.subtitle }}
+                            </p>
+                        </div>
+
+                        <!-- Bottom Story, Macros & Interactive Frosted CTA Pill -->
+                        <div>
+                            <!-- Dish Name & Price in Bold -->
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF; line-height: 1.2; margin: 0 0 4px 0; text-shadow: 0 2px 8px rgba(0,0,0,0.7);">
+                                {{ item.dish_name }}
+                            </h3>
+
+                            <p style="font-size: 0.74rem; color: #E2E8F0; line-height: 1.35; margin: 0 0 7px 0; opacity: 0.92;">
+                                {{ item.description }}
+                            </p>
+
+                            <!-- Macro Badges -->
+                            <div class="curation-macro-pills">
+                                <span class="curation-macro-badge">🔥 {{ item.calories }} kcal</span>
+                                <span class="curation-macro-badge" style="color: #6EE7B7; border-color: rgba(16, 185, 129, 0.4);">💪 {{ item.protein }} protein</span>
+                                <span class="curation-macro-badge" style="color: #FDE68A;">⚖️ {{ item.carbs }}</span>
+                                <span class="curation-macro-badge" style="color: #FFFFFF; font-weight: 800;">₹{{ item.price }}</span>
+                            </div>
+
+                            <!-- Frosted Glass Bottom CTA Pill -->
+                            <button type="button" 
+                                    class="curation-cta-pill backdrop-blur-md bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-4 py-2.5 rounded-full border border-white/20 flex items-center gap-2 transition"
+                                    onclick="event.stopPropagation(); orderCuratedItem('{{ item.dessert_id }}', '{{ item.dish_name|replace('\'', '\\\'') }}', {{ item.price }}, {{ item.calories }});">
+                                <span>Explore Collection (Tap to Order)</span>
+                                <span style="font-size: 0.9rem; color: {{ item.theme_color }};">→</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Deck Controls & Pagination Bar -->
+            <div class="deck-controls-bar">
+                <button type="button" class="deck-control-btn" id="btn-prev" onclick="prevCard()" title="Previous Collection" aria-label="Previous">
+                    ‹
+                </button>
+
+                <div class="deck-dots" id="deck-dots">
+                    {% for item in curations %}
+                    <div class="deck-dot {% if loop.first %}active{% endif %}" data-dot-index="{{ loop.index0 }}"></div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="deck-control-btn" id="btn-next" onclick="nextCard()" title="Next Collection" aria-label="Next">
+                    ›
+                </button>
+            </div>
+        </main>
+
+        <!-- Floating Pill Bottom Navigation (strictly inside phone view) -->
+        <nav class="bottom-nav">
+            <a href="/app/">
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="/app/curations" class="active">
+                <span class="nav-icon">✨</span>
+                <span>Curations</span>
+            </a>
+            <a href="/app/orders">
+                <span class="nav-icon">📦</span>
+                <span>Orders</span>
+            </a>
+            <a href="/app/cart" style="position: relative;">
+                <span class="nav-icon">🛒</span>
+                <span>Cart</span>
+                <span class="cart-badge badge badge-jamun" style="position: absolute; top: 2px; right: 4px; display: none; font-size: 0.6rem; min-width: 18px; height: 18px;">0</span>
+            </a>
+            <a href="/app/profile">
+                <span class="nav-icon">👤</span>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* ── 3D Stacked Deck Gestural Physics Controller ── */
+    class DeckCarouselController {
+        constructor() {
+            this.container = document.getElementById('deck-container');
+            this.cards = Array.from(document.querySelectorAll('.curation-deck-card'));
+            this.dots = Array.from(document.querySelectorAll('.deck-dot'));
+            this.ambientGlow = document.getElementById('ambient-glow');
+            this.currentIndex = 0;
+            this.totalCards = this.cards.length;
+
+            // Physics drag tracking
+            this.isDragging = false;
+            this.startX = 0;
+            this.startY = 0;
+            this.currentX = 0;
+            this.currentY = 0;
+            this.activeCard = null;
+
+            this.init();
+        }
+
+        init() {
+            this.updateStackPositions(false);
+            this.attachGestures();
+            this.updateAmbientGlow();
+
+            // Keyboard navigation
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') this.next();
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') this.prev();
+            });
+        }
+
+        updateStackPositions(animate = true) {
+            this.cards.forEach((card, idx) => {
+                let offset = (idx - this.currentIndex + this.totalCards) % this.totalCards;
+
+                card.style.transition = animate 
+                    ? 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, filter 0.45s ease' 
+                    : 'none';
+
+                const likeBadge = card.querySelector('.swipe-badge-like');
+                const passBadge = card.querySelector('.swipe-badge-pass');
+                if (likeBadge) likeBadge.style.opacity = '0';
+                if (passBadge) passBadge.style.opacity = '0';
+
+                if (offset === 0) {
+                    // Active front card: Positioned center stage at full scale
+                    card.style.transform = 'translateX(0px) translateY(0px) scale(1) rotate(0deg)';
+                    card.style.zIndex = '30';
+                    card.style.opacity = '1';
+                    card.style.filter = 'brightness(1)';
+                    card.style.pointerEvents = 'auto';
+                    this.activeCard = card;
+                } else if (offset === 1) {
+                    // Card 2: Stacked slightly offset underneath with descending scale and dimming
+                    card.style.transform = 'translateX(0px) translateY(14px) scale(0.95) rotate(0deg)';
+                    card.style.zIndex = '20';
+                    card.style.opacity = '0.72';
+                    card.style.filter = 'brightness(0.85)';
+                    card.style.pointerEvents = 'none';
+                } else if (offset === 2) {
+                    // Card 3: Stacked slightly offset underneath with descending scale and dimming
+                    card.style.transform = 'translateX(0px) translateY(28px) scale(0.90) rotate(0deg)';
+                    card.style.zIndex = '10';
+                    card.style.opacity = '0.42';
+                    card.style.filter = 'brightness(0.7)';
+                    card.style.pointerEvents = 'none';
+                } else {
+                    // Remaining cards hidden behind
+                    card.style.transform = 'translateX(0px) translateY(38px) scale(0.85) rotate(0deg)';
+                    card.style.zIndex = '5';
+                    card.style.opacity = '0';
+                    card.style.pointerEvents = 'none';
+                }
+            });
+
+            // Update pagination dots
+            this.dots.forEach((dot, idx) => {
+                dot.classList.toggle('active', idx === this.currentIndex);
+            });
+        }
+
+        updateAmbientGlow() {
+            if (!this.activeCard || !this.ambientGlow) return;
+            const glow = this.activeCard.dataset.glow || 'rgba(139, 92, 246, 0.45)';
+            this.ambientGlow.style.background = `radial-gradient(circle, ${glow} 0%, rgba(8, 12, 20, 0) 70%)`;
+        }
+
+        attachGestures() {
+            const container = this.container;
+
+            // Touch events
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    this.startDrag(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!this.isDragging) return;
+                this.moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: false });
+
+            window.addEventListener('touchend', () => {
+                if (this.isDragging) this.endDrag();
+            });
+
+            // Pointer / Mouse events
+            container.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.curation-cta-pill') || e.target.closest('.deck-control-btn')) return;
+                this.startDrag(e.clientX, e.clientY);
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!this.isDragging) return;
+                this.moveDrag(e.clientX, e.clientY);
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (this.isDragging) this.endDrag();
+            });
+        }
+
+        startDrag(clientX, clientY) {
+            if (!this.activeCard) return;
+            this.isDragging = true;
+            this.startX = clientX;
+            this.startY = clientY;
+            this.currentX = clientX;
+            this.currentY = clientY;
+            this.activeCard.style.transition = 'none';
+        }
+
+        moveDrag(clientX, clientY) {
+            this.currentX = clientX;
+            this.currentY = clientY;
+            const deltaX = this.currentX - this.startX;
+            const deltaY = this.currentY - this.startY;
+
+            // Angular rotation tilt: rotate = deltaX * 0.08deg
+            const rotation = deltaX * 0.08;
+            this.activeCard.style.transform = `translateX(${deltaX}px) translateY(${deltaY * 0.4}px) rotate(${rotation}deg) scale(1.02)`;
+
+            // Swipe indicator feedback badges
+            const likeBadge = this.activeCard.querySelector('.swipe-badge-like');
+            const passBadge = this.activeCard.querySelector('.swipe-badge-pass');
+            if (likeBadge && passBadge) {
+                if (deltaX > 25) {
+                    likeBadge.style.opacity = Math.min(1, (deltaX - 25) / 50);
+                    passBadge.style.opacity = '0';
+                } else if (deltaX < -25) {
+                    passBadge.style.opacity = Math.min(1, (-deltaX - 25) / 50);
+                    likeBadge.style.opacity = '0';
+                } else {
+                    likeBadge.style.opacity = '0';
+                    passBadge.style.opacity = '0';
+                }
+            }
+
+            // Sub-cards expand forward proportionally
+            const progress = Math.min(1, Math.abs(deltaX) / 130);
+            const secondCardIndex = (this.currentIndex + 1) % this.totalCards;
+            const secondCard = this.cards[secondCardIndex];
+            if (secondCard) {
+                const subScale = 0.95 + progress * 0.04;
+                const subY = 14 - progress * 14;
+                const subOpacity = 0.72 + progress * 0.25;
+                secondCard.style.transform = `translateX(0px) translateY(${subY}px) scale(${subScale}) rotate(0deg)`;
+                secondCard.style.opacity = subOpacity;
+            }
+        }
+
+        endDrag() {
+            this.isDragging = false;
+            const deltaX = this.currentX - this.startX;
+            const threshold = 70; // px
+
+            if (deltaX > threshold) {
+                this.dismissCard('right');
+            } else if (deltaX < -threshold) {
+                this.dismissCard('left');
+            } else {
+                this.activeCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                this.activeCard.style.transform = 'translateX(0px) translateY(0px) scale(1) rotate(0deg)';
+                const likeBadge = this.activeCard.querySelector('.swipe-badge-like');
+                const passBadge = this.activeCard.querySelector('.swipe-badge-pass');
+                if (likeBadge) likeBadge.style.opacity = '0';
+                if (passBadge) passBadge.style.opacity = '0';
+                this.updateStackPositions(true);
+            }
+        }
+
+        dismissCard(direction) {
+            const card = this.activeCard;
+            if (!card) return;
+
+            const exitX = direction === 'right' ? 420 : -420;
+            const exitRotation = direction === 'right' ? 24 : -24;
+
+            card.style.transition = 'transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease';
+            card.style.transform = `translateX(${exitX}px) translateY(15px) rotate(${exitRotation}deg) scale(0.95)`;
+            card.style.opacity = '0';
+
+            this.currentIndex = (this.currentIndex + 1) % this.totalCards;
+
+            setTimeout(() => {
+                this.updateStackPositions(true);
+                this.updateAmbientGlow();
+            }, 160);
+        }
+
+        next() {
+            this.dismissCard('left');
+        }
+
+        prev() {
+            this.currentIndex = (this.currentIndex - 1 + this.totalCards) % this.totalCards;
+            this.updateStackPositions(true);
+            this.updateAmbientGlow();
+        }
+    }
+
+    let deckController = null;
+    document.addEventListener('DOMContentLoaded', () => {
+        deckController = new DeckCarouselController();
+    });
+
+    function nextCard() {
+        if (deckController) deckController.next();
+    }
+
+    function prevCard() {
+        if (deckController) deckController.prev();
+    }
+
+    /* ── Seamless Order / Detail Hand-Off ── */
+    function orderCuratedItem(dessertId, name, price, calories) {
+        if (!dessertId) {
+            window.location.href = '/app/';
+            return;
+        }
+
+        Cart.add({
+            dessert_id: dessertId,
+            name: name,
+            price: price,
+            calories: calories,
+            quantity: 1,
+        });
+
+        showToast(`Added <strong>${name}</strong> to cart! 🍰`, "success", 2500);
+
+        setTimeout(() => {
+            window.location.href = `/app/dessert/${dessertId}`;
+        }, 350);
+    }
+</script>
+{% endblock %}

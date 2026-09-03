@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160" fill="none">
+  <defs>
+    <!-- Body Gradient -->
+    <radialGradient id="mascotBody" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#C084FC"/>
+      <stop offset="45%" stop-color="#8B5CF6"/>
+      <stop offset="90%" stop-color="#6D28D9"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </radialGradient>
+
+    <!-- Chef Hat Gradient -->
+    <linearGradient id="chefHat" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </linearGradient>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+
+    <!-- Soft Drop Shadows -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Mascot Main Group with Bounce Center -->
+  <g id="mascot-figure" filter="url(#shadow)">
+    <!-- Little Feet / Base Shadow -->
+    <ellipse cx="62" cy="138" rx="14" ry="7" fill="#581C87" opacity="0.9"/>
+    <ellipse cx="98" cy="138" rx="14" ry="7" fill="#581C87" opacity="0.9"/>
+
+    <!-- Round Chubby Body (Jamun / Dessert Berry) -->
+    <circle cx="80" cy="94" r="44" fill="url(#mascotBody)"/>
+
+    <!-- Subtle Body Highlight Glint -->
+    <path d="M 52 64 C 64 54, 88 54, 96 60 C 86 64, 66 68, 52 64 Z" fill="#FFFFFF" opacity="0.25"/>
+
+    <!-- Little Cute Cheerful Arms -->
+    <!-- Left Hand waving -->
+    <path d="M 40 92 C 28 86, 24 98, 36 104 C 40 102, 42 96, 40 92 Z" fill="#7C3AED"/>
+    <!-- Right Hand holding mini golden whisk or giving thumbs up -->
+    <path d="M 120 92 C 132 86, 136 98, 124 104 C 120 102, 118 96, 120 92 Z" fill="#7C3AED"/>
+    <!-- Golden Mini Star Sparkle in right hand -->
+    <polygon points="134,88 136,93 141,94 137,98 138,103 134,100 130,103 131,98 127,94 132,93" fill="url(#goldGlow)" filter="url(#glow)"/>
+
+    <!-- Rosy Blushing Cheeks -->
+    <ellipse cx="56" cy="98" rx="7" ry="4" fill="#F43F5E" opacity="0.55"/>
+    <ellipse cx="104" cy="98" rx="7" ry="4" fill="#F43F5E" opacity="0.55"/>
+
+    <!-- Big Sparkling Expressive Eyes -->
+    <!-- Left Eye -->
+    <ellipse cx="64" cy="88" rx="6.5" ry="8.5" fill="#0F172A"/>
+    <circle cx="62" cy="84.5" r="3" fill="#FFFFFF"/>
+    <circle cx="66" cy="91.5" r="1.5" fill="#FFFFFF"/>
+
+    <!-- Right Eye (Playful Wink or Big Sparkle) -->
+    <ellipse cx="96" cy="88" rx="6.5" ry="8.5" fill="#0F172A"/>
+    <circle cx="94" cy="84.5" r="3" fill="#FFFFFF"/>
+    <circle cx="98" cy="91.5" r="1.5" fill="#FFFFFF"/>
+
+    <!-- Cute Smiling Mouth -->
+    <path d="M 72 99 Q 80 107 88 99" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M 75 101 Q 80 106 85 101 Z" fill="#F43F5E" opacity="0.8"/>
+
+    <!-- Chef's Hat (Baker Toque) tilted with puffiness -->
+    <g transform="rotate(-6, 80, 50)">
+      <!-- Hat Band -->
+      <rect x="62" y="44" width="36" height="11" rx="4" fill="#CBD5E1"/>
+      <rect x="63" y="45" width="34" height="9" rx="3" fill="url(#goldGlow)"/>
+      <text x="80" y="52.5" font-size="6" font-family="sans-serif" font-weight="900" fill="#78350F" text-anchor="middle">CRAVIN</text>
+
+      <!-- Hat Puffs -->
+      <ellipse cx="80" cy="34" rx="23" ry="18" fill="url(#chefHat)"/>
+      <circle cx="66" cy="32" r="15" fill="url(#chefHat)"/>
+      <circle cx="94" cy="32" r="15" fill="url(#chefHat)"/>
+      <circle cx="80" cy="22" r="16" fill="url(#chefHat)"/>
+
+      <!-- Hat shading folds -->
+      <path d="M 72 44 Q 70 30 76 25" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
+      <path d="M 88 44 Q 90 30 84 25" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
+    </g>
+
+    <!-- Sparkles Floating Around Mascot -->
+    <!-- Top Left Star -->
+    <polygon points="34,42 36,47 41,48 37,52 38,57 34,54 30,57 31,52 27,48 32,47" fill="url(#goldGlow)" filter="url(#glow)"/>
+    <!-- Top Right Sparkle -->
+    <circle cx="128" cy="46" r="3" fill="#FDE68A" filter="url(#glow)"/>
+    <circle cx="138" cy="58" r="1.8" fill="#FDE68A"/>
+  </g>
+</svg>
